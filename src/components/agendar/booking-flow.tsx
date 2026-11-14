@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/money";
 import { readableTextOn } from "@/lib/color";
 import { cn } from "@/lib/cn";
 import { ServiceStep } from "./service-step";
+import { CustomerStep } from "./customer-step";
 import { StaffStep } from "./staff-step";
 import { TimeStep } from "./time-step";
 import {
@@ -130,6 +131,26 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
               start={selection.start}
               onChange={(v) => update(v)}
             />
+          ) : null}
+          {step === "dados" && service && selection.start ? (
+            <CustomerStep
+              slug={business.slug}
+              accent={business.accent}
+              service={service}
+              staffId={staffId}
+              staffName={chosenStaff?.name ?? "Sem preferência"}
+              start={selection.start}
+              whenLabel={whenLabel(selection.start, business.timezone) ?? ""}
+              onConflict={() => update({ step: "horario", start: null }, "push")}
+            />
+          ) : null}
+          {step === "dados" && service && !selection.start ? (
+            <p className="text-night-sub">
+              Escolha um horário primeiro.{" "}
+              <button type="button" className="underline" onClick={() => goTo("horario")}>
+                Ver horários
+              </button>
+            </p>
           ) : null}
           {step !== "servico" && !service ? (
             <p className="text-night-sub">

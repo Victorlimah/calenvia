@@ -1,8 +1,8 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { cleanupCustomer, flowReady, goToCustomerStep } from "./helpers";
 
-export async function flowReady(page: Page) {
-  await expect(page.locator("[data-ready]")).toBeAttached();
-}
+const PHONE = "5585966660001";
+test.afterAll(() => cleanupCustomer(PHONE));
 
 test.use({ baseURL: "http://barbearia-do-ze.localhost:3000" });
 
@@ -79,4 +79,35 @@ test("passo 3: faixa de dias, dias fechados desabilitados e grade de horários",
   await expect(tarde.first()).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("contentinfo")).toContainText(" às ");
   await expect(page.getByRole("button", { name: "Continuar" })).toBeEnabled();
+});
+
+test("passo 4 e confirmação: valida, agenda e mostra a tela de confirmado", async ({ page }) => {
+  await goToCustomerStep(page);
+  await page.getByRole("button", { name: "Confirmar agendamento" }).click();
+  await expect(page.getByText("Informe seu nome.")).toBeVisible();
+  await page.getByLabel("Seu nome").fill("Cliente Teste");
+  await page.getByLabel("Seu WhatsApp").fill("8532221111");
+  await page.getByRole("button", { name: "Confirmar agendamento" }).click();
+  await expect(page.getByText(/Confira o número/)).toBeVisible();
+  await page.getByLabel("Seu WhatsApp").fill("85966660001");
+  await expect(page.getByLabel("Seu WhatsApp")).toHaveValue("(85) 9 6666-0001");
+  await page.getByRole("button", { name: "Confirmar agendamento" }).click();
+
+  await expect(page.getByRole("heading", { name: "Agendamento confirmado!" })).toBeVisible();
+  await expect(page.getByText("Corte masculino · 30 min")).toBeVisible();
+  await expect(page.getByLabel("Mensagem de confirmação")).toContainText("Olá, Cliente! Aqui é da");
+
+  const ics = await page.request.get(
+    await page
+      .getByRole("link", { name: "Adicionar ao calendário" })
+      .getAttribute("href")
+      .then((h) => h!),
+  );
+  expect(ics.headers()["content-type"]).toContain("text/calendar");
+  expect(await ics.text()).toContain("SUMMARY:Corte masculino — Barbearia do Zé");
+
+  // Dados lembrados no navegador
+  await goToCustomerStep(page);
+  await expect(page.getByLabel("Seu nome")).toHaveValue("Cliente Teste");
+  await expect(page.getByLabel("Seu WhatsApp")).toHaveValue("(85) 9 6666-0001");
 });

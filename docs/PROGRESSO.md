@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-048
-- Card em andamento: —
-- Próximo card: CAL-049
+- Card em andamento: CAL-049
+- Próximo card: CAL-051
 - Atualizado em: 2026-11-14 02:04
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -63,4 +63,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-—
+Passo 4: nome e WhatsApp com máscara (00) 0 0000-0000, validação (celular), lembrar no navegador (localStorage com try/catch), resumo completo e botão Confirmar agendamento. bookAction no servidor (Zod + createAppointment) e redireciona para /confirmado/{code}.

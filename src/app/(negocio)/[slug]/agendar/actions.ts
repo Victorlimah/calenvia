@@ -4,6 +4,16 @@ import { z } from "zod";
 import { getPublicBusiness, getPublicCatalog } from "@/lib/public/business";
 import { publicAvailability, type PublicAvailability } from "@/lib/public/availability";
 import { isBookingOpen } from "@/lib/plans";
+import { zodFieldErrors } from "@/lib/action-result";
+import {
+  BOOKING_MESSAGES,
+  createAppointment,
+  toBookingError,
+  type BookingErrorCode,
+} from "@/lib/booking";
+import { afterBooking } from "@/lib/booking/after-booking";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { bookingSchema } from "@/lib/validation/booking";
 
 const availabilityInput = z.object({
   slug: z.string().min(3).max(40),
@@ -49,5 +59,40 @@ export async function availabilityAction(
   } catch (e) {
     console.error("availabilityAction", e);
     return { ok: false, error: "Não foi possível carregar os horários. Tente de novo." };
+  }
+}
+
+export type BookResult =
+  | { ok: true; code: string }
+  | { ok: false; error: string; code?: BookingErrorCode; fieldErrors?: Record<string, string> };
+
+export async function bookAction(input: unknown): Promise<BookResult> {
+  const parsed = bookingSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Confira seus dados.", fieldErrors: zodFieldErrors(parsed.error) };
+  }
+  const data = parsed.data;
+  const business = await getPublicBusiness(data.slug);
+  if (!business || !isBookingOpen(business)) {
+    return {
+      ok: false,
+      error: BOOKING_MESSAGES.business_unavailable,
+      code: "business_unavailable",
+    };
+  }
+  try {
+    const appointment = await createAppointment(createSupabaseAdminClient(), {
+      business,
+      serviceId: data.serviceId,
+      staffId: data.staffId,
+      start: new Date(data.start),
+      customer: { name: data.name, whatsapp: data.whatsapp },
+      source: "link",
+    });
+    await afterBooking(business, appointment);
+    return { ok: true, code: appointment.manage_code };
+  } catch (e) {
+    const err = toBookingError(e);
+    return { ok: false, error: err.message, code: err.code };
   }
 }
