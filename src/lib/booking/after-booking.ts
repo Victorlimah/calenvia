@@ -4,6 +4,7 @@ import type { Tables } from "@/lib/supabase/types";
 import { sendWhatsApp, type SendBusiness, type SendResult } from "@/lib/whatsapp/send";
 import type { TemplateKind } from "@/lib/whatsapp/templates";
 import { transportFromEnv } from "@/lib/whatsapp/transport";
+import { reportError } from "@/lib/monitoring";
 
 type Appointment = Pick<Tables<"appointments">, "id">;
 
@@ -28,7 +29,10 @@ async function notify(
     }
     return result;
   } catch (e) {
-    console.error(`[whatsapp] erro inesperado no envio de ${type}`, e);
+    await reportError(e, {
+      source: "server",
+      extra: { step: `whatsapp:${type}`, appointmentId: appointment.id },
+    });
     return null;
   }
 }

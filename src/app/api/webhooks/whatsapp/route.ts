@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { applyOptKeywords, parseIncomingMessages } from "@/lib/whatsapp/opt-out";
+import { reportError } from "@/lib/monitoring";
 import {
   applyStatusUpdates,
   parseStatusUpdates,
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(summary);
   } catch (e) {
     // 500 faz a Meta reenviar o evento mais tarde.
-    console.error("[whatsapp:webhook] falha ao aplicar status", e);
+    await reportError(e, { source: "webhook", path: "/api/webhooks/whatsapp" });
     return NextResponse.json({ error: "Falha ao processar." }, { status: 500 });
   }
 }
