@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-052
-- Card em andamento: CAL-036
-- Próximo card: CAL-060
-- Atualizado em: 2026-11-14 06:49
+- Último card concluído: CAL-063
+- Card em andamento: CAL-053
+- Próximo card: CAL-029
+- Atualizado em: 2026-11-14 07:02
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -55,6 +55,10 @@
 | CAL-012 | Concluído (texto a revisar) | 9431410 | /termos e /privacidade com rascunho em linguagem simples fiel ao produto; contatos em src/lib/company.ts | localhost:3000/termos e /privacidade; npm run test:e2e (site.spec.ts) |
 | CAL-040 | Concluído | 211bdb8 | src/lib/booking/manage-policy.ts: customerManagePolicy (prazo cancel_notice_min, já configurável em Ajustes › Regras; só Pro/Pro+; só confirmados e futuros) | npm test (manage-policy.test.ts) |
 | CAL-052 | Concluído | 81dc98c | /{slug}/gerenciar/{code}: resumo + prazo; remarcar com o mesmo profissional (TimeStep reaproveitado; horário atual conta como livre via manageCode → excludeAppointmentId); cancelar com confirmação; actions revalidam tudo (policy, motor, constraint); fora do prazo/Básico → WhatsApp do negócio; cancelado → Agendar de novo | npm run test:e2e (gerenciar.spec.ts) |
+| CAL-036 | Concluído | 4e584d0 | /ajustes/profissionais/[id]/horario: horário do negócio ou próprio (sem intervalos; almoço do negócio vale para todos); save_staff_hours (migration 20261114000700, security invoker + RLS); selo 'Horário próprio' | npm run test:e2e (staff-hours.spec.ts); npm run test:db (rls.test.ts) |
+| CAL-060 | Concluído | 40eb991 | Realtime: migration 20261114000800 publica appointments e time_blocks; RealtimeRefresh (canal autenticado com o token do dono, filtro por negócio, debounce, refresh ao voltar para a aba) na agenda e no detalhe | npm run test:e2e (realtime.spec.ts) |
+| CAL-061 | Concluído (no CAL-055) | — | Resumo do dia já existia na agenda (agendamentos, livres, previsto) com testes | npm test (agenda/timeline.test.ts) |
+| CAL-063 | Concluído | 7a247c8 | View customer_summaries (security_invoker); /clientes com busca, ordenação (recentes, nome, visitas, gasto, faltas), paginação e selos (Agendado, Falta muito); /clientes/[id] com números, histórico, renomear, opt-out e Novo agendamento (/novo?cliente=) | npm test (customers/summary.test.ts); npm run test:db (rls.test.ts); npm run test:e2e (clientes.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -87,6 +91,7 @@
 - Opt-out sem contexto (cliente manda SAIR sem responder a uma mensagem) vale para todos os negócios daquele número, porque o número que envia é o mesmo da Calenvia. A Calenvia ainda não responde "você não vai mais receber" ao cliente (precisaria de mensagem de texto livre na janela de 24 h; fica para depois).
 - Rodapé de opt-out entrou nos templates v1 (ainda não cadastrados na Meta, então não precisou de v2).
 - Victor autorizou (2026-11-14) pular o Sprint 7 (bloqueado pelo CAL-075) e seguir o backlog até o fim. Cards que dependem do gateway ou de decisão dele ficam registrados em Bloqueios.
+- Realtime: o canal só recebe eventos se for autenticado com o token do dono (setAuth antes de assinar); sem isso o RLS bloqueia em silêncio.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
