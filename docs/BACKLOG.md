@@ -35,7 +35,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 
 ### Sprint 3 — Motor de disponibilidade
 - [x] **CAL-041** · Motor de horários disponíveis · P0 · 3d — Regras da seção 5 do CLAUDE.md. Funções puras em `src/lib/availability`.
-- [ ] **CAL-042** · Opção "Sem preferência" · P0 · 1d — Livre se algum profissional apto estiver livre. Atribui ao que tem menos agendamentos no dia.
+- [x] **CAL-042** · Opção "Sem preferência" · P0 · 1d — Livre se algum profissional apto estiver livre. Atribui ao que tem menos agendamentos no dia.
 - [ ] **CAL-043** · Proteção contra agendamento duplo · P0 · 1,5d — Revalidação no servidor + constraint no banco + mensagem amigável.
 - [ ] **CAL-044** · Testes automatizados do motor · P0 · 1,5d — Serviço que não cabe antes de fechar, almoço, bloqueio, conflito, sem preferência, antecedência, dia fechado, fuso.
 

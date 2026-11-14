@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-041
-- Card em andamento: CAL-042
+- Último card concluído: CAL-042
+- Card em andamento: —
 - Próximo card: CAL-043
-- Atualizado em: 2026-11-14 01:44
+- Atualizado em: 2026-11-14 01:45
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -28,6 +28,7 @@
 | CAL-037 | Concluído | 64a3326 | /ajustes/aparencia: logo, capa, cor de destaque (10 cores + seletor livre, texto do botão com contraste automático), título e subtítulo, galeria de fotos, depoimentos; prévia ao vivo usando o mesmo componente Hero da página pública | npm run test:e2e (ajustes.spec.ts › aparência) |
 | CAL-062 | Concluído | 819c1f5 | /ajustes/link: copiar link, ver página, dica para a bio do Instagram, enviar link pelo WhatsApp | npm run test:e2e (ajustes.spec.ts › link) |
 | CAL-041 | Concluído | beecc18 | src/lib/availability: getDaySlots (candidatos a cada intervalo, serviço inteiro antes de fechar, sem atravessar almoço, conflitos com agendamentos não cancelados e bloqueios, antecedência, max_days_ahead, profissional apto, grupos Manhã/Tarde/Noite), getDaysSummary, findNextAvailableDay, isSlotAvailable; 15 testes | npm test |
+| CAL-042 | Concluído | b40edd7 | Sem preferência: slot livre se algum apto livre (staffIds por slot); pickStaffForSlot escolhe o com menos agendamentos no dia, empate alfabético; 7 testes | npm test |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -54,4 +55,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-pickStaffForSlot(ctx, slot, dayAppointments): entre os livres, menos agendamentos não cancelados no dia (fuso do negócio), empate por nome (pt-BR). Testes.
+—
