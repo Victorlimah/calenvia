@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-032
-- Card em andamento: CAL-031
+- Último card concluído: CAL-031
+- Card em andamento: —
 - Próximo card: CAL-033
-- Atualizado em: 2026-11-14 01:23
+- Atualizado em: 2026-11-14 01:34
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -19,6 +19,7 @@
 | CAL-026 | Concluído | b225ea0 | Telas /entrar, /cadastro (?plano=), /recuperar-senha, /nova-senha, /auth/callback; server actions com Zod e erros em pt-BR; middleware renova a sessão e protege o painel (redireciona com ?next= seguro); Google pronto mas desligado; 3 testes E2E | npm run test:e2e (Supabase local + seed); ou abrir app.localhost:3000 e entrar com ze@calenvia.dev / calenvia123 |
 | CAL-022 | Bloqueado/parcial | — | Preparado (vercel.json, docs/DEPLOY.md); deploy depende do Victor | — |
 | CAL-032 | Concluído | c34f4af | src/lib/slug.ts (slugify, validateSlug com mensagens, sugestões) + checkSlugAvailability (service role, só sim/não); src/lib/phone.ts (normalização 55+DDD, celular, máscara, wa.me) — testes | npm test |
+| CAL-031 | Concluído | 5a81d0f | Onboarding /onboarding → servicos → profissionais (atalho 'Eu mesmo atendo') → horarios (padrão preenchido) → pronto (link para copiar). Editores reutilizáveis de negócio, serviços, profissionais e horários; slug com verificação ao vivo e sugestões; painel exige onboarding concluído. 2 testes E2E | npm run test:e2e; ou criar conta em app.localhost:3000/cadastro |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -42,4 +43,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Onboarding em rotas: /onboarding (negócio) → /onboarding/servicos → /onboarding/profissionais → /onboarding/horarios → /onboarding/pronto. Editores reutilizáveis (serviços, profissionais, horários) para usar depois nos Ajustes. Helper getCurrentBusiness(). Painel manda para /onboarding se não houver negócio ou se onboarding não terminou.
+—
