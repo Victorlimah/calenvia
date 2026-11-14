@@ -91,3 +91,15 @@ test("aparência: prévia ao vivo, cor e capa", async ({ page }) => {
   await page.getByRole("button", { name: "Salvar aparência" }).click();
   await expect(page.getByText("Aparência salva.")).toBeVisible();
 });
+
+test("link da página para copiar", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await loginAsZe(page, "/ajustes/link");
+  await expect(page.getByText("barbearia-do-ze.localhost:3000")).toBeVisible();
+  await page.getByRole("button", { name: "Copiar link" }).click();
+  await expect(page.getByRole("button", { name: "Link copiado!" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Ver minha página" })).toHaveAttribute(
+    "href",
+    "http://barbearia-do-ze.localhost:3000/",
+  );
+});
