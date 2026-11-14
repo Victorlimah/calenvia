@@ -5,6 +5,7 @@ import { sendWhatsApp, type SendBusiness, type SendResult } from "@/lib/whatsapp
 import type { TemplateKind } from "@/lib/whatsapp/templates";
 import { transportFromEnv } from "@/lib/whatsapp/transport";
 import { reportError } from "@/lib/monitoring";
+import { isDemoSlug } from "@/lib/demo";
 
 type Appointment = Pick<Tables<"appointments">, "id">;
 
@@ -19,6 +20,8 @@ async function notify(
   appointment: Appointment,
   type: TemplateKind,
 ): Promise<SendResult | null> {
+  // Demonstração pública (CAL-086): nunca envia mensagens de verdade.
+  if (isDemoSlug(business.slug)) return null;
   try {
     const result = await sendWhatsApp(
       { db: createSupabaseAdminClient(), transport: transportFromEnv() },

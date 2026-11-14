@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LandingHeader } from "@/components/site/landing-header";
 import { PhoneDemo } from "@/components/site/phone-demo";
 import { RevealOnScroll } from "@/components/site/reveal";
-import { appUrl, rootDomain, siteUrl } from "@/lib/hosts";
+import { appUrl, businessUrl, rootDomain, siteUrl } from "@/lib/hosts";
 import { DEFAULT_FAIR_USE_LIMIT, PLANS, type PlanId } from "@/lib/plans";
 import "./landing.css";
 import { VisitBeacon } from "@/components/site/visit-beacon";
@@ -74,6 +74,9 @@ export default function SiteHome() {
                 </a>
                 <a href="#como-funciona" className="btn btn-ghost">
                   Ver como funciona
+                </a>
+                <a href={businessUrl("demo", "/")} className="btn btn-ghost">
+                  Ver uma demonstração
                 </a>
               </div>
               <p className="marquee-label">Funciona para quem trabalha com horário marcado:</p>
