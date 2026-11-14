@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-017
-- Card em andamento: CAL-026
+- Último card concluído: CAL-026
+- Card em andamento: —
 - Próximo card: CAL-022
-- Atualizado em: 2026-11-14 01:17
+- Atualizado em: 2026-11-14 01:21
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -16,6 +16,7 @@
 | CAL-030 | Concluído | 3990308 | supabase/seed.sql: 2 donos com login (ze@calenvia.dev / ana@calenvia.dev, senha calenvia123), Barbearia do Zé (Pro, Fortaleza) e Ana Nails (Básico, SP) com serviços, profissionais, horários, almoço, clientes, agendamentos no próximo dia útil e bloqueio | npx supabase db reset; entrar no painel com ze@calenvia.dev / calenvia123 |
 | CAL-025 | Concluído | c68cb49 | src/lib/hosts.ts (resolveHost, slugs reservados, URLs) + 13 testes; src/middleware.ts com rewrite por host; guardas de host nos layouts | npm run dev e abrir localhost:3000, app.localhost:3000, barbearia-do-ze.localhost:3000 |
 | CAL-017 | Concluído | 5ef4b79 | Tokens da marca no globals.css (Tailwind 4 @theme), componentes em src/components/ui (Button/ButtonLink, Input, Textarea, Select, Field acessível, Card, Alert, Badge, EmptyState/ErrorState, Spinner), Logo, cn(), formatPrice/parsePriceToCents com testes | npm test; ver componentes nas telas do painel |
+| CAL-026 | Concluído | b225ea0 | Telas /entrar, /cadastro (?plano=), /recuperar-senha, /nova-senha, /auth/callback; server actions com Zod e erros em pt-BR; middleware renova a sessão e protege o painel (redireciona com ?next= seguro); Google pronto mas desligado; 3 testes E2E | npm run test:e2e (Supabase local + seed); ou abrir app.localhost:3000 e entrar com ze@calenvia.dev / calenvia123 |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -36,4 +37,4 @@
 - CAL-026: login com Google está pronto no código, mas desligado. Para ligar: criar OAuth Client no Google Cloud (redirect: https://<projeto>.supabase.co/auth/v1/callback) e ativar o provedor Google no painel do Supabase (local: `[auth.external.google] enabled = true` + variáveis SUPABASE_AUTH_EXTERNAL_GOOGLE_*). Em produção, ligar também a confirmação de e-mail e o SMTP no Supabase.
 
 ## Plano do card atual
-Auth no host app: /entrar, /cadastro, /recuperar-senha, /nova-senha, /auth/callback. Server actions com Zod. Middleware renova sessão e protege o painel. Google pelo config.toml com env.
+—
