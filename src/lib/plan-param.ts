@@ -1,4 +1,6 @@
-export type PlanId = "basic" | "pro" | "pro_plus";
+import type { PlanId } from "./plans";
+
+export type { PlanId };
 
 export const PLAN_LABELS: Record<PlanId, string> = {
   basic: "Básico",

@@ -5,6 +5,7 @@ import {
   formatDate,
   formatDayLabel,
   formatDuration,
+  formatHourShort,
   formatLongDate,
   formatTime,
   formatWeekday,
@@ -114,6 +115,10 @@ describe("formatação pt-BR", () => {
     expect(formatWeekday(instant, FOR)).toBe("sábado");
     expect(formatDayLabel(instant, FOR)).toBe("sábado, 14/11");
     expect(formatLongDate(instant, FOR)).toBe("14 de novembro");
+  });
+  it("hora curta", () => {
+    expect(formatHourShort("09:00")).toBe("9h");
+    expect(formatHourShort("13:30:00")).toBe("13h30");
   });
   it("formata duração", () => {
     expect(formatDuration(30)).toBe("30 min");

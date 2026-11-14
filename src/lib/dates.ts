@@ -160,3 +160,11 @@ export function formatDuration(minutes: number): string {
   const m = minutes % 60;
   return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, "0")}`;
 }
+
+/** "09:00" → "9h", "09:30" → "9h30" */
+export function formatHourShort(time: string): string {
+  const minutes = timeToMinutes(time);
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m === 0 ? `${h}h` : `${h}h${String(m).padStart(2, "0")}`;
+}

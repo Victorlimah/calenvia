@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-044
-- Card em andamento: —
-- Próximo card: CAL-045
+- Card em andamento: CAL-045
+- Próximo card: CAL-046
 - Atualizado em: 2026-11-14 01:48
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -50,6 +50,8 @@
 - Tabela extra business_photos (galeria 'fotos do trabalho', até 12 fotos) — não estava na seção 4 do CLAUDE.md, mas a página pública precisa. Imagens no bucket público business-media/{business_id}/{tipo}/; compressão no navegador para WebP.
 - Tabela extra business_testimonials (depoimentos cadastrados pelo dono, até 10) para a seção de depoimentos da página pública.
 - Motor de horários: os intervalos do negócio (almoço) valem para todos os profissionais, mesmo os com horário próprio. Dia com horário mas sem nenhum livre = status 'full' (além de closed/past/too_far/no_staff).
+- src/lib/plans.ts criado já no Sprint 4 (a página pública precisa de canSendAutomaticMessages/canManageByLink). plan_status 'pending' (sem gateway ainda) conta como ativo; 'suspended'/'canceled' fecham a agenda pública.
+- Página pública: 'Dúvidas' geradas automaticamente pelas regras do negócio (antecedência, cancelamento, confirmação conforme o plano). Seções sem conteúdo (fotos, depoimentos) não aparecem. Único link fora do CTA: 'Ver no mapa'.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
@@ -57,4 +59,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-—
+Página pública {slug}: loader server-side (service role, só colunas públicas): negócio + serviços ativos + profissionais ativos + horários + fotos + depoimentos; seções: Hero (CTA), Como funciona (3 passos), Serviços (selo mais pedido), Fotos + Equipe, Depoimentos, Onde fica + horários, Dúvidas (geradas pelas regras), Chamada final; barra fixa no rodapé com 'Agendar meu horário'; fundo escuro e cor de destaque; 404 amigável e página 'indisponível' se suspenso.
