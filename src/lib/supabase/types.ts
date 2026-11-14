@@ -275,6 +275,7 @@ export type Database = {
           logo_url: string | null;
           max_days_ahead: number;
           message_limit_override: number | null;
+          message_texts: NonNullable<Json>;
           min_notice_min: number;
           name: string;
           onboarding_completed_at: string | null;
@@ -302,6 +303,7 @@ export type Database = {
           logo_url?: string | null;
           max_days_ahead?: number;
           message_limit_override?: number | null;
+          message_texts?: NonNullable<Json>;
           min_notice_min?: number;
           name: string;
           onboarding_completed_at?: string | null;
@@ -328,6 +330,7 @@ export type Database = {
           logo_url?: string | null;
           max_days_ahead?: number;
           message_limit_override?: number | null;
+          message_texts?: NonNullable<Json>;
           min_notice_min?: number;
           name?: string;
           onboarding_completed_at?: string | null;

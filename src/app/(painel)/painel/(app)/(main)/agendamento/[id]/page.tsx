@@ -69,15 +69,19 @@ export default async function AgendamentoPage({
   const link = canManageByLink(business)
     ? businessUrl(business.slug, `/gerenciar/${a.manage_code}`)
     : businessUrl(business.slug);
-  const waConfirm = confirmationWaLink(a.customer_whatsapp, {
-    customerName: a.customer_name,
-    businessName: business.name,
-    serviceName: a.services?.name ?? "",
-    staffName: a.staff_members?.name ?? "",
-    start,
-    timezone: tz,
-    link,
-  });
+  const waConfirm = confirmationWaLink(
+    a.customer_whatsapp,
+    {
+      customerName: a.customer_name,
+      businessName: business.name,
+      serviceName: a.services?.name ?? "",
+      staffName: a.staff_members?.name ?? "",
+      start,
+      timezone: tz,
+      link,
+    },
+    business.message_texts,
+  );
   const messages = [...(a.messages ?? [])].sort((x, y) => (x.created_at < y.created_at ? 1 : -1));
   const confirmationSent = messages.some((m) => m.type === "confirmation" && m.status !== "failed");
 

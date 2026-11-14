@@ -44,14 +44,21 @@ export async function goToCustomerStep(
   await expect(page.getByRole("heading", { name: "Seus dados" })).toBeVisible();
 }
 
-export async function loginAsZe(page: Page, next = "/") {
+export async function loginAsZe(page: Page, next = "/", email = "ze@calenvia.dev") {
   await page.goto(`http://app.localhost:3000/entrar?next=${encodeURIComponent(next)}`);
-  await page.getByLabel("E-mail").fill("ze@calenvia.dev");
+  await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Senha").fill("calenvia123");
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await page.waitForURL(
     (u) => u.host === "app.localhost:3000" && !u.pathname.startsWith("/entrar"),
   );
+}
+
+export const ANA_BIZ = "0b000000-0000-4000-8000-000000000002";
+
+/** Dona da Ana Nails (plano Básico). */
+export function loginAsAna(page: Page, next = "/") {
+  return loginAsZe(page, next, "ana@calenvia.dev");
 }
 
 /** Próximo dia (no fuso da barbearia) com agendamentos do seed. */

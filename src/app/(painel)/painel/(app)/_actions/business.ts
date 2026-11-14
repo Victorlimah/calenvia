@@ -11,6 +11,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPgError, PG_UNIQUE_VIOLATION } from "@/lib/supabase/errors";
 import { agendaRulesSchema, businessInfoSchema, weekHoursSchema } from "@/lib/validation/business";
 import { track } from "@/lib/metrics";
+import { validateCustomText } from "@/lib/messages/custom";
+import { z } from "zod";
 
 export async function checkSlugAction(raw: string): Promise<SlugCheck> {
   await requireUser();
@@ -124,4 +126,35 @@ export async function finishOnboardingAction(): Promise<ActionResult> {
   }
   revalidatePath("/painel", "layout");
   return { ok: true };
+}
+
+const messageTextsInput = z.object({
+  confirmation: z.string().max(800).nullable(),
+  reminder: z.string().max(800).nullable(),
+});
+
+/** Textos das mensagens enviadas pelo WhatsApp do dono (CAL-074). null = usar o padrão. */
+export async function saveMessageTextsAction(input: unknown): Promise<ActionResult> {
+  const business = await requireBusiness();
+  const parsed = messageTextsInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Textos inválidos." };
+  const texts: Record<string, string> = {};
+  const fieldErrors: Record<string, string> = {};
+  for (const kind of ["confirmation", "reminder"] as const) {
+    const t = parsed.data[kind]?.trim();
+    if (!t) continue;
+    const err = validateCustomText(t);
+    if (err) fieldErrors[kind] = err;
+    else texts[kind] = t;
+  }
+  if (Object.keys(fieldErrors).length)
+    return { ok: false, error: "Confira os textos destacados.", fieldErrors };
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("businesses")
+    .update({ message_texts: texts })
+    .eq("id", business.id);
+  if (error) return { ok: false, error: "Não foi possível salvar." };
+  revalidatePath("/painel", "layout");
+  return { ok: true, message: "Mensagens salvas." };
 }
