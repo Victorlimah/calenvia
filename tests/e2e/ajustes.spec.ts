@@ -50,3 +50,15 @@ test("navegação inferior leva aos ajustes", async ({ page }) => {
     .click();
   await expect(page.getByRole("heading", { name: "Ajustes" })).toBeVisible();
 });
+
+test("salva as regras da agenda", async ({ page }) => {
+  await loginAsZe(page, "/ajustes/regras");
+  await page.getByLabel("Intervalo entre horários").selectOption("15");
+  await page.getByRole("button", { name: "Salvar regras" }).click();
+  await expect(page.getByText("Regras salvas.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel("Intervalo entre horários")).toHaveValue("15");
+  await page.getByLabel("Intervalo entre horários").selectOption("30");
+  await page.getByRole("button", { name: "Salvar regras" }).click();
+  await expect(page.getByText("Regras salvas.")).toBeVisible();
+});
