@@ -21,6 +21,9 @@ import { formatPrice } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { QuotaAlert } from "@/components/painel/quota";
 import { RealtimeRefresh } from "@/components/painel/agenda/realtime-refresh";
+import { WaitlistSection, type WaitlistItem } from "@/components/painel/agenda/waitlist-section";
+import { waMeLink } from "@/lib/phone";
+import { periodLabel, waitlistMessage } from "@/lib/waitlist";
 import { canSendAutomaticMessages } from "@/lib/plans";
 import { getMonthQuota } from "@/lib/whatsapp/quota";
 
@@ -61,6 +64,25 @@ export default async function AgendaPage({ searchParams }: Props) {
         })
       ).filter((a) => !staffId || a.staffId === staffId)
     : [];
+
+  const { data: waiting } = await supabase
+    .from("waitlist_entries")
+    .select(
+      "id, customer_name, customer_whatsapp, service_id, staff_member_id, desired_date, period, status, services(name)",
+    )
+    .eq("business_id", business.id)
+    .eq("desired_date", date)
+    .neq("status", "closed")
+    .order("created_at");
+  const waitlist: WaitlistItem[] = (waiting ?? []).map((w) => ({
+    id: w.id,
+    name: w.customer_name,
+    whatsapp: w.customer_whatsapp,
+    service: w.services?.name ?? "",
+    period: periodLabel(w.period),
+    status: w.status,
+    waLink: waMeLink(w.customer_whatsapp, waitlistMessage(business, w, w.services?.name ?? "")),
+  }));
 
   const quota = canSendAutomaticMessages(business) ? await getMonthQuota(supabase, business) : null;
 
@@ -165,6 +187,7 @@ export default async function AgendaPage({ searchParams }: Props) {
             staffNames={staffNames}
             showStaff={!staffId && ctx.staff.length > 1}
           />
+          <WaitlistSection items={waitlist} />
         </>
       )}
     </main>

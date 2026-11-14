@@ -913,6 +913,71 @@ export type Database = {
           },
         ];
       };
+      waitlist_entries: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          customer_name: string;
+          customer_whatsapp: string;
+          desired_date: string;
+          id: string;
+          notified_at: string | null;
+          period: string;
+          service_id: string;
+          staff_member_id: string | null;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          customer_name: string;
+          customer_whatsapp: string;
+          desired_date: string;
+          id?: string;
+          notified_at?: string | null;
+          period?: string;
+          service_id: string;
+          staff_member_id?: string | null;
+          status?: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          customer_name?: string;
+          customer_whatsapp?: string;
+          desired_date?: string;
+          id?: string;
+          notified_at?: string | null;
+          period?: string;
+          service_id?: string;
+          staff_member_id?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_entries_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "waitlist_entries_service_id_business_id_fkey";
+            columns: ["service_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id", "business_id"];
+          },
+          {
+            foreignKeyName: "waitlist_entries_staff_member_id_business_id_fkey";
+            columns: ["staff_member_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_members";
+            referencedColumns: ["id", "business_id"];
+          },
+        ];
+      };
     };
     Views: {
       customer_summaries: {

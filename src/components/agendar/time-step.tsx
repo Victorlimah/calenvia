@@ -15,6 +15,7 @@ import { ptBR } from "date-fns/locale";
 import { readableTextOn } from "@/lib/color";
 import type { PublicAvailability } from "@/lib/public/availability";
 import { availabilityAction } from "@/app/(negocio)/[slug]/agendar/actions";
+import { WaitlistForm } from "./waitlist-form";
 
 const PERIODS: DayPeriod[] = ["morning", "afternoon", "evening"];
 const STRIP = 14;
@@ -234,6 +235,19 @@ export function TimeStep({
               </ul>
             </section>
           ))}
+        </div>
+      ) : null}
+      {data && !manageCode ? (
+        <div className="mt-2">
+          <WaitlistForm
+            slug={slug}
+            serviceId={serviceId}
+            staffId={staffId}
+            accent={accent}
+            defaultDate={data.date ?? data.from}
+            minDate={data.today}
+            maxDate={data.maxDate}
+          />
         </div>
       ) : null}
     </div>
