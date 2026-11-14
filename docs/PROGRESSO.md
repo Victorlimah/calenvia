@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-071
-- Card em andamento: CAL-069
-- Próximo card: CAL-070
-- Atualizado em: 2026-11-14 05:50
+- Último card concluído: CAL-069
+- Card em andamento: CAL-070
+- Próximo card: CAL-073
+- Atualizado em: 2026-11-14 06:05
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -47,6 +47,7 @@
 | CAL-067 | Concluído | 24b17c6 | src/lib/whatsapp/templates.ts: confirmação, lembrete e cancelamento (UTILITY, pt_BR, exemplos, regras da Meta testadas, payload de cadastro); textos da prévia/wa.me gerados do mesmo corpo; docs/WHATSAPP.md | npm test (whatsapp/templates.test.ts) |
 | CAL-068 | Concluído | fca40f1 | src/lib/whatsapp: transporte mock/live (Graph API via fetch, sem SDK; sem credenciais cai no mock), sendWhatsApp (skipReason puro: cancelado → plano → opt-out → cota; grava messages queued→sent/failed; conta message_usage só quando enviado; devolve wa.me como plano B). Ganchos: confirmação ao agendar (página e manual) e ao remarcar, aviso ao cancelar. Detalhe mostra "Agendamento criado" com a confirmação automática | npm test (whatsapp/send.test.ts, transport.test.ts); npm run test:db (whatsapp.test.ts); agendar em barbearia-do-ze.localhost:3000 e ver a mensagem no log do servidor e no detalhe do painel |
 | CAL-071 | Concluído | 68dc66e | Migration 20261114000500: consume_message_quota (reserva atômica, nunca passa do limite) e release_message_quota (devolve se falhar), só service_role. src/lib/whatsapp/quota.ts: getMonthQuota, quotaNotice (80% e esgotado, sugere Pro+ ou suporte, data em que renova). Aviso na agenda; /assinatura com plano, status, barra de uso do mês e planos; /confirmado só diz "enviamos no WhatsApp" se a mensagem saiu | npm test (whatsapp/quota.test.ts); npm run test:db (whatsapp.test.ts, corrida); npm run test:e2e (assinatura.spec.ts) |
+| CAL-069 | Concluído | f967a3e | GET /api/cron/reminders (Bearer CRON_SECRET, comparação em tempo constante) → runReminders: busca confirmados nas próximas 24 h de negócios com envio automático e clientes sem opt-out; reminderDueAt (24 h antes; 2 h antes se agendou com menos de 24 h; sem lembrete abaixo de 4 h; nunca a menos de 30 min); um lembrete por agendamento e horário (migration 20261114000600: messages.appointment_starts_at + índice único), até 3 tentativas após falha | npm test (reminders.test.ts, cron.test.ts); npm run test:db (reminders.test.ts); curl -H "Authorization: Bearer dev-cron-secret" http://localhost:3000/api/cron/reminders |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -74,6 +75,8 @@
 - Remarcar reenvia a confirmação (com o novo horário); cancelar pelo painel envia o template de cancelamento. Erros de envio só vão para o log, nunca desfazem o agendamento.
 - /assinatura criada já no CAL-071 (o menu de Ajustes apontava para ela e o aviso de cota precisa de destino), só com plano, status, uso do mês e a lista de planos. Faturas e trocar/cancelar ficam no CAL-080.
 - increment_message_usage (migration inicial) não é mais usado no envio; foi mantido por compatibilidade.
+- Janela do lembrete (não estava definida no CLAUDE.md): 24 h antes; quem agenda com menos de 24 h recebe 2 h antes; com menos de 4 h não há lembrete. Constantes em src/lib/whatsapp/reminders.ts, fáceis de mudar.
+- E2E ajustes.spec.ts passou a limpar o profissional "Bruno Teste" (sobrava no seed e quebrava o teste de banco de "sem preferência").
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
