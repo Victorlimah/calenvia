@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-030
-- Card em andamento: —
-- Próximo card: CAL-025
+- Card em andamento: CAL-025
+- Próximo card: CAL-026
 - Atualizado em: 2026-11-14 01:13
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -25,9 +25,10 @@
 - Colunas extras: businesses.message_limit_override (uso justo do Pro+ por negócio), businesses.onboarding_completed_at, plan_status com 'pending' (padrão até o pagamento). Índice único impede dois lembretes por agendamento. Slug com 3 a 40 caracteres.
 - Dono não pode alterar plan/plan_status (privilégio por coluna); só o servidor (service_role) muda isso.
 - Testes de banco (RLS etc.) ficam em tests/db e rodam com `npm run test:db` contra o Supabase local; no CI há um job `db` que sobe o Supabase. `npm test` continua só com testes unitários (rápido, sem Docker).
+- Roteamento por host: app.* é reescrito para /painel/*, {slug}.* para /{slug}/*. O middleware injeta x-calenvia-host/x-calenvia-slug e os layouts dão 404 se a rota for aberta pelo host errado (ex.: calenvia.com.br/barbearia-do-ze). Todo login/cadastro fica no host do painel (app.*), para não depender de cookie entre subdomínios.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 
 ## Plano do card atual
-—
+src/lib/hosts.ts (função pura resolveHost → site | app | business(slug) | custom(domain), slugs reservados, URLs de app/negócio), testes; middleware.ts com rewrite: app → /painel/*, negócio → /{slug}/*, header x-calenvia-host; layouts de grupo bloqueiam acesso pelo host errado.
