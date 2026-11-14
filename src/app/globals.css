@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Tokens da marca Calenvia (CLAUDE.md §6 e docs/referencias/landing-calenvia.html) */
 :root {
   --background: #fbfaf7;
   --foreground: #14161a;
@@ -8,12 +9,54 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --color-brand: #4b3fd9;
+  --color-brand-dark: #3a2fc0;
+  --color-brand-soft: #b8b3ff;
+  --color-brand-50: #f0eeff;
+  --color-ink: #14161a;
+  --color-ink-2: #4a4d55;
+  --color-muted: #6b6e75;
+  --color-paper: #fbfaf7;
+  --color-paper-2: #f3f1ec;
+  --color-line: #e3dfd6;
+  --color-success: #1f9d55;
+  --color-success-50: #e8f6ee;
+  --color-danger: #c62828;
+  --color-danger-50: #fdecec;
+  --color-warning: #b26a00;
+  --color-warning-50: #fff4e0;
+
+  /* Página pública do negócio (fundo escuro) */
+  --color-night: #0f0f0f;
+  --color-night-2: #1a1a1a;
+  --color-night-fg: #f5f2ea;
+  --color-night-sub: #c9c4b9;
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
+
+  --radius-card: 20px;
+  --radius-control: 14px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand-soft);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

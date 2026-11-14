@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-025
-- Card em andamento: —
+- Card em andamento: CAL-017
 - Próximo card: CAL-026
-- Atualizado em: 2026-11-14 01:15
+- Atualizado em: 2026-11-14 01:16
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -27,9 +27,10 @@
 - Dono não pode alterar plan/plan_status (privilégio por coluna); só o servidor (service_role) muda isso.
 - Testes de banco (RLS etc.) ficam em tests/db e rodam com `npm run test:db` contra o Supabase local; no CI há um job `db` que sobe o Supabase. `npm test` continua só com testes unitários (rápido, sem Docker).
 - Roteamento por host: app.* é reescrito para /painel/*, {slug}.* para /{slug}/*. O middleware injeta x-calenvia-host/x-calenvia-slug e os layouts dão 404 se a rota for aberta pelo host errado (ex.: calenvia.com.br/barbearia-do-ze). Todo login/cadastro fica no host do painel (app.*), para não depender de cookie entre subdomínios.
+- Ordem: CAL-017 (design system) foi feito antes do CAL-026 (autenticação), porque as telas de login já precisam dos componentes. CAL-022 (deploy) é preparado sem deploy (proibido no modo autônomo).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 
 ## Plano do card atual
-—
+Tokens da marca em globals.css (@theme do Tailwind 4: brand, ink, bg, line, success, danger; fontes; raio); componentes em src/components/ui: Button (variantes, tamanho mínimo 44px, loading), Input, Textarea, Select, Field (label + dica + erro com aria), Card, Alert, EmptyState, Spinner, Badge; helper cn(); página /painel/_design não (evitar rota extra) — uma página interna /dev/ui só em dev.
