@@ -47,3 +47,15 @@ test("botão Escolher Pro leva ao cadastro com o plano", async ({ page }) => {
   await expect(page).toHaveURL(/app\.localhost:3000\/cadastro\?plano=pro$/);
   await expect(page.getByText(/Pro/).first()).toBeVisible();
 });
+
+test("termos e privacidade abrem pelo rodapé", async ({ page }) => {
+  await page.goto(SITE);
+  await page.getByRole("link", { name: "Termos de uso" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Termos de uso" })).toBeVisible();
+  await expect(page.getByText(/Última atualização/)).toBeVisible();
+  await page.goto(`${SITE}/privacidade`);
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Política de privacidade" }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Seus direitos/ })).toBeVisible();
+});
