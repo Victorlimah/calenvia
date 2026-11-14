@@ -47,7 +47,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-049** · Agendamento: dados do cliente · P0 · 1d — Nome e WhatsApp com máscara `(00) 0 0000-0000` e validação. Lembra os dados no navegador.
 - [x] **CAL-051** · Cadastro automático do cliente · P0 · 0,5d — Busca por negócio + WhatsApp normalizado. Cria ou atualiza o nome.
 - [x] **CAL-050** · Tela de confirmação · P0 · 1d — Resumo, prévia da mensagem do WhatsApp, botão "Adicionar ao calendário" (.ics).
-- [ ] **CAL-072** · Plano B pelo link wa.me · P0 · 0,5d — No Básico ou sem cota: botão com a mensagem pronta para o dono enviar.
+- [x] **CAL-072** · Plano B pelo link wa.me · P0 · 0,5d — No Básico ou sem cota: botão com a mensagem pronta para o dono enviar.
 
 ### Sprint 5 — Painel do dono
 - [ ] **CAL-055** · Agenda do dia · P0 · 3d — Linha do tempo com agendamentos, horários livres (clicáveis para criar), bloqueios e status.

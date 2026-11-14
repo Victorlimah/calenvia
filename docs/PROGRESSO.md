@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-050
-- Card em andamento: CAL-072
+- Último card concluído: CAL-072
+- Card em andamento: —
 - Próximo card: CAL-055
-- Atualizado em: 2026-11-14 02:08
+- Atualizado em: 2026-11-14 02:09
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -38,6 +38,7 @@
 | CAL-049 | Concluído | 55f712b | Passo 4: nome + WhatsApp com máscara (00) 0 0000-0000, validação de celular, lembrar dados no navegador (localStorage protegido), campo-isca contra robôs, resumo; bookAction (Zod + createAppointment com service role) → /confirmado/{code}; conflito oferece 'Escolher outro horário' | npm run test:e2e (agendar.spec.ts › passo 4) |
 | CAL-051 | Concluído | 55f712b | upsertCustomer (negócio + WhatsApp normalizado, atualiza nome; agendamento guarda o nome do momento) ligado ao bookAction; teste de integração | npm run test:db (public-booking.test.ts) |
 | CAL-050 | Concluído | 55f712b | /confirmado/{code}: resumo, código, prévia da mensagem do WhatsApp (texto de referência, negrito), 'Adicionar ao calendário' (.ics com alarme 1h antes), 'Remarcar ou cancelar' no Pro; templates de mensagem versionados em src/lib/messages | Agendar em barbearia-do-ze.localhost:3000/agendar; npm test (templates, ics) |
+| CAL-072 | Concluído | f7da840 | confirmationWaLink/reminderWaLink (texto pronto para o número do cliente), SendWhatsAppButton para o painel (abre o WhatsApp e registra o envio manual em messages com template 'wa.me'), action markManualMessageAction (confere posse com RLS antes de gravar com service role). Usado na agenda/detalhe (Sprint 5) | npm test (wa-link.test.ts); no painel, agendamentos do Básico mostram 'Enviar confirmação no WhatsApp' |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -66,4 +67,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-src/lib/whatsapp/wa-link.ts: confirmationWaLink(appointment, business) com o texto de confirmação pronto para o número do cliente. Componente SendConfirmationButton (painel) usado na agenda/detalhe. Na tela de confirmado do Básico: informar que o negócio vai confirmar. Testes.
+—
