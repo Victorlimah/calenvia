@@ -7,6 +7,7 @@ import { requireBusiness } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPgError, PG_FOREIGN_KEY_VIOLATION } from "@/lib/supabase/errors";
 import { serviceSchema } from "@/lib/validation/business";
+import { track } from "@/lib/metrics";
 
 const withStaff = serviceSchema.extend({ staff_ids: z.array(z.string().uuid()).optional() });
 
@@ -41,6 +42,7 @@ export async function saveServiceAction(input: unknown): Promise<ActionResult<{ 
       .single();
     if (error || !data) return { ok: false, error: "Não foi possível criar o serviço." };
     serviceId = data.id;
+    await track("first_service", { businessId: business.id });
   }
 
   if (staff_ids && serviceId) {

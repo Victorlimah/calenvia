@@ -10,6 +10,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPgError, PG_UNIQUE_VIOLATION } from "@/lib/supabase/errors";
 import { agendaRulesSchema, businessInfoSchema, weekHoursSchema } from "@/lib/validation/business";
+import { track } from "@/lib/metrics";
 
 export async function checkSlugAction(raw: string): Promise<SlugCheck> {
   await requireUser();
@@ -51,6 +52,7 @@ export async function saveBusinessInfoAction(input: unknown): Promise<ActionResu
     return { ok: false, error: "Não foi possível salvar. Tente de novo." };
   }
   if (!current && saved) {
+    await track("business_created", { businessId: saved.id });
     // Plano escolhido no site (CAL-084). O dono não pode mudar o plano (privilégio de coluna):
     // gravamos pelo servidor, ainda como 'pending' até o checkout existir (CAL-076).
     const plan = parsePlanParam(user.user_metadata?.plan_intent as string | undefined);
@@ -118,6 +120,7 @@ export async function finishOnboardingAction(): Promise<ActionResult> {
       .from("businesses")
       .update({ onboarding_completed_at: new Date().toISOString() })
       .eq("id", business.id);
+    await track("onboarding_completed", { businessId: business.id });
   }
   revalidatePath("/painel", "layout");
   return { ok: true };

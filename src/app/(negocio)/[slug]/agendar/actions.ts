@@ -15,6 +15,7 @@ import {
 import { afterBooking } from "@/lib/booking/after-booking";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { bookingSchema } from "@/lib/validation/booking";
+import { track } from "@/lib/metrics";
 
 const availabilityInput = z.object({
   slug: z.string().min(3).max(40),
@@ -99,6 +100,7 @@ export async function bookAction(input: unknown): Promise<BookResult> {
       source: "link",
     });
     await afterBooking(business, appointment);
+    await track("first_appointment", { businessId: business.id, props: { source: "link" } });
     return { ok: true, code: appointment.manage_code };
   } catch (e) {
     const err = toBookingError(e);

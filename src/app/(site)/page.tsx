@@ -6,6 +6,7 @@ import { RevealOnScroll } from "@/components/site/reveal";
 import { appUrl, rootDomain } from "@/lib/hosts";
 import { DEFAULT_FAIR_USE_LIMIT, PLANS, type PlanId } from "@/lib/plans";
 import "./landing.css";
+import { VisitBeacon } from "@/components/site/visit-beacon";
 
 export const metadata: Metadata = {
   title: "Calenvia — agendamento online com confirmação no WhatsApp",
@@ -26,6 +27,7 @@ export default function SiteHome() {
   return (
     <div className="lp" id="landing">
       <RevealOnScroll rootId="landing" />
+      <VisitBeacon />
       <LandingHeader loginUrl={appUrl("/entrar")} />
       <main id="topo">
         <section className="hero">

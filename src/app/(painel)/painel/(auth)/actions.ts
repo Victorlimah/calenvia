@@ -5,6 +5,7 @@ import { invalid, type ActionResult } from "@/lib/action-result";
 import { safeNextPath } from "@/lib/auth/paths";
 import { appUrl } from "@/lib/hosts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { track } from "@/lib/metrics";
 import {
   authErrorMessage,
   forgotPasswordSchema,
@@ -50,6 +51,7 @@ export async function signUpAction(
   if (data.user && data.user.identities?.length === 0) {
     return { ok: false, error: authErrorMessage("already registered") };
   }
+  await track("signup", plan ? { props: { plan } } : {});
   if (!data.session) {
     return { ok: true, message: "Enviamos um link de confirmação para o seu e-mail." };
   }

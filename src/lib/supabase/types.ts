@@ -500,6 +500,39 @@ export type Database = {
           },
         ];
       };
+      product_events: {
+        Row: {
+          business_id: string | null;
+          created_at: string;
+          id: number;
+          name: string;
+          props: NonNullable<Json>;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id?: string | null;
+          created_at?: string;
+          id?: never;
+          name: string;
+          props?: NonNullable<Json>;
+        };
+        Update: {
+          business_id?: string | null;
+          created_at?: string;
+          id?: never;
+          name?: string;
+          props?: NonNullable<Json>;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_events_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       services: {
         Row: {
           business_id: string;
@@ -808,6 +841,13 @@ export type Database = {
         Returns: number;
       };
       is_business_owner: { Args: { p_business_id: string }; Returns: boolean };
+      metrics_funnel: {
+        Args: { p_from: string; p_to: string };
+        Returns: {
+          step: string;
+          total: number;
+        }[];
+      };
       owns_media_path: { Args: { p_name: string }; Returns: boolean };
       release_message_quota: {
         Args: { p_business_id: string; p_period: string };

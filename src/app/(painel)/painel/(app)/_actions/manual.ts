@@ -11,6 +11,7 @@ import { zonedDayRange } from "@/lib/dates";
 import { onlyDigits } from "@/lib/phone";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { customerSchema } from "@/lib/validation/booking";
+import { track } from "@/lib/metrics";
 
 const uuid = z.string().uuid();
 
@@ -128,6 +129,7 @@ export async function createManualAppointmentAction(
     const sent = parsed.data.sendConfirmation
       ? await afterBooking(business, appointment)
       : { automatic: false };
+    await track("first_appointment", { businessId: business.id, props: { source: "manual" } });
     revalidatePath("/painel", "layout");
     return {
       ok: true,
