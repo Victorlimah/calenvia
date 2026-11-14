@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-110
-- Card em andamento: — (backlog de código concluído; restam só itens bloqueados)
-- Próximo card: CAL-075 (decisão do Victor)
-- Atualizado em: 2026-11-14 09:17
+- Último card concluído: CAL-111
+- Card em andamento: CAL-112 (planejamento)
+- Próximo card: CAL-112
+- Atualizado em: 2026-11-14 12:27
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -86,6 +86,8 @@
 | CAL-108 | Bloqueado | — | Embedded Signup depende da conta/app da Meta (CAL-066) | — |
 | CAL-109 | Concluído (sem recompensa) | 2fd7196 | Código de indicação por negócio; ?ref= do site levado ao cadastro; referred_by gravado pelo servidor; /indicar com link, WhatsApp e lista (my_referrals) | npm test (referrals.test.ts); npm run test:e2e (indicacao.spec.ts) |
 | CAL-110 | Concluído | 349d83b | docs/APP-NATIVO.md: manter PWA; gatilhos para reavaliar; caminho Capacitor | — |
+| CAL-048 (correção) | Concluído | 65ece26 | Passo de horários busca por GET /api/disponibilidade (server action podia ficar pendente para sempre com a URL mudando); sem busca duplicada; grade do dia anterior desabilitada enquanto carrega | npm run test:e2e (agendar, jornada, gerenciar) |
+| CAL-111 | Concluído | 45ffa37 | business_message_settings (escrita só pelo servidor, confere papel e plano), appointments.messages_enabled, messages 'skipped' + skip_reason; decideSend (plano → negócio → agendamento → opt-out → cota) sem gastar cota; cron por antecedência (24 h/2 h); Ajustes › Mensagens automáticas; opção por agendamento; menu de Ajustes reescrito em grupos (itens faltando) com E2E | npm test (message-settings.test.ts, reminders.test.ts); npm run test:db (whatsapp, reminders, rls); npm run test:e2e (mensagens-automaticas, menu-ajustes) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -124,6 +126,7 @@
 - Rate limit não se aplica a 127.0.0.1 em desenvolvimento (os E2E fazem muitas chamadas); RATE_LIMIT_LOCAL=1 liga localmente.
 - LGPD: apagar dados de um cliente anonimiza (não remove linhas), para o faturamento do dono continuar certo. O número vira 5500xxxxxxxxx (DDD 00 não existe).
 - Suíte E2E: uma falha intermitente apareceu numa rodada completa e não se repetiu com o mesmo código (60/60 na rodada seguinte).
+- CAL-111: só o dono edita os ajustes de mensagens até existir o papel de gerente (CAL-112). Lembrete desligado no negócio não gera registro skipped (evita ruído).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
