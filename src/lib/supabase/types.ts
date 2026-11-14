@@ -725,6 +725,55 @@ export type Database = {
         };
         Relationships: [];
       };
+      reviews: {
+        Row: {
+          appointment_id: string;
+          author_name: string;
+          business_id: string;
+          comment: string | null;
+          created_at: string;
+          id: string;
+          is_published: boolean;
+          rating: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          appointment_id: string;
+          author_name: string;
+          business_id: string;
+          comment?: string | null;
+          created_at?: string;
+          id?: string;
+          is_published?: boolean;
+          rating: number;
+        };
+        Update: {
+          appointment_id?: string;
+          author_name?: string;
+          business_id?: string;
+          comment?: string | null;
+          created_at?: string;
+          id?: string;
+          is_published?: boolean;
+          rating?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reviews_appointment_id_fkey";
+            columns: ["appointment_id"];
+            isOneToOne: true;
+            referencedRelation: "appointments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       service_packages: {
         Row: {
           business_id: string;

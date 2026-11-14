@@ -115,7 +115,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [ ] **CAL-103** · Sinal ou pagamento antecipado via Pix · P3 · 4d
 - [x] **CAL-104** · Lista de espera · P3 · 2d
 - [x] **CAL-105** · Pacotes de serviços · P3 · 3d
-- [ ] **CAL-106** · Avaliação após o atendimento · P3 · 2d
+- [x] **CAL-106** · Avaliação após o atendimento · P3 · 2d
 - [ ] **CAL-107** · Integração com Google Agenda · P3 · 3d
 - [ ] **CAL-108** · Número próprio do negócio no WhatsApp (Embedded Signup) · P3 · 5d
 - [ ] **CAL-109** · Programa de indicação · P3 · 2d

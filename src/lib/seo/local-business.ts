@@ -10,6 +10,7 @@ export function localBusinessJsonLd(b: {
   description?: string | null;
   hours: { weekday: number; is_open: boolean; opens_at: string | null; closes_at: string | null }[];
   services: { name: string; price_cents: number }[];
+  rating?: { average: number | null; count: number };
 }) {
   return {
     "@context": "https://schema.org",
@@ -35,6 +36,16 @@ export function localBusinessJsonLd(b: {
       itemOffered: { "@type": "Service", name: s.name },
       ...(s.price_cents ? { price: (s.price_cents / 100).toFixed(2), priceCurrency: "BRL" } : {}),
     })),
+    ...(b.rating?.average && b.rating.count >= 3
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: b.rating.average,
+            reviewCount: b.rating.count,
+            bestRating: 5,
+          },
+        }
+      : {}),
     potentialAction: {
       "@type": "ReserveAction",
       target: `${b.url.replace(/\/$/, "")}/agendar`,

@@ -7,6 +7,7 @@ import { STATUS_LABELS, STATUS_TONES } from "@/lib/agenda/status";
 import { CustomerMessages } from "@/components/painel/customer-messages";
 import { UsePackageButton } from "@/components/painel/use-package-button";
 import { remainingSessions, usablePackage } from "@/lib/packages";
+import { reviewLink, reviewRequestText } from "@/lib/reviews";
 import { RealtimeRefresh } from "@/components/painel/agenda/realtime-refresh";
 import { requireReadyBusiness } from "@/lib/business/current";
 import { formatDate, formatDayLabel, formatDuration, formatTime, toLocalDate } from "@/lib/dates";
@@ -96,6 +97,18 @@ export default async function AgendamentoPage({
       .eq("appointment_id", a.id)
       .maybeSingle(),
   ]);
+  const { data: review } = await supabase
+    .from("reviews")
+    .select("rating, comment")
+    .eq("appointment_id", a.id)
+    .maybeSingle();
+  const askReview =
+    status === "completed" && !review
+      ? waMeLink(
+          a.customer_whatsapp,
+          reviewRequestText(business, a.customer_name, reviewLink(business.slug, a.manage_code)),
+        )
+      : null;
   const usable =
     !usage && a.status !== "canceled" ? usablePackage(custPackages ?? [], a.service_id) : null;
   const messages = [...(a.messages ?? [])].sort((x, y) => (x.created_at < y.created_at ? 1 : -1));
@@ -173,6 +186,22 @@ export default async function AgendamentoPage({
         }}
         staff={eligibleStaff}
       />
+
+      {review ? (
+        <p className="rounded-[var(--radius-control)] border border-line bg-white px-4 py-3 text-sm">
+          <strong className="text-brand">{"★".repeat(review.rating)}</strong> Avaliação do cliente
+          {review.comment ? `: “${review.comment}”` : ""}
+        </p>
+      ) : askReview ? (
+        <a
+          href={askReview}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-[var(--radius-control)] border-[1.5px] border-ink bg-white px-4 font-semibold"
+        >
+          Pedir avaliação no WhatsApp
+        </a>
+      ) : null}
 
       {usage ? (
         <p className="rounded-[var(--radius-control)] bg-success-50 px-4 py-3 text-sm font-semibold text-success">

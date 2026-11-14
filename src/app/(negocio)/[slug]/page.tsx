@@ -75,6 +75,7 @@ export default async function NegocioPage({ params }: Props) {
     description: business.subheadline,
     hours: content.hours,
     services,
+    rating: content.rating,
   });
 
   return (
@@ -128,6 +129,15 @@ export default async function NegocioPage({ params }: Props) {
       {content.testimonials.length ? (
         <Section id="depoimentos" alt>
           <SectionTitle kicker="Depoimentos" title="Quem já veio, recomenda" />
+          {content.rating.count >= 3 && content.rating.average ? (
+            <p className="-mt-4 mb-6 text-lg font-semibold">
+              <span aria-hidden="true" style={{ color: "var(--accent)" }}>
+                ★
+              </span>{" "}
+              {content.rating.average.toFixed(1).replace(".", ",")} de 5 · {content.rating.count}{" "}
+              avaliações
+            </p>
+          ) : null}
           <Testimonials items={content.testimonials} />
         </Section>
       ) : null}

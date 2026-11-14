@@ -155,7 +155,7 @@ export function Team({ staff }: { staff: PublicStaff[] }) {
 export function Testimonials({
   items,
 }: {
-  items: { id: string; author_name: string; text: string }[];
+  items: { id: string; author_name: string; text: string; rating?: number }[];
 }) {
   return (
     <ul className="grid gap-4 md:grid-cols-2">
@@ -169,6 +169,12 @@ export function Testimonials({
             >
               “
             </p>
+            {t.rating ? (
+              <p className="text-lg" style={{ color: "var(--accent)" }}>
+                <span aria-hidden="true">{"★".repeat(t.rating)}</span>
+                <span className="sr-only">{t.rating} de 5 estrelas</span>
+              </p>
+            ) : null}
             <blockquote className="mt-1 text-lg">{t.text}</blockquote>
             <figcaption className="mt-3 font-semibold text-night-sub">— {t.author_name}</figcaption>
           </figure>

@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { ratingSummary } from "@/lib/reviews";
 
 /** Colunas do negócio que podem aparecer na página pública. */
 const PUBLIC_BUSINESS_COLUMNS =
@@ -89,7 +90,7 @@ export const getPublicCatalog = cache(async (businessId: string) => {
 
 export const getPublicPageContent = cache(async (businessId: string) => {
   const admin = createSupabaseAdminClient();
-  const [hours, breaks, photos, testimonials] = await Promise.all([
+  const [hours, breaks, photos, testimonials, reviews] = await Promise.all([
     admin
       .from("business_hours")
       .select("weekday, is_open, opens_at, closes_at")
@@ -109,11 +110,23 @@ export const getPublicPageContent = cache(async (businessId: string) => {
       .select("id, author_name, text")
       .eq("business_id", businessId)
       .order("sort_order"),
+    admin
+      .from("reviews")
+      .select("id, rating, comment, author_name, is_published")
+      .eq("business_id", businessId)
+      .order("created_at", { ascending: false })
+      .limit(200),
   ]);
+  const allReviews = reviews.data ?? [];
+  const published = allReviews
+    .filter((r) => r.is_published && r.comment)
+    .slice(0, 6)
+    .map((r) => ({ id: r.id, author_name: r.author_name, text: r.comment!, rating: r.rating }));
   return {
     hours: hours.data ?? [],
     breaks: breaks.data ?? [],
     photos: photos.data ?? [],
-    testimonials: testimonials.data ?? [],
+    testimonials: [...(testimonials.data ?? []), ...published],
+    rating: ratingSummary(allReviews.map((r) => r.rating)),
   };
 });
