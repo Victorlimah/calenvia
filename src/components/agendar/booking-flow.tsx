@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/money";
 import { readableTextOn } from "@/lib/color";
 import { cn } from "@/lib/cn";
 import { ServiceStep } from "./service-step";
+import { StaffStep } from "./staff-step";
 import {
   STEPS,
   STEP_TITLES,
@@ -30,6 +31,10 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
   useEffect(() => setReady(true), []);
   const index = STEPS.indexOf(step);
   const service = services.find((s) => s.id === selection.serviceId) ?? null;
+  const eligible = service ? staff.filter((s) => s.serviceIds.includes(service.id)) : [];
+  // Só um profissional faz o serviço: ele é o escolhido.
+  const staffId = eligible.length === 1 ? eligible[0].id : selection.staffId;
+  const chosenStaff = eligible.find((s) => s.id === staffId) ?? null;
 
   const canContinue: Record<Step, boolean> = {
     servico: Boolean(service),
@@ -92,7 +97,25 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
               services={services}
               selectedId={selection.serviceId}
               accent={business.accent}
-              onSelect={(id) => update({ serviceId: id, date: null, start: null })}
+              onSelect={(id) => {
+                const stillEligible = staff.some(
+                  (s) => s.id === selection.staffId && s.serviceIds.includes(id),
+                );
+                update({
+                  serviceId: id,
+                  staffId: stillEligible ? selection.staffId : null,
+                  date: null,
+                  start: null,
+                });
+              }}
+            />
+          ) : null}
+          {step === "profissional" && service ? (
+            <StaffStep
+              staff={eligible}
+              selectedId={selection.staffId}
+              accent={business.accent}
+              onSelect={(id) => update({ staffId: id, start: null })}
             />
           ) : null}
           {step !== "servico" && !service ? (
@@ -109,7 +132,10 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
       {step !== "dados" ? (
         <footer className="bg-night/95 fixed inset-x-0 bottom-0 z-30 border-t border-white/10 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
           <div className="mx-auto max-w-xl">
-            <Summary service={service} />
+            <Summary
+              service={service}
+              staffName={step === "servico" ? undefined : (chosenStaff?.name ?? "Sem preferência")}
+            />
             <button
               type="button"
               disabled={!canContinue[step]}
@@ -126,15 +152,30 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
   );
 }
 
-function Summary({ service }: { service: PublicService | null }) {
+function Summary({
+  service,
+  staffName,
+  when,
+}: {
+  service: PublicService | null;
+  staffName?: string;
+  when?: string;
+}) {
   if (!service) return <p className="text-night-sub text-sm">Nenhum serviço escolhido</p>;
   return (
-    <div className="flex items-baseline justify-between gap-3 text-sm">
-      <p className="min-w-0 truncate">
-        <span className="font-semibold">{service.name}</span>
-        <span className="text-night-sub"> · {formatDuration(service.duration_min)}</span>
-      </p>
-      <p className="font-bold">{formatPrice(service.price_cents)}</p>
+    <div className="text-sm">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="min-w-0 truncate">
+          <span className="font-semibold">{service.name}</span>
+          <span className="text-night-sub"> · {formatDuration(service.duration_min)}</span>
+        </p>
+        <p className="font-bold">{formatPrice(service.price_cents)}</p>
+      </div>
+      {staffName || when ? (
+        <p className="text-night-sub mt-0.5 truncate">
+          {[staffName, when].filter(Boolean).join(" · ")}
+        </p>
+      ) : null}
     </div>
   );
 }
