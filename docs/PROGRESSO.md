@@ -133,7 +133,7 @@
 - Rate limit não se aplica a 127.0.0.1 em desenvolvimento (os E2E fazem muitas chamadas); RATE_LIMIT_LOCAL=1 liga localmente.
 - LGPD: apagar dados de um cliente anonimiza (não remove linhas), para o faturamento do dono continuar certo. O número vira 5500xxxxxxxxx (DDD 00 não existe).
 - Suíte E2E: uma falha intermitente apareceu numa rodada completa e não se repetiu com o mesmo código (60/60 na rodada seguinte).
-- CAL-111: só o dono edita os ajustes de mensagens até existir o papel de gerente (CAL-112). Lembrete desligado no negócio não gera registro skipped (evita ruído).
+- CAL-111: dono e gerente editam os ajustes de mensagens (settings.manage, CAL-112). Lembrete desligado no negócio não gera registro skipped (evita ruído).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
