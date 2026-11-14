@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Timeline } from "@/components/painel/agenda/timeline";
 import { buttonClasses } from "@/components/ui";
-import { loadAgendaDay } from "@/lib/agenda/load";
+import { loadAgendaDay, loadAppointments } from "@/lib/agenda/load";
 import { buildTimeline, daySummary } from "@/lib/agenda/timeline";
 import { requireReadyBusiness } from "@/lib/business/current";
 import {
@@ -11,13 +11,18 @@ import {
   isLocalDate,
   localDateToInstant,
   todayIn,
+  weekdayOf,
+  zonedDayRange,
 } from "@/lib/dates";
+import { DatePicker } from "@/components/painel/agenda/date-picker";
+import { StaffChips } from "@/components/painel/agenda/staff-chips";
+import { WeekView } from "@/components/painel/agenda/week-view";
 import { formatPrice } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Agenda — Calenvia" };
 
-type Props = { searchParams: Promise<{ data?: string; profissional?: string }> };
+type Props = { searchParams: Promise<{ data?: string; profissional?: string; visao?: string }> };
 
 export default async function AgendaPage({ searchParams }: Props) {
   const business = await requireReadyBusiness();
@@ -39,7 +44,19 @@ export default async function AgendaPage({ searchParams }: Props) {
   });
   const summary = daySummary(appointments.filter((a) => !staffId || a.staffId === staffId));
   const label = formatDayLabel(localDateToInstant(date, tz), tz);
-  const q = (d: string) => `/?data=${d}${staffId ? `&profissional=${staffId}` : ""}`;
+  const week = sp.visao === "semana";
+  const staffQuery = staffId ? `&profissional=${staffId}` : "";
+  const q = (d: string, w = week) => `/?data=${d}${staffQuery}${w ? "&visao=semana" : ""}`;
+  const weekStart = addLocalDays(date, -((weekdayOf(date) + 6) % 7)); // segunda-feira
+  const weekDays = Array.from({ length: 7 }, (_, i) => addLocalDays(weekStart, i));
+  const weekAppointments = week
+    ? (
+        await loadAppointments(supabase, business.id, {
+          from: zonedDayRange(weekDays[0], tz).start,
+          to: zonedDayRange(weekDays[6], tz).end,
+        })
+      ).filter((a) => !staffId || a.staffId === staffId)
+    : [];
 
   return (
     <main className="mx-auto w-full max-w-2xl space-y-5 px-4 pt-6 pb-10 md:pt-10">
@@ -75,23 +92,64 @@ export default async function AgendaPage({ searchParams }: Props) {
         >
           ›
         </Link>
+        <DatePicker value={date} extraQuery={staffQuery} />
+        <div
+          className="ml-auto inline-flex rounded-[var(--radius-control)] border border-line bg-white p-1"
+          role="group"
+          aria-label="Visão"
+        >
+          <Link
+            href={q(date, false)}
+            aria-current={!week ? "true" : undefined}
+            className={`inline-flex min-h-9 items-center rounded-xl px-3 text-sm font-semibold ${!week ? "bg-ink text-white" : "text-ink-2"}`}
+          >
+            Dia
+          </Link>
+          <Link
+            href={q(date, true)}
+            aria-current={week ? "true" : undefined}
+            className={`inline-flex min-h-9 items-center rounded-xl px-3 text-sm font-semibold ${week ? "bg-ink text-white" : "text-ink-2"}`}
+          >
+            Semana
+          </Link>
+        </div>
       </nav>
 
-      <section aria-label="Resumo do dia" className="grid grid-cols-3 gap-2">
-        <Stat label="Agendamentos" value={String(summary.total)} />
-        <Stat label="Livres" value={String(items.filter((i) => i.kind === "free").length)} />
-        <Stat label="Previsto" value={formatPrice(summary.expectedRevenueCents)} />
-      </section>
-
-      <Timeline
-        items={items}
-        canceled={canceled}
-        timezone={tz}
-        date={date}
-        dayStatus={dayStatus}
-        staffNames={staffNames}
-        showStaff={!staffId && ctx.staff.length > 1}
+      <StaffChips
+        staff={ctx.staff}
+        selected={staffId}
+        hrefFor={(id) =>
+          `/?data=${date}${id ? `&profissional=${id}` : ""}${week ? "&visao=semana" : ""}`
+        }
       />
+
+      {week ? (
+        <WeekView
+          days={weekDays}
+          appointments={weekAppointments}
+          timezone={tz}
+          today={today}
+          staffQuery={staffQuery}
+        />
+      ) : (
+        <>
+          <section aria-label="Resumo do dia" className="grid grid-cols-3 gap-2">
+            <Stat label="Agendamentos" value={String(summary.total)} />
+            <Stat label="Livres" value={String(items.filter((i) => i.kind === "free").length)} />
+            <Stat label="Previsto" value={formatPrice(summary.expectedRevenueCents)} />
+          </section>
+
+          <Timeline
+            items={items}
+            canceled={canceled}
+            timezone={tz}
+            date={date}
+            dayStatus={dayStatus}
+            staffNames={staffNames}
+            showStaff={!staffId && ctx.staff.length > 1}
+          />
+        </>
+      )}
     </main>
   );
 }
