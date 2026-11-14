@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-031
-- Card em andamento: CAL-033
-- Próximo card: CAL-034
-- Atualizado em: 2026-11-14 01:34
+- Último card concluído: CAL-033
+- Card em andamento: CAL-039
+- Próximo card: CAL-038
+- Atualizado em: 2026-11-14 01:36
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -20,6 +20,9 @@
 | CAL-022 | Bloqueado/parcial | — | Preparado (vercel.json, docs/DEPLOY.md); deploy depende do Victor | — |
 | CAL-032 | Concluído | c34f4af | src/lib/slug.ts (slugify, validateSlug com mensagens, sugestões) + checkSlugAvailability (service role, só sim/não); src/lib/phone.ts (normalização 55+DDD, celular, máscara, wa.me) — testes | npm test |
 | CAL-031 | Concluído | 5a81d0f | Onboarding /onboarding → servicos → profissionais (atalho 'Eu mesmo atendo') → horarios (padrão preenchido) → pronto (link para copiar). Editores reutilizáveis de negócio, serviços, profissionais e horários; slug com verificação ao vivo e sugestões; painel exige onboarding concluído. 2 testes E2E | npm run test:e2e; ou criar conta em app.localhost:3000/cadastro |
+| CAL-034 | Concluído | 465c759 | /ajustes/profissionais com StaffEditor (nome, cargo, serviços que faz, ativo; excluir vira desativar se tiver agendamentos) | npm run test:e2e (ajustes.spec.ts) |
+| CAL-035 | Concluído | 465c759 | /ajustes/horarios com HoursEditor: aberto/fechado por dia, abertura, fechamento, vários intervalos, copiar para todos; validação (fecha depois de abrir, intervalo dentro do horário, sem sobreposição); salvamento atômico | npm run test:e2e (ajustes.spec.ts) |
+| CAL-033 | Concluído | 465c759 | Shell do painel (nav inferior no celular, lateral no desktop, sair), /ajustes (menu), /ajustes/servicos (nome, descrição, duração, preço, ativo, mais pedido, ordenar ↑↓, quem faz), /ajustes/negocio | npm run test:e2e (ajustes.spec.ts); entrar como ze@calenvia.dev |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -43,4 +46,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Shell do painel (navegação inferior no celular: Agenda · Clientes · Ajustes; lateral no desktop; sair). Página /ajustes com menu e /ajustes/servicos usando o ServicesEditor (com 'quem faz'). Ajustes de negócio (/ajustes/negocio) também.
+/ajustes/regras: formulário com intervalo entre horários (15/30/60), antecedência mínima (opções: sem, 30min, 1h, 2h, 4h, 12h, 1 dia, 2 dias), dias à frente (7–90), prazo para cancelar (usado no CAL-040). Action saveAgendaRulesAction já existe.
