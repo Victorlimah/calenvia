@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-026
+- Último card concluído: CAL-032
 - Card em andamento: CAL-031
-- Próximo card: CAL-032
-- Atualizado em: 2026-11-14 01:22
+- Próximo card: CAL-033
+- Atualizado em: 2026-11-14 01:23
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -18,6 +18,7 @@
 | CAL-017 | Concluído | 5ef4b79 | Tokens da marca no globals.css (Tailwind 4 @theme), componentes em src/components/ui (Button/ButtonLink, Input, Textarea, Select, Field acessível, Card, Alert, Badge, EmptyState/ErrorState, Spinner), Logo, cn(), formatPrice/parsePriceToCents com testes | npm test; ver componentes nas telas do painel |
 | CAL-026 | Concluído | b225ea0 | Telas /entrar, /cadastro (?plano=), /recuperar-senha, /nova-senha, /auth/callback; server actions com Zod e erros em pt-BR; middleware renova a sessão e protege o painel (redireciona com ?next= seguro); Google pronto mas desligado; 3 testes E2E | npm run test:e2e (Supabase local + seed); ou abrir app.localhost:3000 e entrar com ze@calenvia.dev / calenvia123 |
 | CAL-022 | Bloqueado/parcial | — | Preparado (vercel.json, docs/DEPLOY.md); deploy depende do Victor | — |
+| CAL-032 | Concluído | c34f4af | src/lib/slug.ts (slugify, validateSlug com mensagens, sugestões) + checkSlugAvailability (service role, só sim/não); src/lib/phone.ts (normalização 55+DDD, celular, máscara, wa.me) — testes | npm test |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -39,4 +40,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Fazer CAL-032 (slug) junto, pois o onboarding depende dele: src/lib/slug.ts (slugify, validateSlug, sugestões) com testes. Onboarding em /onboarding (painel): passo 1 dados do negócio (nome, segmento, endereço, WhatsApp, slug com verificação), passo 2 serviços, 3 profissionais (com serviços), 4 horários (padrão seg–sex 9–18, sáb 9–13), 5 link pronto. src/lib/phone.ts (normalização) com testes. Server actions com Zod + client supabase do usuário (RLS). Painel redireciona para /onboarding se não houver negócio.
+Onboarding em rotas: /onboarding (negócio) → /onboarding/servicos → /onboarding/profissionais → /onboarding/horarios → /onboarding/pronto. Editores reutilizáveis (serviços, profissionais, horários) para usar depois nos Ajustes. Helper getCurrentBusiness(). Painel manda para /onboarding se não houver negócio ou se onboarding não terminou.
