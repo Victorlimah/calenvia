@@ -78,7 +78,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [ ] **CAL-079** · Teste grátis · P1 · 0,5d **(decisão)** — Definir se terá (ex.: 14 dias sem cartão) e implementar se sim.
 
 ### Sprint 8 — Pronto para o beta
-- [ ] **CAL-083** · Site calenvia.com.br · P0 · 0,5d — Converter `docs/referencias/landing-calenvia.html` para a rota `(site)`.
+- [x] **CAL-083** · Site calenvia.com.br · P0 · 0,5d — Converter `docs/referencias/landing-calenvia.html` para a rota `(site)`.
 - [ ] **CAL-084** · Botões dos planos → cadastro · P0 · 0,5d — `/cadastro?plano=basic|pro|pro_plus` → onboarding → checkout.
 - [ ] **CAL-012** · Páginas de Termos e Privacidade · P1 · 2d — Rotas `/termos` e `/privacidade`. *(Texto jurídico: fora do código.)*
 - [ ] **CAL-052** · Remarcar e cancelar pelo link · P1 · 2d — `/{slug}/gerenciar/{manage_code}`, respeitando o prazo mínimo do negócio.
