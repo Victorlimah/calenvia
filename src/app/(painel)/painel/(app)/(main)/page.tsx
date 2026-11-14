@@ -67,9 +67,17 @@ export default async function AgendaPage({ searchParams }: Props) {
             {date === today ? `Hoje, ${label}` : label}
           </p>
         </div>
-        <Link href={`/novo?data=${date}`} className={buttonClasses({ size: "md" })}>
-          + Novo
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/bloquear?data=${date}`}
+            className={buttonClasses({ variant: "outline", size: "md" })}
+          >
+            Bloquear
+          </Link>
+          <Link href={`/novo?data=${date}`} className={buttonClasses({ size: "md" })}>
+            + Novo
+          </Link>
+        </div>
       </header>
 
       <nav aria-label="Navegar entre dias" className="flex items-center gap-2">
