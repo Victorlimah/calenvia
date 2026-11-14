@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-063
-- Card em andamento: CAL-053
-- Próximo card: CAL-029
-- Atualizado em: 2026-11-14 07:02
+- Último card concluído: CAL-085
+- Card em andamento: CAL-088
+- Próximo card: CAL-089
+- Atualizado em: 2026-11-14 07:28
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -59,6 +59,9 @@
 | CAL-060 | Concluído | 40eb991 | Realtime: migration 20261114000800 publica appointments e time_blocks; RealtimeRefresh (canal autenticado com o token do dono, filtro por negócio, debounce, refresh ao voltar para a aba) na agenda e no detalhe | npm run test:e2e (realtime.spec.ts) |
 | CAL-061 | Concluído (no CAL-055) | — | Resumo do dia já existia na agenda (agendamentos, livres, previsto) com testes | npm test (agenda/timeline.test.ts) |
 | CAL-063 | Concluído | 7a247c8 | View customer_summaries (security_invoker); /clientes com busca, ordenação (recentes, nome, visitas, gasto, faltas), paginação e selos (Agendado, Falta muito); /clientes/[id] com números, histórico, renomear, opt-out e Novo agendamento (/novo?cliente=) | npm test (customers/summary.test.ts); npm run test:db (rls.test.ts); npm run test:e2e (clientes.spec.ts) |
+| CAL-053 | Concluído | 5e739aa | Teste axe-core (WCAG 2.1 A/AA) em site, termos, página pública, fluxo, confirmado, gerenciar, painel e login; correções: tons de sucesso/alerta mais escuros, tabela de planos focável, li em radiogroup, <title> que sumia no fluxo (pushState). Avatar separado do editor: JS /[slug] 239→106 kB, /agendar 245→165 kB | npm run test:e2e (acessibilidade.spec.ts); npm run build (tamanhos) |
+| CAL-029 | Concluído (sem Sentry) | faa1089 | src/lib/monitoring.ts (log JSON + ERROR_WEBHOOK_URL opcional; esconde segredos e mascara telefones); instrumentation.ts onRequestError; error.tsx/global-error.tsx → /api/errors; cron/webhook/WhatsApp usam reportError | npm test (monitoring.test.ts); npm run test:e2e (monitoring.spec.ts) |
+| CAL-085 | Concluído | e6cd17d | product_events + metrics_funnel() (migration 20261114001000); eventos de visita, cadastro, negócio, primeiro serviço, onboarding, primeiro agendamento; docs/METRICAS.md com consultas | npm run test:db (metrics.test.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -92,6 +95,8 @@
 - Rodapé de opt-out entrou nos templates v1 (ainda não cadastrados na Meta, então não precisou de v2).
 - Victor autorizou (2026-11-14) pular o Sprint 7 (bloqueado pelo CAL-075) e seguir o backlog até o fim. Cards que dependem do gateway ou de decisão dele ficam registrados em Bloqueios.
 - Realtime: o canal só recebe eventos se for autenticado com o token do dono (setAuth antes de assinar); sem isso o RLS bloqueia em silêncio.
+- Lighthouse não pôde ser baixado (npx bloqueado pelas permissões). A meta do CAL-053 foi verificada com axe-core (já instalado, agora em devDependencies) e pelo tamanho dos bundles do build. Rodar o Lighthouse manualmente no deploy de preview.
+- Sem serviços externos novos: monitoramento (CAL-029) e métricas (CAL-085) são próprios; Sentry/Plausible/PostHog podem entrar depois com aprovação do Victor.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
@@ -102,6 +107,8 @@
 - CAL-067: cadastrar os 3 templates na Meta (passo a passo em docs/WHATSAPP.md) depois que a conta do CAL-066 existir.
 - CAL-012: o texto de /termos e /privacidade é um rascunho técnico; precisa de revisão jurídica (e da regra de cancelamento/fidelidade do CAL-010). Criar os e-mails contato@ e privacidade@calenvia.com.br ou trocar em src/lib/company.ts.
 - CAL-083: o link de WhatsApp do rodapé da landing foi removido (era um número de exemplo); volta quando houver canal de suporte (CAL-096).
+- CAL-029: decidir se quer Sentry (serviço externo). Até lá, defina ERROR_WEBHOOK_URL na Vercel (ex.: webhook do Slack/Discord) para receber os erros.
+- CAL-053: rodar o Lighthouse (celular) no deploy de preview para confirmar ≥ 90.
 
 ## Plano do card atual
 —
