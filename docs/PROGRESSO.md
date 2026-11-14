@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-046
-- Card em andamento: CAL-047
+- Último card concluído: CAL-047
+- Card em andamento: —
 - Próximo card: CAL-048
-- Atualizado em: 2026-11-14 01:58
+- Atualizado em: 2026-11-14 02:00
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -33,6 +33,7 @@
 | CAL-044 | Concluído | 9665d90 | src/lib/availability/rules.test.ts: 24 cenários (cabe antes de fechar, atravessa almoço, dois intervalos, conflito parcial, status cancelado/concluído/falta, outro profissional, remarcação, bloqueio do profissional/geral/vários dias, antecedência hoje/1 dia/após fechar, horário próprio e folga, sem preferência juntando horários, Manaus, 'hoje' no fuso, noite que vira o dia em UTC) | npm test |
 | CAL-045 | Concluído | 634513c | Página {slug}: Hero com CTA, Como funciona, Serviços (mais pedido, cada um leva a /agendar?servico=), Fotos e Equipe, Depoimentos, Onde fica + horários (hoje destacado), Dúvidas automáticas, chamada final, barra fixa; fundo escuro com --accent; página indisponível para assinatura suspensa; 404 amigável. src/lib/plans.ts com testes | abrir barbearia-do-ze.localhost:3000; npm run test:e2e (negocio.spec.ts) |
 | CAL-046 | Concluído | b9ac8a5 | /agendar: estado do fluxo na URL (voltar do celular funciona), barra de progresso de 4 passos, botão voltar, resumo fixo no rodapé com Continuar; passo 1 com serviços (duração, preço, mais pedido); serviço vindo da landing já marcado | barbearia-do-ze.localhost:3000/agendar; npm run test:e2e (agendar.spec.ts) |
+| CAL-047 | Concluído | 57252a0 | Passo 2: 'Sem preferência' como padrão + só profissionais aptos (foto/iniciais e cargo); com 1 apto ele já vem escolhido; trocar de serviço limpa profissional que não faz o novo serviço; resumo mostra o profissional | npm run test:e2e (agendar.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -61,4 +62,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Passo 2: 'Sem preferência' (padrão) + profissionais aptos ao serviço, com foto e cargo; se só houver 1 apto, já vem selecionado e mostra só ele. Resumo mostra o profissional.
+—
