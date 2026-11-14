@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-070
-- Card em andamento: CAL-073
-- Próximo card: CAL-076 (depende do CAL-075)
-- Atualizado em: 2026-11-14 06:15
+- Último card concluído: CAL-073
+- Card em andamento: —
+- Próximo card: CAL-076 — BLOQUEADO até o Victor escolher o gateway (CAL-075). Sem essa decisão, o próximo possível é o Sprint 8 (CAL-083), se o Victor autorizar pular a ordem.
+- Atualizado em: 2026-11-14 06:40
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -49,6 +49,7 @@
 | CAL-071 | Concluído | 68dc66e | Migration 20261114000500: consume_message_quota (reserva atômica, nunca passa do limite) e release_message_quota (devolve se falhar), só service_role. src/lib/whatsapp/quota.ts: getMonthQuota, quotaNotice (80% e esgotado, sugere Pro+ ou suporte, data em que renova). Aviso na agenda; /assinatura com plano, status, barra de uso do mês e planos; /confirmado só diz "enviamos no WhatsApp" se a mensagem saiu | npm test (whatsapp/quota.test.ts); npm run test:db (whatsapp.test.ts, corrida); npm run test:e2e (assinatura.spec.ts) |
 | CAL-069 | Concluído | f967a3e | GET /api/cron/reminders (Bearer CRON_SECRET, comparação em tempo constante) → runReminders: busca confirmados nas próximas 24 h de negócios com envio automático e clientes sem opt-out; reminderDueAt (24 h antes; 2 h antes se agendou com menos de 24 h; sem lembrete abaixo de 4 h; nunca a menos de 30 min); um lembrete por agendamento e horário (migration 20261114000600: messages.appointment_starts_at + índice único), até 3 tentativas após falha | npm test (reminders.test.ts, cron.test.ts); npm run test:db (reminders.test.ts); curl -H "Authorization: Bearer dev-cron-secret" http://localhost:3000/api/cron/reminders |
 | CAL-070 | Concluído | 370c392 | GET/POST /api/webhooks/whatsapp: verificação com WHATSAPP_WEBHOOK_VERIFY_TOKEN, assinatura X-Hub-Signature-256 com WHATSAPP_APP_SECRET (obrigatória no live; sem ela 503), parseStatusUpdates + nextStatus (sem regressão, falhou só antes de entregue), applyStatusUpdates (grava erro; falha devolve a cota) | npm test (webhook.test.ts); npm run test:db (webhook.test.ts) |
+| CAL-073 | Concluído | 7fd0108 | Rodapé "Para não receber mais mensagens, responda SAIR." nos 3 templates; src/lib/whatsapp/opt-out.ts (parseOptKeyword: SAIR/PARAR/STOP… e VOLTAR, só a mensagem inteira; parseIncomingMessages com wa_id sem o 9; applyOptKeywords por negócio via context.id ou todos); webhook aplica; card "Mensagens automáticas" no detalhe para o dono pausar/religar; prévia do /confirmado mostra o rodapé | npm test (opt-out.test.ts); npm run test:db (webhook.test.ts › opt-out); npm run test:e2e (detalhe.spec.ts › opt-out) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -78,12 +79,16 @@
 - increment_message_usage (migration inicial) não é mais usado no envio; foi mantido por compatibilidade.
 - Janela do lembrete (não estava definida no CLAUDE.md): 24 h antes; quem agenda com menos de 24 h recebe 2 h antes; com menos de 4 h não há lembrete. Constantes em src/lib/whatsapp/reminders.ts, fáceis de mudar.
 - E2E ajustes.spec.ts passou a limpar o profissional "Bruno Teste" (sobrava no seed e quebrava o teste de banco de "sem preferência").
+- Opt-out sem contexto (cliente manda SAIR sem responder a uma mensagem) vale para todos os negócios daquele número, porque o número que envia é o mesmo da Calenvia. A Calenvia ainda não responde "você não vai mais receber" ao cliente (precisaria de mensagem de texto livre na janela de 24 h; fica para depois).
+- Rodapé de opt-out entrou nos templates v1 (ainda não cadastrados na Meta, então não precisou de v2).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 - CAL-026: login com Google está pronto no código, mas desligado. Para ligar: criar OAuth Client no Google Cloud (redirect: https://<projeto>.supabase.co/auth/v1/callback) e ativar o provedor Google no painel do Supabase (local: `[auth.external.google] enabled = true` + variáveis SUPABASE_AUTH_EXTERNAL_GOOGLE_*). Em produção, ligar também a confirmação de e-mail e o SMTP no Supabase.
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
+- CAL-075 (decisão): escolher o gateway de pagamento (Asaas, Mercado Pago ou Stripe). Bloqueia CAL-076, CAL-077, CAL-078 (upgrade/downgrade), CAL-080 (faturas, trocar/cancelar). CAL-079 (teste grátis) também é decisão sua.
+- CAL-070: no painel da Meta, cadastrar o webhook (URL e verify token em docs/WHATSAPP.md) e colocar o App secret em WHATSAPP_APP_SECRET na Vercel.
 - CAL-067: cadastrar os 3 templates na Meta (passo a passo em docs/WHATSAPP.md) depois que a conta do CAL-066 existir.
 
 ## Plano do card atual
-src/lib/whatsapp: client da Cloud API (fetch, sem SDK) com modo mock/live; sendWhatsApp(business, appointment, type) verifica plano (canSendAutomaticMessages), cota do mês (message_usage via increment_message_usage), opt-out do cliente, grava messages (queued→sent/failed) e devolve {sent|fallback wa.me}. Ligar no afterBooking/afterCancel/afterReschedule. Testes unitários com client falso + teste de banco no modo mock.
+—
