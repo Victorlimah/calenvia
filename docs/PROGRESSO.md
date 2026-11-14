@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-039
-- Card em andamento: CAL-038
+- Último card concluído: CAL-038
+- Card em andamento: —
 - Próximo card: CAL-037
-- Atualizado em: 2026-11-14 01:37
+- Atualizado em: 2026-11-14 01:39
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -24,6 +24,7 @@
 | CAL-035 | Concluído | 465c759 | /ajustes/horarios com HoursEditor: aberto/fechado por dia, abertura, fechamento, vários intervalos, copiar para todos; validação (fecha depois de abrir, intervalo dentro do horário, sem sobreposição); salvamento atômico | npm run test:e2e (ajustes.spec.ts) |
 | CAL-033 | Concluído | 465c759 | Shell do painel (nav inferior no celular, lateral no desktop, sair), /ajustes (menu), /ajustes/servicos (nome, descrição, duração, preço, ativo, mais pedido, ordenar ↑↓, quem faz), /ajustes/negocio | npm run test:e2e (ajustes.spec.ts); entrar como ze@calenvia.dev |
 | CAL-039 | Concluído | e0f60a2 | /ajustes/regras: intervalo entre horários (15/30/60), antecedência mínima, dias à frente, prazo para remarcar/cancelar | npm run test:e2e (ajustes.spec.ts › regras) |
+| CAL-038 | Concluído | 8f59708 | Bucket business-media (5 MB, JPG/PNG/WebP) com policies por pasta do negócio; tabela business_photos; ImageUpload (compressão WebP no navegador, máx. 1600px, limite 10 MB); foto do profissional nos ajustes; actions de logo/capa/galeria; testes de policy do Storage | npm run test:db; npm run test:e2e (foto do profissional) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -48,4 +49,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Migration: bucket público business-media (5 MB, jpeg/png/webp) com policies em storage.objects (dono escreve só em {business_id}/...); tabela business_photos (galeria) com RLS. Componente ImageUpload: compressão no navegador (canvas → WebP/JPEG, máx 1600px), limite 10 MB de entrada, upload pelo client do navegador (sessão do dono), estados de carregamento/erro. Actions para salvar logo/capa/foto do profissional/galeria.
+—
