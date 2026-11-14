@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-047
-- Card em andamento: CAL-048
+- Último card concluído: CAL-048
+- Card em andamento: —
 - Próximo card: CAL-049
-- Atualizado em: 2026-11-14 02:00
+- Atualizado em: 2026-11-14 02:04
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -34,6 +34,7 @@
 | CAL-045 | Concluído | 634513c | Página {slug}: Hero com CTA, Como funciona, Serviços (mais pedido, cada um leva a /agendar?servico=), Fotos e Equipe, Depoimentos, Onde fica + horários (hoje destacado), Dúvidas automáticas, chamada final, barra fixa; fundo escuro com --accent; página indisponível para assinatura suspensa; 404 amigável. src/lib/plans.ts com testes | abrir barbearia-do-ze.localhost:3000; npm run test:e2e (negocio.spec.ts) |
 | CAL-046 | Concluído | b9ac8a5 | /agendar: estado do fluxo na URL (voltar do celular funciona), barra de progresso de 4 passos, botão voltar, resumo fixo no rodapé com Continuar; passo 1 com serviços (duração, preço, mais pedido); serviço vindo da landing já marcado | barbearia-do-ze.localhost:3000/agendar; npm run test:e2e (agendar.spec.ts) |
 | CAL-047 | Concluído | 57252a0 | Passo 2: 'Sem preferência' como padrão + só profissionais aptos (foto/iniciais e cargo); com 1 apto ele já vem escolhido; trocar de serviço limpa profissional que não faz o novo serviço; resumo mostra o profissional | npm run test:e2e (agendar.spec.ts) |
+| CAL-048 | Concluído | 84ada0a | Passo 3: faixa de 14 dias (Hoje/dia da semana/número), navegação ‹ ›, dias fechados ou lotados desabilitados, grade Manhã/Tarde/Noite, atalho 'Ver próximo dia com horário', estados de carregamento/erro/vazio; server action availabilityAction (Zod, service role) usando o motor; resumo mostra 'sábado, 21/11 às 14:30' | npm run test:e2e (agendar.spec.ts › passo 3) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -62,4 +63,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Server action loadAvailabilityAction(slug, serviceId, staffId, from) (service role, revalida entrada com Zod) → resumo de 14 dias + horários do dia (grupos Manhã/Tarde/Noite) + próximo dia livre. Passo 3: faixa horizontal de dias (dias fechados/lotados desabilitados), grade de horários por período, atalho 'Próximo dia com horário', estados de carregamento/erro/vazio.
+—
