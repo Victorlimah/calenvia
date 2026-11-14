@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-062
-- Card em andamento: —
-- Próximo card: CAL-041
+- Card em andamento: CAL-041
+- Próximo card: CAL-042
 - Atualizado em: 2026-11-14 01:43
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -45,6 +45,7 @@
 - Um negócio por conta no MVP (getCurrentBusiness pega o primeiro do dono). Salvar horários e serviços do profissional usa funções SQL atômicas (save_business_hours, set_staff_services) com RLS (security invoker).
 - Tabela extra business_photos (galeria 'fotos do trabalho', até 12 fotos) — não estava na seção 4 do CLAUDE.md, mas a página pública precisa. Imagens no bucket público business-media/{business_id}/{tipo}/; compressão no navegador para WebP.
 - Tabela extra business_testimonials (depoimentos cadastrados pelo dono, até 10) para a seção de depoimentos da página pública.
+- Motor de horários: os intervalos do negócio (almoço) valem para todos os profissionais, mesmo os com horário próprio. Dia com horário mas sem nenhum livre = status 'full' (além de closed/past/too_far/no_staff).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
@@ -52,4 +53,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-—
+Motor puro em src/lib/availability: tipos de entrada (regras do negócio, horários, intervalos, staff_hours, agendamentos, bloqueios, serviço, profissionais aptos), getDaySlots(date) e getAvailableDays(range); usa dates.ts para fuso; agrupa Manhã/Tarde/Noite; motivo closed/past/too_far/no_staff; sem preferência (livre se algum apto) e pickStaffForSlot (menos agendamentos no dia, empate alfabético). Testes cobrindo todas as regras da seção 5 (CAL-044 complementa).
