@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-021
-- Card em andamento: —
-- Próximo card: CAL-023
+- Card em andamento: CAL-023
+- Próximo card: CAL-024
 - Atualizado em: 2026-11-14 01:07
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -17,9 +17,12 @@
 - Next.js 15 (não 16) porque o CLAUDE.md fala em `middleware.ts` (no 16 virou `proxy.ts`).
 - Supabase CLI instalado como devDependency (`npx supabase`), sem instalação global.
 - Dev usa Supabase local (`npx supabase start`). O arquivo `.env.local` (ignorado pelo git) tem as chaves públicas de demonstração do Supabase local.
+- Status/plano/tipo em colunas text com CHECK (não enums), mais fácil de evoluir. FKs compostas (id, business_id) garantem que serviço/profissional/cliente de um agendamento são do mesmo negócio.
+- Colunas extras: businesses.message_limit_override (uso justo do Pro+ por negócio), businesses.onboarding_completed_at, plan_status com 'pending' (padrão até o pagamento). Índice único impede dois lembretes por agendamento. Slug com 3 a 40 caracteres.
+- Dono não pode alterar plan/plan_status (privilégio por coluna); só o servidor (service_role) muda isso.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 
 ## Plano do card atual
-—
+Migration 0001 com extensões (btree_gist, pgcrypto), enums, todas as tabelas da seção 4, FKs, índices, constraint EXCLUDE anti-conflito, RLS ligado em tudo (policies do dono já aqui, testes de policy no CAL-024). Validar com supabase db reset e gerar tipos.

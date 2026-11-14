@@ -23,13 +23,677 @@ export type Database = {
   };
   public: {
     Tables: {
-      [_ in never]: never;
+      appointments: {
+        Row: {
+          business_id: string;
+          canceled_at: string | null;
+          created_at: string;
+          customer_id: string;
+          customer_name: string;
+          customer_whatsapp: string;
+          ends_at: string;
+          id: string;
+          manage_code: string;
+          notes: string | null;
+          price_cents: number;
+          service_id: string;
+          source: string;
+          staff_member_id: string;
+          starts_at: string;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          canceled_at?: string | null;
+          created_at?: string;
+          customer_id: string;
+          customer_name: string;
+          customer_whatsapp: string;
+          ends_at: string;
+          id?: string;
+          manage_code?: string;
+          notes?: string | null;
+          price_cents?: number;
+          service_id: string;
+          source?: string;
+          staff_member_id: string;
+          starts_at: string;
+          status?: string;
+        };
+        Update: {
+          business_id?: string;
+          canceled_at?: string | null;
+          created_at?: string;
+          customer_id?: string;
+          customer_name?: string;
+          customer_whatsapp?: string;
+          ends_at?: string;
+          id?: string;
+          manage_code?: string;
+          notes?: string | null;
+          price_cents?: number;
+          service_id?: string;
+          source?: string;
+          staff_member_id?: string;
+          starts_at?: string;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "appointments_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "appointments_customer_id_business_id_fkey";
+            columns: ["customer_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "customers";
+            referencedColumns: ["id", "business_id"];
+          },
+          {
+            foreignKeyName: "appointments_service_id_business_id_fkey";
+            columns: ["service_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id", "business_id"];
+          },
+          {
+            foreignKeyName: "appointments_staff_member_id_business_id_fkey";
+            columns: ["staff_member_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_members";
+            referencedColumns: ["id", "business_id"];
+          },
+        ];
+      };
+      business_breaks: {
+        Row: {
+          business_id: string;
+          ends_at: string;
+          id: string;
+          starts_at: string;
+          weekday: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          ends_at: string;
+          id?: string;
+          starts_at: string;
+          weekday: number;
+        };
+        Update: {
+          business_id?: string;
+          ends_at?: string;
+          id?: string;
+          starts_at?: string;
+          weekday?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_breaks_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_hours: {
+        Row: {
+          business_id: string;
+          closes_at: string | null;
+          id: string;
+          is_open: boolean;
+          opens_at: string | null;
+          weekday: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          closes_at?: string | null;
+          id?: string;
+          is_open?: boolean;
+          opens_at?: string | null;
+          weekday: number;
+        };
+        Update: {
+          business_id?: string;
+          closes_at?: string | null;
+          id?: string;
+          is_open?: boolean;
+          opens_at?: string | null;
+          weekday?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_hours_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      businesses: {
+        Row: {
+          accent_color: string;
+          address: string | null;
+          address_reference: string | null;
+          cancel_notice_min: number;
+          cover_url: string | null;
+          created_at: string;
+          headline: string | null;
+          id: string;
+          instagram: string | null;
+          logo_url: string | null;
+          max_days_ahead: number;
+          message_limit_override: number | null;
+          min_notice_min: number;
+          name: string;
+          onboarding_completed_at: string | null;
+          owner_id: string;
+          plan: string;
+          plan_status: string;
+          segment: string | null;
+          slot_interval_min: number;
+          slug: string;
+          subheadline: string | null;
+          timezone: string;
+          whatsapp: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          accent_color?: string;
+          address?: string | null;
+          address_reference?: string | null;
+          cancel_notice_min?: number;
+          cover_url?: string | null;
+          created_at?: string;
+          headline?: string | null;
+          id?: string;
+          instagram?: string | null;
+          logo_url?: string | null;
+          max_days_ahead?: number;
+          message_limit_override?: number | null;
+          min_notice_min?: number;
+          name: string;
+          onboarding_completed_at?: string | null;
+          owner_id: string;
+          plan?: string;
+          plan_status?: string;
+          segment?: string | null;
+          slot_interval_min?: number;
+          slug: string;
+          subheadline?: string | null;
+          timezone?: string;
+          whatsapp?: string | null;
+        };
+        Update: {
+          accent_color?: string;
+          address?: string | null;
+          address_reference?: string | null;
+          cancel_notice_min?: number;
+          cover_url?: string | null;
+          created_at?: string;
+          headline?: string | null;
+          id?: string;
+          instagram?: string | null;
+          logo_url?: string | null;
+          max_days_ahead?: number;
+          message_limit_override?: number | null;
+          min_notice_min?: number;
+          name?: string;
+          onboarding_completed_at?: string | null;
+          owner_id?: string;
+          plan?: string;
+          plan_status?: string;
+          segment?: string | null;
+          slot_interval_min?: number;
+          slug?: string;
+          subheadline?: string | null;
+          timezone?: string;
+          whatsapp?: string | null;
+        };
+        Relationships: [];
+      };
+      custom_domains: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          domain: string;
+          verified_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          domain: string;
+          verified_at?: string | null;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          domain?: string;
+          verified_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "custom_domains_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      customers: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          id: string;
+          last_visit_at: string | null;
+          name: string;
+          opted_out_at: string | null;
+          whatsapp: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          id?: string;
+          last_visit_at?: string | null;
+          name: string;
+          opted_out_at?: string | null;
+          whatsapp: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          id?: string;
+          last_visit_at?: string | null;
+          name?: string;
+          opted_out_at?: string | null;
+          whatsapp?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "customers_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      message_usage: {
+        Row: {
+          business_id: string;
+          count: number;
+          period: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          count?: number;
+          period: string;
+        };
+        Update: {
+          business_id?: string;
+          count?: number;
+          period?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "message_usage_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      messages: {
+        Row: {
+          appointment_id: string | null;
+          business_id: string;
+          created_at: string;
+          error: string | null;
+          id: string;
+          provider_message_id: string | null;
+          sent_at: string | null;
+          status: string;
+          template: string;
+          to_number: string;
+          type: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          appointment_id?: string | null;
+          business_id: string;
+          created_at?: string;
+          error?: string | null;
+          id?: string;
+          provider_message_id?: string | null;
+          sent_at?: string | null;
+          status?: string;
+          template: string;
+          to_number: string;
+          type: string;
+        };
+        Update: {
+          appointment_id?: string | null;
+          business_id?: string;
+          created_at?: string;
+          error?: string | null;
+          id?: string;
+          provider_message_id?: string | null;
+          sent_at?: string | null;
+          status?: string;
+          template?: string;
+          to_number?: string;
+          type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "messages_appointment_id_fkey";
+            columns: ["appointment_id"];
+            isOneToOne: false;
+            referencedRelation: "appointments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      services: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          description: string | null;
+          duration_min: number;
+          id: string;
+          is_active: boolean;
+          is_featured: boolean;
+          name: string;
+          price_cents: number;
+          sort_order: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          description?: string | null;
+          duration_min: number;
+          id?: string;
+          is_active?: boolean;
+          is_featured?: boolean;
+          name: string;
+          price_cents?: number;
+          sort_order?: number;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          description?: string | null;
+          duration_min?: number;
+          id?: string;
+          is_active?: boolean;
+          is_featured?: boolean;
+          name?: string;
+          price_cents?: number;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "services_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      staff_hours: {
+        Row: {
+          business_id: string;
+          closes_at: string | null;
+          id: string;
+          is_open: boolean;
+          opens_at: string | null;
+          staff_member_id: string;
+          weekday: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          closes_at?: string | null;
+          id?: string;
+          is_open?: boolean;
+          opens_at?: string | null;
+          staff_member_id: string;
+          weekday: number;
+        };
+        Update: {
+          business_id?: string;
+          closes_at?: string | null;
+          id?: string;
+          is_open?: boolean;
+          opens_at?: string | null;
+          staff_member_id?: string;
+          weekday?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_hours_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "staff_hours_staff_member_id_business_id_fkey";
+            columns: ["staff_member_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_members";
+            referencedColumns: ["id", "business_id"];
+          },
+        ];
+      };
+      staff_members: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          photo_url: string | null;
+          role: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          photo_url?: string | null;
+          role?: string | null;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          photo_url?: string | null;
+          role?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_members_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      staff_services: {
+        Row: {
+          business_id: string;
+          service_id: string;
+          staff_member_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          service_id: string;
+          staff_member_id: string;
+        };
+        Update: {
+          business_id?: string;
+          service_id?: string;
+          staff_member_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "staff_services_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "staff_services_service_id_business_id_fkey";
+            columns: ["service_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id", "business_id"];
+          },
+          {
+            foreignKeyName: "staff_services_staff_member_id_business_id_fkey";
+            columns: ["staff_member_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_members";
+            referencedColumns: ["id", "business_id"];
+          },
+        ];
+      };
+      subscriptions: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          current_period_end: string | null;
+          id: string;
+          plan: string;
+          provider: string;
+          provider_customer_id: string | null;
+          provider_subscription_id: string | null;
+          status: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          current_period_end?: string | null;
+          id?: string;
+          plan: string;
+          provider: string;
+          provider_customer_id?: string | null;
+          provider_subscription_id?: string | null;
+          status: string;
+          updated_at?: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          current_period_end?: string | null;
+          id?: string;
+          plan?: string;
+          provider?: string;
+          provider_customer_id?: string | null;
+          provider_subscription_id?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      time_blocks: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          ends_at: string;
+          id: string;
+          reason: string | null;
+          staff_member_id: string | null;
+          starts_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          ends_at: string;
+          id?: string;
+          reason?: string | null;
+          staff_member_id?: string | null;
+          starts_at: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          ends_at?: string;
+          id?: string;
+          reason?: string | null;
+          staff_member_id?: string | null;
+          starts_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "time_blocks_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "time_blocks_staff_member_id_business_id_fkey";
+            columns: ["staff_member_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_members";
+            referencedColumns: ["id", "business_id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      gen_manage_code: { Args: Record<PropertyKey, never>; Returns: string };
+      increment_message_usage: {
+        Args: { p_business_id: string; p_period: string };
+        Returns: number;
+      };
+      is_business_owner: { Args: { p_business_id: string }; Returns: boolean };
     };
     Enums: {
       [_ in never]: never;
