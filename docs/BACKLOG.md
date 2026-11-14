@@ -28,7 +28,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-033** · Cadastro de serviços · P0 · 1,5d — Nome, descrição, duração, preço, ativo, "mais pedido", ordenação.
 - [x] **CAL-034** · Cadastro de profissionais · P0 · 1,5d — Nome, foto, cargo e serviços que cada um faz.
 - [x] **CAL-035** · Horário de funcionamento · P0 · 1,5d — Por dia da semana: aberto/fechado, abertura, fechamento e intervalos.
-- [ ] **CAL-039** · Regras da agenda · P0 · 1d — Antecedência mínima, dias à frente, intervalo entre horários (15/30/60).
+- [x] **CAL-039** · Regras da agenda · P0 · 1d — Antecedência mínima, dias à frente, intervalo entre horários (15/30/60).
 - [ ] **CAL-038** · Upload de imagens · P1 · 1d — Supabase Storage, compressão, limite de tamanho, logo/capa/fotos.
 - [ ] **CAL-037** · Aparência da página · P1 · 2d — Logo, capa, cor de destaque, título e subtítulo, com prévia ao vivo.
 - [ ] **CAL-062** · Link da página nos ajustes · P0 · 0,5d — Copiar link, ver página, dica para a bio do Instagram.

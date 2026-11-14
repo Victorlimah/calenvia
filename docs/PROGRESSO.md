@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-033
-- Card em andamento: CAL-039
+- Último card concluído: CAL-039
+- Card em andamento: —
 - Próximo card: CAL-038
-- Atualizado em: 2026-11-14 01:36
+- Atualizado em: 2026-11-14 01:37
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -23,6 +23,7 @@
 | CAL-034 | Concluído | 465c759 | /ajustes/profissionais com StaffEditor (nome, cargo, serviços que faz, ativo; excluir vira desativar se tiver agendamentos) | npm run test:e2e (ajustes.spec.ts) |
 | CAL-035 | Concluído | 465c759 | /ajustes/horarios com HoursEditor: aberto/fechado por dia, abertura, fechamento, vários intervalos, copiar para todos; validação (fecha depois de abrir, intervalo dentro do horário, sem sobreposição); salvamento atômico | npm run test:e2e (ajustes.spec.ts) |
 | CAL-033 | Concluído | 465c759 | Shell do painel (nav inferior no celular, lateral no desktop, sair), /ajustes (menu), /ajustes/servicos (nome, descrição, duração, preço, ativo, mais pedido, ordenar ↑↓, quem faz), /ajustes/negocio | npm run test:e2e (ajustes.spec.ts); entrar como ze@calenvia.dev |
+| CAL-039 | Concluído | e0f60a2 | /ajustes/regras: intervalo entre horários (15/30/60), antecedência mínima, dias à frente, prazo para remarcar/cancelar | npm run test:e2e (ajustes.spec.ts › regras) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -46,4 +47,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-/ajustes/regras: formulário com intervalo entre horários (15/30/60), antecedência mínima (opções: sem, 30min, 1h, 2h, 4h, 12h, 1 dia, 2 dias), dias à frente (7–90), prazo para cancelar (usado no CAL-040). Action saveAgendaRulesAction já existe.
+—
