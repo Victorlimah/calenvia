@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-101
-- Card em andamento: CAL-102
-- Próximo card: CAL-104
-- Atualizado em: 2026-11-14 08:41
+- Último card concluído: CAL-105
+- Card em andamento: CAL-106
+- Próximo card: CAL-107
+- Atualizado em: 2026-11-14 08:57
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -77,6 +77,10 @@
 | CAL-100 | Concluído | 13a477a | /relatorios (Pro+): faturado, previsto, ticket médio, faltas (taxa e valor), quebras por serviço/profissional/dia/período, melhores clientes; src/lib/reports/monthly.ts | npm test (reports/monthly.test.ts); npm run test:e2e (relatorios.spec.ts) |
 | CAL-074 | Concluído | e70818d | /ajustes/mensagens: textos da confirmação e do lembrete enviados pelo WhatsApp do dono, com variáveis, prévia, validação e restaurar padrão (businesses.message_texts); automáticas seguem os templates da Meta | npm test (messages/custom.test.ts); npm run test:e2e (mensagens.spec.ts) |
 | CAL-101 | Concluído | cedf259 | /ajuda: dúvidas frequentes, 'Fale com a gente' (support_requests, prioridade pelo plano, SUPPORT_WEBHOOK_URL), histórico; Pro+ com prazo de resposta menor | npm run test:e2e (ajuda.spec.ts) |
+| CAL-102 | Concluído | 596e8f5 | /financeiro: atendimentos concluídos + receitas avulsas − despesas (finance_entries com RLS), saldo e despesas por categoria por mês | npm test (finance/summary.test.ts); npm run test:e2e (financeiro.spec.ts) |
+| CAL-103 | Bloqueado | — | Sinal/pagamento antecipado via Pix depende do gateway (CAL-075) | — |
+| CAL-104 | Concluído | 48851f4 | Lista de espera: cliente entra pelo passo de horários (dia, período, nome, WhatsApp; servidor grava, limite por IP); dono vê na agenda do dia e avisa pelo wa.me com link direto para os horários ou remove (waitlist_entries) | npm test (waitlist.test.ts); npm run test:e2e (espera.spec.ts) |
+| CAL-105 | Concluído | d33db3f | Pacotes: Ajustes › Pacotes; vender no cliente (receita no Financeiro); 'Descontar do pacote' no agendamento (use_package_session atômico, zera o valor do agendamento) | npm test (packages.test.ts); npm run test:db (rls.test.ts › Pacotes); npm run test:e2e (pacotes.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
