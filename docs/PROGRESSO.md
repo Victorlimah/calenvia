@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-025
-- Card em andamento: CAL-017
+- Último card concluído: CAL-017
+- Card em andamento: —
 - Próximo card: CAL-026
-- Atualizado em: 2026-11-14 01:16
+- Atualizado em: 2026-11-14 01:17
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -15,6 +15,7 @@
 | CAL-027 | Concluído | 007473f | src/lib/dates.ts: conversão data/hora local ↔ UTC, intervalo do dia, dia da semana, período YYYY-MM, formatação pt-BR, duração; 15 testes | npm test |
 | CAL-030 | Concluído | 3990308 | supabase/seed.sql: 2 donos com login (ze@calenvia.dev / ana@calenvia.dev, senha calenvia123), Barbearia do Zé (Pro, Fortaleza) e Ana Nails (Básico, SP) com serviços, profissionais, horários, almoço, clientes, agendamentos no próximo dia útil e bloqueio | npx supabase db reset; entrar no painel com ze@calenvia.dev / calenvia123 |
 | CAL-025 | Concluído | c68cb49 | src/lib/hosts.ts (resolveHost, slugs reservados, URLs) + 13 testes; src/middleware.ts com rewrite por host; guardas de host nos layouts | npm run dev e abrir localhost:3000, app.localhost:3000, barbearia-do-ze.localhost:3000 |
+| CAL-017 | Concluído | 5ef4b79 | Tokens da marca no globals.css (Tailwind 4 @theme), componentes em src/components/ui (Button/ButtonLink, Input, Textarea, Select, Field acessível, Card, Alert, Badge, EmptyState/ErrorState, Spinner), Logo, cn(), formatPrice/parsePriceToCents com testes | npm test; ver componentes nas telas do painel |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -33,4 +34,4 @@
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 
 ## Plano do card atual
-Tokens da marca em globals.css (@theme do Tailwind 4: brand, ink, bg, line, success, danger; fontes; raio); componentes em src/components/ui: Button (variantes, tamanho mínimo 44px, loading), Input, Textarea, Select, Field (label + dica + erro com aria), Card, Alert, EmptyState, Spinner, Badge; helper cn(); página /painel/_design não (evitar rota extra) — uma página interna /dev/ui só em dev.
+—

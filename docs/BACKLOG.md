@@ -22,7 +22,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [ ] **CAL-022** · Deploy na Vercel · P0 · 0,5d — Preview e produção, domínio curinga configurado. *(Plano pago da Vercel antes de cobrar clientes.)*
 
 ### Sprint 2 — Cadastro e configuração do negócio
-- [ ] **CAL-017** · Design system básico · P1 · 2d — Tokens (cores, fontes Bricolage + Inter, espaçamentos), botões, inputs, cards, estados de erro e vazio.
+- [x] **CAL-017** · Design system básico · P1 · 2d — Tokens (cores, fontes Bricolage + Inter, espaçamentos), botões, inputs, cards, estados de erro e vazio.
 - [ ] **CAL-031** · Onboarding: criar o negócio · P0 · 2d — Passo a passo: nome, segmento, endereço, WhatsApp, slug → serviços → profissionais → horários → link pronto para copiar.
 - [ ] **CAL-032** · Validação e reserva do slug · P0 · 0,5d — Único, minúsculas e números (e hífen), sem nomes reservados, sugestão automática a partir do nome.
 - [ ] **CAL-033** · Cadastro de serviços · P0 · 1,5d — Nome, descrição, duração, preço, ativo, "mais pedido", ordenação.
