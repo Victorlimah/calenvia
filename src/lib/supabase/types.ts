@@ -348,6 +348,8 @@ export type Database = {
           business_id: string;
           created_at: string;
           domain: string;
+          last_checked_at: string | null;
+          last_error: string | null;
           verified_at: string | null;
         };
         ComputedFields: never;
@@ -355,12 +357,16 @@ export type Database = {
           business_id: string;
           created_at?: string;
           domain: string;
+          last_checked_at?: string | null;
+          last_error?: string | null;
           verified_at?: string | null;
         };
         Update: {
           business_id?: string;
           created_at?: string;
           domain?: string;
+          last_checked_at?: string | null;
+          last_error?: string | null;
           verified_at?: string | null;
         };
         Relationships: [

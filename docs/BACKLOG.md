@@ -107,7 +107,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [ ] **CAL-082** · Régua de cobrança · P2 · 1d — Avisos de vencimento e atraso.
 
 ## M4 · Evolução
-- [ ] **CAL-099** · Domínio próprio (Pro+) · P2 · 3d — Tabela `custom_domains`, API da Vercel, SSL, middleware.
+- [x] **CAL-099** · Domínio próprio (Pro+) · P2 · 3d — Tabela `custom_domains`, API da Vercel, SSL, middleware.
 - [ ] **CAL-100** · Relatórios de faturamento e faltas (Pro+) · P2 · 3d
 - [ ] **CAL-074** · Editor de mensagens por negócio · P2 · 2d
 - [ ] **CAL-101** · Suporte prioritário (Pro+) · P2 · 0,5d

@@ -1,11 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isPublicAppPath } from "@/lib/auth/paths";
 import { HOST_KIND_HEADER, HOST_SLUG_HEADER } from "@/lib/host-headers";
+import { slugForDomain } from "@/lib/domains/lookup";
 import { appUrl, resolveHost, rewritePath } from "@/lib/hosts";
 import { refreshSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  const host = resolveHost(request.headers.get("host"));
+  let host = resolveHost(request.headers.get("host"));
+  // Domínio próprio (Pro+): vira a página do negócio dono do domínio.
+  if (host.kind === "custom") {
+    const slug = await slugForDomain(host.domain);
+    if (!slug) return new NextResponse("Domínio não configurado na Calenvia.", { status: 404 });
+    host = { kind: "business", slug };
+  }
   const { pathname, search } = request.nextUrl;
 
   // Cabeçalhos internos: sempre sobrescritos aqui (o navegador não consegue forjar).

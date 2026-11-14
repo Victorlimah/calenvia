@@ -32,6 +32,11 @@ const ITEMS = [
     desc: "Antecedência, dias à frente e intervalo",
   },
   { href: "/ajustes/aparencia", title: "Aparência da página", desc: "Logo, capa, cor e textos" },
+  {
+    href: "/ajustes/dominio",
+    title: "Domínio próprio",
+    desc: "Sua página no seu endereço (Pro+)",
+  },
   { href: "/assinatura", title: "Assinatura", desc: "Plano, faturas e mensagens do mês" },
 ];
 
