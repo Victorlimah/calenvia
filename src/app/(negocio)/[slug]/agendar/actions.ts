@@ -1,9 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { getPublicAppointment } from "@/lib/public/appointment";
 import { getPublicBusiness, getPublicCatalog } from "@/lib/public/business";
-import { publicAvailability, type PublicAvailability } from "@/lib/public/availability";
 import { isBookingOpen } from "@/lib/plans";
 import { zodFieldErrors } from "@/lib/action-result";
 import {
@@ -22,61 +20,10 @@ import { MAX_FUTURE_BOOKINGS_PER_CUSTOMER, TOO_MANY_BOOKINGS_MESSAGE } from "@/l
 import { normalizeMobile } from "@/lib/phone";
 import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 import { addLocalDays, todayIn } from "@/lib/dates";
+import { queryPublicAvailability, type AvailabilityResult } from "@/lib/public/availability-query";
 
-const availabilityInput = z.object({
-  slug: z.string().min(3).max(40),
-  serviceId: z.string().uuid(),
-  staffId: z.string().uuid().nullable(),
-  from: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .nullable()
-    .optional(),
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .nullable()
-    .optional(),
-  manageCode: z.string().max(10).nullable().optional(),
-});
-
-export async function availabilityAction(
-  input: unknown,
-): Promise<{ ok: true; data: PublicAvailability } | { ok: false; error: string }> {
-  const parsed = availabilityInput.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Pedido inválido." };
-  if (!(await checkRateLimit("availability"))) return { ok: false, error: RATE_LIMIT_MESSAGE };
-  const business = await getPublicBusiness(parsed.data.slug);
-  if (!business || !isBookingOpen(business)) return { ok: false, error: "Agenda indisponível." };
-  const { services, staff } = await getPublicCatalog(business.id);
-  const service = services.find((s) => s.id === parsed.data.serviceId);
-  if (!service) return { ok: false, error: "Serviço indisponível." };
-  if (
-    parsed.data.staffId &&
-    !staff.some((s) => s.id === parsed.data.staffId && s.serviceIds.includes(service.id))
-  ) {
-    return { ok: false, error: "Profissional indisponível." };
-  }
-  let excludeAppointmentId: string | null = null;
-  if (parsed.data.manageCode) {
-    const appt = await getPublicAppointment(business.id, parsed.data.manageCode);
-    if (!appt) return { ok: false, error: "Agendamento não encontrado." };
-    excludeAppointmentId = appt.id;
-  }
-  try {
-    const data = await publicAvailability(business, {
-      excludeAppointmentId,
-      serviceId: service.id,
-      durationMin: service.duration_min,
-      staffId: parsed.data.staffId,
-      from: parsed.data.from,
-      date: parsed.data.date,
-    });
-    return { ok: true, data };
-  } catch (e) {
-    console.error("availabilityAction", e);
-    return { ok: false, error: "Não foi possível carregar os horários. Tente de novo." };
-  }
+export async function availabilityAction(input: unknown): Promise<AvailabilityResult> {
+  return queryPublicAvailability(input);
 }
 
 export type BookResult =

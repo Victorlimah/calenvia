@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PERIOD_LABELS, type DayPeriod } from "@/lib/availability/types";
 import {
   addLocalDays,
@@ -14,7 +14,7 @@ import { formatInTimeZone } from "date-fns-tz";
 import { ptBR } from "date-fns/locale";
 import { readableTextOn } from "@/lib/color";
 import type { PublicAvailability } from "@/lib/public/availability";
-import { availabilityAction } from "@/app/(negocio)/[slug]/agendar/actions";
+import type { AvailabilityResult } from "@/lib/public/availability-query";
 import { WaitlistForm } from "./waitlist-form";
 
 const PERIODS: DayPeriod[] = ["morning", "afternoon", "evening"];
@@ -50,15 +50,33 @@ export function TimeStep({
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
 
+  // Chave da última busca que deu certo. Quando o dia é escolhido sozinho (primeiro dia com
+  // horário), o pai atualiza `date` e o efeito roda de novo com a mesma consulta: não busca de
+  // novo (a segunda chamada concorria com a atualização da URL e podia nunca terminar).
+  const loadedKey = useRef<string | null>(null);
+  const keyOf = (d: string | null) =>
+    [slug, serviceId, staffId, from, d, attempt, manageCode].join("|");
+
   useEffect(() => {
     let alive = true;
+    if (loadedKey.current === keyOf(date)) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
-    availabilityAction({ slug, serviceId, staffId, from, date, manageCode })
+    const qs = new URLSearchParams({ slug, servico: serviceId });
+    if (staffId) qs.set("profissional", staffId);
+    if (from) qs.set("de", from);
+    if (date) qs.set("data", date);
+    if (manageCode) qs.set("codigo", manageCode);
+    fetch(`/api/disponibilidade?${qs}`, { cache: "no-store" })
+      .then((res) => res.json() as Promise<AvailabilityResult>)
       .then((r) => {
         if (!alive) return;
         if (!r.ok) return setError(r.error);
         setData(r.data);
+        loadedKey.current = keyOf(date ?? r.data.date);
         if (!date && r.data.date) onChange({ date: r.data.date, start: null });
       })
       .catch(() => alive && setError("Sem conexão. Verifique a internet e tente de novo."))
@@ -219,6 +237,8 @@ export function TimeStep({
                       <button
                         type="button"
                         aria-pressed={selected}
+                        // Enquanto outro dia carrega, a grade antiga não pode ser escolhida.
+                        disabled={loading}
                         onClick={() => onChange({ date: data.date, start: s.start })}
                         className="min-h-12 w-full rounded-xl border-2 font-semibold"
                         style={

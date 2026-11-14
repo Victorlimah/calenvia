@@ -13,6 +13,10 @@ test("cliente remarca pelo link e depois cancela", async ({ page }) => {
   await expect(page.getByText(/Você pode remarcar ou cancelar até/)).toBeVisible();
 
   await page.getByRole("button", { name: "Remarcar" }).click();
+  // um dia mais à frente: remarcar para hoje cairia dentro do prazo de cancelamento
+  const days = page.getByRole("list", { name: "Dias" }).getByRole("button", { disabled: false });
+  await expect(days.first()).toBeVisible();
+  await days.last().click();
   const slots = page.locator('[aria-label^="Horários da"] button');
   await expect(slots.first()).toBeVisible();
   await slots.last().click();
