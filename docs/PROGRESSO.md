@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-012
-- Card em andamento: CAL-052
-- Próximo card: CAL-040
-- Atualizado em: 2026-11-14 06:44
+- Último card concluído: CAL-052
+- Card em andamento: CAL-036
+- Próximo card: CAL-060
+- Atualizado em: 2026-11-14 06:49
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -53,6 +53,8 @@
 | CAL-083 | Concluído | 2a9e653 | Landing de referência convertida para (site)/page.tsx: CSS escopado em .lp (landing.css), menu do celular, animação de entrada (sem esconder nada sem JS), celular de exemplo alternando 7 negócios; preços/cotas de plans.ts; botões → app.*/cadastro?plano=basic|pro|pro_plus; FAQ sem textos provisórios (pagamento removido até o CAL-075) | abrir localhost:3000; npm run test:e2e (site.spec.ts) |
 | CAL-084 | Concluído | 73402b6 | Plano escolhido no site vai do cadastro (plan_intent) para o negócio criado no onboarding (gravado pelo servidor, plan_status pending até o checkout); tela 'pronto' mostra o plano. Checkout em si depende do CAL-076 | npm run test:e2e (onboarding.spec.ts) |
 | CAL-012 | Concluído (texto a revisar) | 9431410 | /termos e /privacidade com rascunho em linguagem simples fiel ao produto; contatos em src/lib/company.ts | localhost:3000/termos e /privacidade; npm run test:e2e (site.spec.ts) |
+| CAL-040 | Concluído | 211bdb8 | src/lib/booking/manage-policy.ts: customerManagePolicy (prazo cancel_notice_min, já configurável em Ajustes › Regras; só Pro/Pro+; só confirmados e futuros) | npm test (manage-policy.test.ts) |
+| CAL-052 | Concluído | 81dc98c | /{slug}/gerenciar/{code}: resumo + prazo; remarcar com o mesmo profissional (TimeStep reaproveitado; horário atual conta como livre via manageCode → excludeAppointmentId); cancelar com confirmação; actions revalidam tudo (policy, motor, constraint); fora do prazo/Básico → WhatsApp do negócio; cancelado → Agendar de novo | npm run test:e2e (gerenciar.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
