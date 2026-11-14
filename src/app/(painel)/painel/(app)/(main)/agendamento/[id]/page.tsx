@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { SendWhatsAppButton } from "@/components/painel/send-whatsapp-button";
-import { Badge, Card } from "@/components/ui";
+import { Alert, Badge, Card } from "@/components/ui";
 import { STATUS_LABELS, STATUS_TONES } from "@/lib/agenda/status";
 import { requireReadyBusiness } from "@/lib/business/current";
 import { formatDate, formatDayLabel, formatDuration, formatTime, toLocalDate } from "@/lib/dates";
@@ -29,8 +29,15 @@ const MESSAGE_STATUS = {
   failed: "Falhou",
 } as const;
 
-export default async function AgendamentoPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AgendamentoPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ enviar?: string }>;
+}) {
   const { id } = await params;
+  const { enviar } = await searchParams;
   const business = await requireReadyBusiness();
   const supabase = await createSupabaseServerClient();
   const { data: a } = await supabase
@@ -106,6 +113,12 @@ export default async function AgendamentoPage({ params }: { params: Promise<{ id
           ))}
         </dl>
       </Card>
+
+      {enviar && !confirmationSent && status === "confirmed" ? (
+        <Alert tone="info" title="Agendamento criado">
+          Toque em “Enviar confirmação no WhatsApp” para mandar a mensagem pronta ao cliente.
+        </Alert>
+      ) : null}
 
       <div className="grid gap-2 sm:grid-cols-2">
         <a

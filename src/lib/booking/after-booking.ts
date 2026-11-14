@@ -8,9 +8,14 @@ type Appointment = Tables<"appointments">;
  * Ganchos depois de mudanças em agendamentos (mensagens de WhatsApp entram no CAL-068).
  * Erros aqui nunca desfazem o agendamento.
  */
-export async function afterBooking(business: Business, appointment: Appointment): Promise<void> {
+/** Retorna se a confirmação foi enviada automaticamente (senão, o dono usa o wa.me). */
+export async function afterBooking(
+  business: Business,
+  appointment: Appointment,
+): Promise<{ automatic: boolean }> {
   void business;
   void appointment;
+  return { automatic: false };
 }
 
 export async function afterCancel(
