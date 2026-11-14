@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-073
-- Card em andamento: —
-- Próximo card: CAL-076 — BLOQUEADO até o Victor escolher o gateway (CAL-075). Sem essa decisão, o próximo possível é o Sprint 8 (CAL-083), se o Victor autorizar pular a ordem.
-- Atualizado em: 2026-11-14 06:40
+- Último card concluído: CAL-012
+- Card em andamento: CAL-052
+- Próximo card: CAL-040
+- Atualizado em: 2026-11-14 06:44
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -50,6 +50,9 @@
 | CAL-069 | Concluído | f967a3e | GET /api/cron/reminders (Bearer CRON_SECRET, comparação em tempo constante) → runReminders: busca confirmados nas próximas 24 h de negócios com envio automático e clientes sem opt-out; reminderDueAt (24 h antes; 2 h antes se agendou com menos de 24 h; sem lembrete abaixo de 4 h; nunca a menos de 30 min); um lembrete por agendamento e horário (migration 20261114000600: messages.appointment_starts_at + índice único), até 3 tentativas após falha | npm test (reminders.test.ts, cron.test.ts); npm run test:db (reminders.test.ts); curl -H "Authorization: Bearer dev-cron-secret" http://localhost:3000/api/cron/reminders |
 | CAL-070 | Concluído | 370c392 | GET/POST /api/webhooks/whatsapp: verificação com WHATSAPP_WEBHOOK_VERIFY_TOKEN, assinatura X-Hub-Signature-256 com WHATSAPP_APP_SECRET (obrigatória no live; sem ela 503), parseStatusUpdates + nextStatus (sem regressão, falhou só antes de entregue), applyStatusUpdates (grava erro; falha devolve a cota) | npm test (webhook.test.ts); npm run test:db (webhook.test.ts) |
 | CAL-073 | Concluído | 7fd0108 | Rodapé "Para não receber mais mensagens, responda SAIR." nos 3 templates; src/lib/whatsapp/opt-out.ts (parseOptKeyword: SAIR/PARAR/STOP… e VOLTAR, só a mensagem inteira; parseIncomingMessages com wa_id sem o 9; applyOptKeywords por negócio via context.id ou todos); webhook aplica; card "Mensagens automáticas" no detalhe para o dono pausar/religar; prévia do /confirmado mostra o rodapé | npm test (opt-out.test.ts); npm run test:db (webhook.test.ts › opt-out); npm run test:e2e (detalhe.spec.ts › opt-out) |
+| CAL-083 | Concluído | 2a9e653 | Landing de referência convertida para (site)/page.tsx: CSS escopado em .lp (landing.css), menu do celular, animação de entrada (sem esconder nada sem JS), celular de exemplo alternando 7 negócios; preços/cotas de plans.ts; botões → app.*/cadastro?plano=basic|pro|pro_plus; FAQ sem textos provisórios (pagamento removido até o CAL-075) | abrir localhost:3000; npm run test:e2e (site.spec.ts) |
+| CAL-084 | Concluído | 73402b6 | Plano escolhido no site vai do cadastro (plan_intent) para o negócio criado no onboarding (gravado pelo servidor, plan_status pending até o checkout); tela 'pronto' mostra o plano. Checkout em si depende do CAL-076 | npm run test:e2e (onboarding.spec.ts) |
+| CAL-012 | Concluído (texto a revisar) | 9431410 | /termos e /privacidade com rascunho em linguagem simples fiel ao produto; contatos em src/lib/company.ts | localhost:3000/termos e /privacidade; npm run test:e2e (site.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -81,6 +84,7 @@
 - E2E ajustes.spec.ts passou a limpar o profissional "Bruno Teste" (sobrava no seed e quebrava o teste de banco de "sem preferência").
 - Opt-out sem contexto (cliente manda SAIR sem responder a uma mensagem) vale para todos os negócios daquele número, porque o número que envia é o mesmo da Calenvia. A Calenvia ainda não responde "você não vai mais receber" ao cliente (precisaria de mensagem de texto livre na janela de 24 h; fica para depois).
 - Rodapé de opt-out entrou nos templates v1 (ainda não cadastrados na Meta, então não precisou de v2).
+- Victor autorizou (2026-11-14) pular o Sprint 7 (bloqueado pelo CAL-075) e seguir o backlog até o fim. Cards que dependem do gateway ou de decisão dele ficam registrados em Bloqueios.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
@@ -89,6 +93,8 @@
 - CAL-075 (decisão): escolher o gateway de pagamento (Asaas, Mercado Pago ou Stripe). Bloqueia CAL-076, CAL-077, CAL-078 (upgrade/downgrade), CAL-080 (faturas, trocar/cancelar). CAL-079 (teste grátis) também é decisão sua.
 - CAL-070: no painel da Meta, cadastrar o webhook (URL e verify token em docs/WHATSAPP.md) e colocar o App secret em WHATSAPP_APP_SECRET na Vercel.
 - CAL-067: cadastrar os 3 templates na Meta (passo a passo em docs/WHATSAPP.md) depois que a conta do CAL-066 existir.
+- CAL-012: o texto de /termos e /privacidade é um rascunho técnico; precisa de revisão jurídica (e da regra de cancelamento/fidelidade do CAL-010). Criar os e-mails contato@ e privacidade@calenvia.com.br ou trocar em src/lib/company.ts.
+- CAL-083: o link de WhatsApp do rodapé da landing foi removido (era um número de exemplo); volta quando houver canal de suporte (CAL-096).
 
 ## Plano do card atual
 —
