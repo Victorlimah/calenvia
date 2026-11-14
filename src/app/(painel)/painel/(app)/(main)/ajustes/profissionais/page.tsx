@@ -21,7 +21,11 @@ export default async function AjustesProfissionaisPage() {
         description="Quem atende e quais serviços cada um faz."
         back={{ href: "/ajustes", label: "Ajustes" }}
       />
-      <StaffEditor staff={staff} services={services.map((s) => ({ id: s.id, name: s.name }))} />
+      <StaffEditor
+        staff={staff}
+        businessId={business.id}
+        services={services.map((s) => ({ id: s.id, name: s.name }))}
+      />
     </PageBody>
   );
 }

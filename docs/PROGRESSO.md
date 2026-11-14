@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-039
-- Card em andamento: —
-- Próximo card: CAL-038
+- Card em andamento: CAL-038
+- Próximo card: CAL-037
 - Atualizado em: 2026-11-14 01:37
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -40,6 +40,7 @@
 - Playwright usa o Google Chrome já instalado (`channel: chrome`), sem baixar navegadores. Testes E2E em tests/e2e (`npm run test:e2e`), precisam do Supabase local com seed.
 - Server actions NÃO usam redirect() para caminhos internos: o redirect da action é resolvido sem passar pelo middleware (rewrite por host) e cai na rota errada (/[slug]). As actions devolvem { redirectTo } e o cliente faz router.push.
 - Um negócio por conta no MVP (getCurrentBusiness pega o primeiro do dono). Salvar horários e serviços do profissional usa funções SQL atômicas (save_business_hours, set_staff_services) com RLS (security invoker).
+- Tabela extra business_photos (galeria 'fotos do trabalho', até 12 fotos) — não estava na seção 4 do CLAUDE.md, mas a página pública precisa. Imagens no bucket público business-media/{business_id}/{tipo}/; compressão no navegador para WebP.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
@@ -47,4 +48,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-—
+Migration: bucket público business-media (5 MB, jpeg/png/webp) com policies em storage.objects (dono escreve só em {business_id}/...); tabela business_photos (galeria) com RLS. Componente ImageUpload: compressão no navegador (canvas → WebP/JPEG, máx 1600px), limite 10 MB de entrada, upload pelo client do navegador (sessão do dono), estados de carregamento/erro. Actions para salvar logo/capa/foto do profissional/galeria.

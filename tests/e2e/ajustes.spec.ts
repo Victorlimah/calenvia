@@ -62,3 +62,14 @@ test("salva as regras da agenda", async ({ page }) => {
   await page.getByRole("button", { name: "Salvar regras" }).click();
   await expect(page.getByText("Regras salvas.")).toBeVisible();
 });
+
+test("envia e remove a foto de um profissional", async ({ page }) => {
+  await loginAsZe(page, "/ajustes/profissionais");
+  await page.getByRole("button", { name: "Editar" }).first().click();
+  await page.getByLabel("Enviar foto").setInputFiles("tests/e2e/fixtures/foto.png");
+  await expect(page.getByRole("button", { name: "Remover foto" })).toBeVisible({ timeout: 15000 });
+  const src = await page.locator("img").first().getAttribute("src");
+  expect(src).toMatch(/business-media\/.+\/staff\/.+\.webp$/);
+  await page.getByRole("button", { name: "Remover foto" }).click();
+  await expect(page.getByRole("button", { name: "Remover foto" })).toHaveCount(0);
+});

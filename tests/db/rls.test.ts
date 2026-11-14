@@ -135,3 +135,32 @@ describe("RLS: visitante anônimo", () => {
     await expectDenied(`select * from public.${table}`);
   });
 });
+
+describe("RLS: imagens no Storage", () => {
+  it("dono só pode gravar na pasta do próprio negócio", async () => {
+    await actAs(db, OWNER_A);
+    const own = await db.query(`select public.owns_media_path($1) as ok`, [`${BIZ_A}/logo/x.webp`]);
+    const other = await db.query(`select public.owns_media_path($1) as ok`, [
+      `${BIZ_B}/logo/x.webp`,
+    ]);
+    const junk = await db.query(`select public.owns_media_path('qualquer/coisa.webp') as ok`);
+    expect(own.rows[0].ok).toBe(true);
+    expect(other.rows[0].ok).toBe(false);
+    expect(junk.rows[0].ok).toBe(false);
+  });
+
+  it("não envia arquivo para a pasta de outro negócio", async () => {
+    await actAs(db, OWNER_A);
+    await expectDenied(
+      `insert into storage.objects (bucket_id, name, owner) values ('business-media', $1, $2)`,
+      [`${BIZ_B}/logo/x.webp`, OWNER_A],
+    );
+  });
+
+  it("galeria de fotos isolada por negócio", async () => {
+    await actAs(db, OWNER_A);
+    await expectDenied(`insert into public.business_photos (business_id, url) values ($1, 'x')`, [
+      BIZ_B,
+    ]);
+  });
+});

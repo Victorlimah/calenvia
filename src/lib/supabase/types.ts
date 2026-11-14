@@ -179,6 +179,45 @@ export type Database = {
           },
         ];
       };
+      business_photos: {
+        Row: {
+          business_id: string;
+          caption: string | null;
+          created_at: string;
+          id: string;
+          sort_order: number;
+          storage_path: string | null;
+          url: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          caption?: string | null;
+          created_at?: string;
+          id?: string;
+          sort_order?: number;
+          storage_path?: string | null;
+          url: string;
+        };
+        Update: {
+          business_id?: string;
+          caption?: string | null;
+          created_at?: string;
+          id?: string;
+          sort_order?: number;
+          storage_path?: string | null;
+          url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_photos_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       businesses: {
         Row: {
           accent_color: string;
@@ -694,6 +733,7 @@ export type Database = {
         Returns: number;
       };
       is_business_owner: { Args: { p_business_id: string }; Returns: boolean };
+      owns_media_path: { Args: { p_name: string }; Returns: boolean };
       save_business_hours: { Args: { p_business_id: string; p_days: Json }; Returns: undefined };
       set_staff_services: {
         Args: { p_service_ids: string[]; p_staff_member_id: string };

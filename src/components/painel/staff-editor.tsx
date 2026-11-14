@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, Badge, Button, Card, EmptyState, Field, Input } from "@/components/ui";
@@ -10,6 +11,8 @@ import {
   deleteStaffAction,
   saveStaffAction,
 } from "@/app/(painel)/painel/(app)/_actions/staff";
+import { setStaffPhotoAction } from "@/app/(painel)/painel/(app)/_actions/media";
+import { ImageUpload } from "./image-upload";
 import { Checkbox } from "./services-editor";
 import { useAction } from "./use-action";
 
@@ -28,13 +31,13 @@ export function StaffEditor({
   staff,
   services,
   ownerName,
-  renderPhoto,
+  businessId,
 }: {
   staff: StaffRow[];
   services: ServiceOption[];
   ownerName?: string;
-  /** Slot para o upload de foto (CAL-038). */
-  renderPhoto?: (member: StaffRow) => React.ReactNode;
+  /** Quando informado, permite enviar a foto do profissional (CAL-038). */
+  businessId?: string;
 }) {
   const [editing, setEditing] = useState<string | "new" | null>(null);
   const quick = useAction();
@@ -66,10 +69,15 @@ export function StaffEditor({
         {staff.map((p) => (
           <li key={p.id}>
             {editing === p.id ? (
-              <StaffForm member={p} services={services} onDone={() => setEditing(null)} />
+              <StaffForm
+                member={p}
+                services={services}
+                businessId={businessId}
+                onDone={() => setEditing(null)}
+              />
             ) : (
               <Card className="flex items-center gap-3 p-4">
-                {renderPhoto ? renderPhoto(p) : <Avatar name={p.name} url={p.photo_url} />}
+                <Avatar name={p.name} url={p.photo_url} />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-ink font-semibold">{p.name}</p>
@@ -146,12 +154,15 @@ export function Avatar({
 function StaffForm({
   member,
   services,
+  businessId,
   onDone,
 }: {
   member?: StaffRow;
   services: ServiceOption[];
+  businessId?: string;
   onDone: () => void;
 }) {
+  const router = useRouter();
   const { run, pending, error } = useAction();
   const del = useAction();
   const form = useForm<StaffInput>({
@@ -178,6 +189,35 @@ function StaffForm({
           {member ? "Editar profissional" : "Novo profissional"}
         </p>
         {error || del.error ? <Alert tone="danger">{error ?? del.error}</Alert> : null}
+        {member && businessId ? (
+          <div className="flex items-center gap-4">
+            <Avatar name={member.name} url={member.photo_url} size={64} />
+            <div className="flex flex-wrap gap-2">
+              <ImageUpload
+                businessId={businessId}
+                kind="staff"
+                label={member.photo_url ? "Trocar foto" : "Enviar foto"}
+                onUploaded={async (url) => {
+                  const r = await setStaffPhotoAction(member.id, url);
+                  router.refresh();
+                  return r.ok ? { ok: true } : { ok: false, error: r.error };
+                }}
+              />
+              {member.photo_url ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    await setStaffPhotoAction(member.id, null);
+                    router.refresh();
+                  }}
+                >
+                  Remover foto
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
         <Field label="Nome" error={errors.name?.message}>
           {({ id, describedBy, invalid }) => (
             <Input
