@@ -20,6 +20,8 @@ const WAMID = "wamid.TESTE-WEBHOOK-1";
 const SECRET = "app-secret-teste";
 const SENT_AT = "2033-02-10T12:00:00Z";
 const PERIOD = "2033-02";
+const ANA = "0b000000-0000-4000-8000-000000000002";
+const CLIENT = "5585995550302"; // cliente dos dois negócios
 
 let route: typeof import("@/app/api/webhooks/whatsapp/route");
 
@@ -72,7 +74,8 @@ async function usage() {
 }
 
 async function cleanup() {
-  await db.from("messages").delete().eq("to_number", TO);
+  await db.from("messages").delete().in("to_number", [TO, CLIENT]);
+  await db.from("customers").delete().eq("whatsapp", CLIENT);
   await db.from("message_usage").delete().eq("business_id", BIZ).eq("period", PERIOD);
 }
 
@@ -147,5 +150,85 @@ describe("webhook do WhatsApp (CAL-070)", () => {
     });
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ received: 1, updated: 0, unknown: 1 });
+  });
+});
+
+describe("opt-out pela resposta do cliente (CAL-073)", () => {
+  const reply = (text: string, contextId?: string) => ({
+    entry: [
+      {
+        changes: [
+          {
+            value: {
+              messages: [
+                {
+                  // wa_id sem o 9, como a Meta às vezes manda
+                  from: "558595550302",
+                  type: "text",
+                  timestamp: "2000000000",
+                  text: { body: text },
+                  ...(contextId ? { context: { id: contextId } } : {}),
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  async function optedOut() {
+    const { data } = await db
+      .from("customers")
+      .select("business_id, opted_out_at")
+      .eq("whatsapp", CLIENT)
+      .order("business_id");
+    return (data ?? []).map((c) => [c.business_id, c.opted_out_at !== null]);
+  }
+
+  beforeEach(async () => {
+    await db.from("customers").insert([
+      { business_id: BIZ, name: "Cliente Dois", whatsapp: CLIENT },
+      { business_id: ANA, name: "Cliente Dois", whatsapp: CLIENT },
+    ]);
+  });
+
+  it("SAIR respondendo a uma mensagem: só o negócio que enviou", async () => {
+    await db.from("messages").insert({
+      business_id: BIZ,
+      type: "reminder",
+      to_number: CLIENT,
+      template: "calenvia_lembrete_v1",
+      status: "read",
+      provider_message_id: "wamid.CTX-OPTOUT",
+    });
+    const res = await post(reply("Sair", "wamid.CTX-OPTOUT"));
+    expect(await res.json()).toMatchObject({ optedOut: 1 });
+    expect(await optedOut()).toEqual([
+      [BIZ, true],
+      [ANA, false],
+    ]);
+  });
+
+  it("SAIR sem contexto: todos os negócios; VOLTAR religa", async () => {
+    await post(reply("PARAR"));
+    expect(await optedOut()).toEqual([
+      [BIZ, true],
+      [ANA, true],
+    ]);
+    const res = await post(reply("voltar"));
+    expect(await res.json()).toMatchObject({ optedIn: 2 });
+    expect(await optedOut()).toEqual([
+      [BIZ, false],
+      [ANA, false],
+    ]);
+  });
+
+  it("outras mensagens não mudam nada", async () => {
+    await post(reply("Posso sair mais cedo?"));
+    expect(await optedOut()).toEqual([
+      [BIZ, false],
+      [ANA, false],
+    ]);
   });
 });

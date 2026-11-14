@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { formatDayLabel, formatDuration, formatTime } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
 import { confirmationText } from "@/lib/messages/templates";
+import { OPT_OUT_FOOTER } from "@/lib/whatsapp/templates";
 import { canManageByLink, canSendAutomaticMessages } from "@/lib/plans";
 import { confirmationWasSent, getPublicAppointment, manageLinkFor } from "@/lib/public/appointment";
 import { getPublicBusiness } from "@/lib/public/business";
@@ -97,6 +98,9 @@ export default async function ConfirmadoPage({ params }: Props) {
             </p>
             <div className="rounded-2xl rounded-tl-sm bg-[#005c4b] p-4 text-[15px] leading-relaxed whitespace-pre-wrap text-white shadow">
               <WhatsAppFormatted text={message} />
+              {automatic ? (
+                <span className="mt-2 block text-[13px] text-white/70">{OPT_OUT_FOOTER}</span>
+              ) : null}
             </div>
           </section>
         </>

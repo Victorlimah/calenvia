@@ -67,7 +67,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-071** · Contador de mensagens e limites por plano · P0 · 1,5d — `message_usage` por mês, 300 no Pro, uso justo no Pro+, aviso ao dono perto do limite.
 - [x] **CAL-069** · Lembrete automático · P0 · 2d — Vercel Cron a cada 10 min, sem duplicar, ignora cancelados.
 - [x] **CAL-070** · Webhook de status das mensagens · P1 · 1,5d — Entregue, lida, falhou. Verificação do token da Meta.
-- [ ] **CAL-073** · Opt-out do cliente · P1 · 0,5d — Respeitar quem pede para não receber mensagens.
+- [x] **CAL-073** · Opt-out do cliente · P1 · 0,5d — Respeitar quem pede para não receber mensagens.
 
 ### Sprint 7 — Assinatura e cobrança
 - [ ] **CAL-075** · Escolher o gateway de pagamento · P0 · 0,5d **(fora do código — decisão)** — Asaas, Mercado Pago ou Stripe.

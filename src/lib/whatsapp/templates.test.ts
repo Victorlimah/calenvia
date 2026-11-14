@@ -10,6 +10,9 @@ describe("templates da Meta", () => {
     expect(t.body.trim().endsWith("}}")).toBe(false);
     expect(t.example).toHaveLength(countVariables(t.body));
     expect(t.body.length).toBeLessThanOrEqual(1024);
+    expect(t.footer.length).toBeLessThanOrEqual(60);
+    expect(t.footer).not.toMatch(/\{\{/);
+    expect(t.footer).toContain("SAIR");
     // variáveis em sequência, sem pular números
     const nums = [...t.body.matchAll(/\{\{(\d+)\}\}/g)].map((m) => Number(m[1]));
     expect([...new Set(nums)].sort((a, b) => a - b)).toEqual(
@@ -23,6 +26,10 @@ describe("templates da Meta", () => {
 
   it("payload de cadastro", () => {
     const p = toMetaCreatePayload(WHATSAPP_TEMPLATES.confirmation);
-    expect(p.components[0].example.body_text[0]).toHaveLength(8);
+    expect(p.components[0].example?.body_text[0]).toHaveLength(8);
+    expect(p.components[1]).toEqual({
+      type: "FOOTER",
+      text: "Para não receber mais mensagens, responda SAIR.",
+    });
   });
 });

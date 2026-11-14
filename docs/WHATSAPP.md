@@ -70,3 +70,14 @@ Testar localmente: `curl -H "Authorization: Bearer dev-cron-secret" http://local
 - Status: `sent → delivered → read` nunca volta (eventos podem chegar fora de ordem); `failed` só vale
   antes de entregue, grava o erro da Meta e devolve a mensagem à cota do mês.
 - IDs desconhecidos respondem 200 (a Meta não reenvia); erro no banco responde 500 (a Meta reenvia).
+
+## Opt-out (CAL-073)
+- Todo template tem o rodapé fixo "Para não receber mais mensagens, responda SAIR."
+- O webhook lê as respostas (`value.messages`): SAIR, PARAR, PARE, STOP, "não quero receber"… marcam
+  `customers.opted_out_at`; VOLTAR / ATIVAR / "quero receber" desmarcam. Só a mensagem inteira conta
+  ("cancelar" sozinho não é opt-out, pode ser sobre o horário).
+- Resposta a uma mensagem nossa (com `context.id`) vale só para o negócio que enviou; sem contexto,
+  para todos os negócios em que o número é cliente.
+- O dono também pode pausar/religar no detalhe do agendamento ("Mensagens automáticas").
+- `sendWhatsApp()` e o cron de lembretes não enviam para quem tem opt-out.
+

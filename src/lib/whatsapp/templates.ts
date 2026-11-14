@@ -11,15 +11,21 @@ export type TemplateDefinition = {
   language: "pt_BR";
   category: "UTILITY";
   body: string;
+  /** Rodapé fixo (sem variáveis, até 60 caracteres): como parar de receber (CAL-073). */
+  footer: string;
   /** Exemplos na ordem de {{1}}…{{n}} (exigidos no cadastro). */
   example: string[];
 };
+
+/** Palavra que o cliente responde para não receber mais (tratada no webhook). */
+export const OPT_OUT_FOOTER = "Para não receber mais mensagens, responda SAIR.";
 
 export const WHATSAPP_TEMPLATES: Record<TemplateKind, TemplateDefinition> = {
   confirmation: {
     name: "calenvia_confirmacao_v1",
     language: "pt_BR",
     category: "UTILITY",
+    footer: OPT_OUT_FOOTER,
     body: "Olá, {{1}}! Aqui é da *{{2}}*. Seu horário de *{{3}}* com {{4}} está confirmado para *{{5}}, {{6}} às {{7}}*. Para remarcar ou cancelar: {{8}}\n\nAté lá!",
     example: [
       "Lucas",
@@ -36,6 +42,7 @@ export const WHATSAPP_TEMPLATES: Record<TemplateKind, TemplateDefinition> = {
     name: "calenvia_lembrete_v1",
     language: "pt_BR",
     category: "UTILITY",
+    footer: OPT_OUT_FOOTER,
     body: "Olá, {{1}}! Lembrete da *{{2}}*: seu horário de *{{3}}* com {{4}} é *{{5}}, {{6}} às {{7}}*. Se precisar remarcar ou cancelar: {{8}}\n\nTe esperamos!",
     example: [
       "Lucas",
@@ -52,6 +59,7 @@ export const WHATSAPP_TEMPLATES: Record<TemplateKind, TemplateDefinition> = {
     name: "calenvia_cancelamento_v1",
     language: "pt_BR",
     category: "UTILITY",
+    footer: OPT_OUT_FOOTER,
     body: "Olá, {{1}}. Seu horário de *{{2}}* na *{{3}}* em *{{4}}, {{5}} às {{6}}* foi cancelado. Para agendar de novo: {{7}}\n\nObrigado!",
     example: [
       "Lucas",
@@ -80,6 +88,9 @@ export function toMetaCreatePayload(t: TemplateDefinition) {
     name: t.name,
     language: t.language,
     category: t.category,
-    components: [{ type: "BODY", text: t.body, example: { body_text: [t.example] } }],
+    components: [
+      { type: "BODY", text: t.body, example: { body_text: [t.example] } },
+      { type: "FOOTER", text: t.footer },
+    ],
   };
 }

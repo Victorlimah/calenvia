@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { applyOptKeywords, parseIncomingMessages } from "@/lib/whatsapp/opt-out";
 import {
   applyStatusUpdates,
   parseStatusUpdates,
@@ -19,7 +20,7 @@ export function GET(req: NextRequest) {
   return new NextResponse(challenge, { status: 200, headers: { "Content-Type": "text/plain" } });
 }
 
-/** Status das mensagens (sent, delivered, read, failed). */
+/** Status das mensagens (sent, delivered, read, failed) e respostas SAIR/VOLTAR. */
 export async function POST(req: NextRequest) {
   const raw = await req.text();
   const secret = process.env.WHATSAPP_APP_SECRET;
@@ -41,10 +42,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const summary = await applyStatusUpdates(
-      createSupabaseAdminClient(),
-      parseStatusUpdates(payload),
-    );
+    const db = createSupabaseAdminClient();
+    const statuses = await applyStatusUpdates(db, parseStatusUpdates(payload));
+    // Respostas do cliente: SAIR / VOLTAR (CAL-073).
+    const optOut = await applyOptKeywords(db, parseIncomingMessages(payload));
+    const summary = { ...statuses, ...optOut };
     return NextResponse.json(summary);
   } catch (e) {
     // 500 faz a Meta reenviar o evento mais tarde.

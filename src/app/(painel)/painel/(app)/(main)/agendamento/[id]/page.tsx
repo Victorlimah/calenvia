@@ -4,12 +4,13 @@ import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { SendWhatsAppButton } from "@/components/painel/send-whatsapp-button";
 import { Alert, Badge, Card } from "@/components/ui";
 import { STATUS_LABELS, STATUS_TONES } from "@/lib/agenda/status";
+import { CustomerMessages } from "./customer-messages";
 import { requireReadyBusiness } from "@/lib/business/current";
 import { formatDate, formatDayLabel, formatDuration, formatTime, toLocalDate } from "@/lib/dates";
 import { businessUrl } from "@/lib/hosts";
 import { formatPrice } from "@/lib/money";
 import { formatPhone, waMeLink } from "@/lib/phone";
-import { canManageByLink } from "@/lib/plans";
+import { canManageByLink, canSendAutomaticMessages } from "@/lib/plans";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { confirmationWaLink } from "@/lib/whatsapp/wa-link";
 import { AppointmentActions } from "./appointment-actions";
@@ -43,7 +44,7 @@ export default async function AgendamentoPage({
   const { data: a } = await supabase
     .from("appointments")
     .select(
-      "*, services(name, duration_min), staff_members(name), messages(id, type, status, template, sent_at, created_at)",
+      "*, services(name, duration_min), staff_members(name), customers(opted_out_at), messages(id, type, status, template, sent_at, created_at)",
     )
     .eq("id", id)
     .eq("business_id", business.id)
@@ -150,6 +151,13 @@ export default async function AgendamentoPage({
         }}
         staff={eligibleStaff}
       />
+
+      {canSendAutomaticMessages(business) ? (
+        <CustomerMessages
+          customerId={a.customer_id}
+          optedOut={Boolean(a.customers?.opted_out_at)}
+        />
+      ) : null}
 
       {messages.length ? (
         <section aria-label="Mensagens">

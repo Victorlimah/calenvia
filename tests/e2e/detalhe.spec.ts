@@ -51,3 +51,22 @@ test("plano B: enviar confirmação abre o WhatsApp com a mensagem e registra o 
   await expect(page.getByRole("link", { name: "Reenviar confirmação" })).toBeVisible();
   await expect(page.getByLabel("Mensagens")).toContainText("Confirmação · pelo seu WhatsApp");
 });
+
+test("opt-out: o dono pausa e religa as mensagens automáticas do cliente", async ({ page }) => {
+  const appt = await createTestAppointment(PHONE);
+  await loginAsZe(page, `/agendamento/${appt.id}`);
+  const card = page
+    .getByRole("heading", { name: "Mensagens automáticas" })
+    .locator("..")
+    .locator("..");
+  await page.getByRole("button", { name: "Parar de enviar para este cliente" }).click();
+  await expect(
+    page.getByText("Este cliente não vai mais receber mensagens automáticas."),
+  ).toBeVisible();
+  await expect(card.getByText(/pediu para não receber/)).toBeVisible();
+  await page.getByRole("button", { name: "Voltar a enviar mensagens" }).click();
+  await expect(page.getByText("Mensagens automáticas ligadas para este cliente.")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Parar de enviar para este cliente" }),
+  ).toBeVisible();
+});
