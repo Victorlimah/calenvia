@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-027
-- Card em andamento: CAL-030
+- Último card concluído: CAL-030
+- Card em andamento: —
 - Próximo card: CAL-025
-- Atualizado em: 2026-11-14 01:12
+- Atualizado em: 2026-11-14 01:13
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -13,6 +13,7 @@
 | CAL-023 | Concluído | d161603 | Migration 20261114000100: 14 tabelas, índices, FKs compostas, EXCLUDE gist anti-conflito, gen_manage_code(), increment_message_usage(), RLS + policies do dono | npx supabase db reset && npm run db:types |
 | CAL-024 | Concluído | fd8ebc0 | 23 testes de RLS (tests/db/rls.test.ts): dono só lê/escreve o próprio negócio, não muda plano, não escreve em messages/usage, anon sem acesso | npx supabase start && npm run test:db |
 | CAL-027 | Concluído | 007473f | src/lib/dates.ts: conversão data/hora local ↔ UTC, intervalo do dia, dia da semana, período YYYY-MM, formatação pt-BR, duração; 15 testes | npm test |
+| CAL-030 | Concluído | 3990308 | supabase/seed.sql: 2 donos com login (ze@calenvia.dev / ana@calenvia.dev, senha calenvia123), Barbearia do Zé (Pro, Fortaleza) e Ana Nails (Básico, SP) com serviços, profissionais, horários, almoço, clientes, agendamentos no próximo dia útil e bloqueio | npx supabase db reset; entrar no painel com ze@calenvia.dev / calenvia123 |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -29,4 +30,4 @@
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 
 ## Plano do card atual
-supabase/seed.sql: 2 donos com login (auth.users + identities, senha 'calenvia123'), Barbearia do Zé (pro, Fortaleza) e Ana Nails (basic, São Paulo), serviços, profissionais, staff_services, horários, almoço, clientes e agendamentos relativos a hoje; validar com db reset.
+—
