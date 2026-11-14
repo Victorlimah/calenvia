@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-069
-- Card em andamento: CAL-070
-- Próximo card: CAL-073
-- Atualizado em: 2026-11-14 06:05
+- Último card concluído: CAL-070
+- Card em andamento: CAL-073
+- Próximo card: CAL-076 (depende do CAL-075)
+- Atualizado em: 2026-11-14 06:15
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -48,6 +48,7 @@
 | CAL-068 | Concluído | fca40f1 | src/lib/whatsapp: transporte mock/live (Graph API via fetch, sem SDK; sem credenciais cai no mock), sendWhatsApp (skipReason puro: cancelado → plano → opt-out → cota; grava messages queued→sent/failed; conta message_usage só quando enviado; devolve wa.me como plano B). Ganchos: confirmação ao agendar (página e manual) e ao remarcar, aviso ao cancelar. Detalhe mostra "Agendamento criado" com a confirmação automática | npm test (whatsapp/send.test.ts, transport.test.ts); npm run test:db (whatsapp.test.ts); agendar em barbearia-do-ze.localhost:3000 e ver a mensagem no log do servidor e no detalhe do painel |
 | CAL-071 | Concluído | 68dc66e | Migration 20261114000500: consume_message_quota (reserva atômica, nunca passa do limite) e release_message_quota (devolve se falhar), só service_role. src/lib/whatsapp/quota.ts: getMonthQuota, quotaNotice (80% e esgotado, sugere Pro+ ou suporte, data em que renova). Aviso na agenda; /assinatura com plano, status, barra de uso do mês e planos; /confirmado só diz "enviamos no WhatsApp" se a mensagem saiu | npm test (whatsapp/quota.test.ts); npm run test:db (whatsapp.test.ts, corrida); npm run test:e2e (assinatura.spec.ts) |
 | CAL-069 | Concluído | f967a3e | GET /api/cron/reminders (Bearer CRON_SECRET, comparação em tempo constante) → runReminders: busca confirmados nas próximas 24 h de negócios com envio automático e clientes sem opt-out; reminderDueAt (24 h antes; 2 h antes se agendou com menos de 24 h; sem lembrete abaixo de 4 h; nunca a menos de 30 min); um lembrete por agendamento e horário (migration 20261114000600: messages.appointment_starts_at + índice único), até 3 tentativas após falha | npm test (reminders.test.ts, cron.test.ts); npm run test:db (reminders.test.ts); curl -H "Authorization: Bearer dev-cron-secret" http://localhost:3000/api/cron/reminders |
+| CAL-070 | Concluído | 370c392 | GET/POST /api/webhooks/whatsapp: verificação com WHATSAPP_WEBHOOK_VERIFY_TOKEN, assinatura X-Hub-Signature-256 com WHATSAPP_APP_SECRET (obrigatória no live; sem ela 503), parseStatusUpdates + nextStatus (sem regressão, falhou só antes de entregue), applyStatusUpdates (grava erro; falha devolve a cota) | npm test (webhook.test.ts); npm run test:db (webhook.test.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
