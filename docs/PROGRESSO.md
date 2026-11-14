@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-043
-- Card em andamento: CAL-044
+- Último card concluído: CAL-044
+- Card em andamento: —
 - Próximo card: CAL-045
-- Atualizado em: 2026-11-14 01:47
+- Atualizado em: 2026-11-14 01:48
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -30,6 +30,7 @@
 | CAL-041 | Concluído | beecc18 | src/lib/availability: getDaySlots (candidatos a cada intervalo, serviço inteiro antes de fechar, sem atravessar almoço, conflitos com agendamentos não cancelados e bloqueios, antecedência, max_days_ahead, profissional apto, grupos Manhã/Tarde/Noite), getDaysSummary, findNextAvailableDay, isSlotAvailable; 15 testes | npm test |
 | CAL-042 | Concluído | b40edd7 | Sem preferência: slot livre se algum apto livre (staffIds por slot); pickStaffForSlot escolhe o com menos agendamentos no dia, empate alfabético; 7 testes | npm test |
 | CAL-043 | Concluído | 11f8682 | src/lib/booking: loadAvailabilityContext (banco → motor), createAppointment (revalida serviço, profissional apto, slot livre; sem preferência escolhe o profissional; copia preço/cliente; 23P01 vira 'Esse horário acabou de ser reservado. Escolha outro.'), upsertCustomer. Testes de integração com o Supabase local, incluindo corrida de 2 pedidos simultâneos | npm run test:db (tests/db/booking.test.ts) |
+| CAL-044 | Concluído | 9665d90 | src/lib/availability/rules.test.ts: 24 cenários (cabe antes de fechar, atravessa almoço, dois intervalos, conflito parcial, status cancelado/concluído/falta, outro profissional, remarcação, bloqueio do profissional/geral/vários dias, antecedência hoje/1 dia/após fechar, horário próprio e folga, sem preferência juntando horários, Manaus, 'hoje' no fuso, noite que vira o dia em UTC) | npm test |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -56,4 +57,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Completar a bateria de testes do motor: serviço que não cabe antes de fechar, serviço longo atravessando almoço, bloqueio do profissional x geral, conflito parcial, antecedência mínima hoje, horário próprio do profissional, fuso (Manaus/Noronha), virada de dia, agendamento que termina depois do fim do dia, remarcação ignorando o próprio agendamento.
+—
