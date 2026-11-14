@@ -67,6 +67,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-071** · Contador de mensagens e limites por plano · P0 · 1,5d — `message_usage` por mês, 300 no Pro, uso justo no Pro+, aviso ao dono perto do limite.
 - [x] **CAL-069** · Lembrete automático · P0 · 2d — Vercel Cron a cada 10 min, sem duplicar, ignora cancelados.
 - [x] **CAL-070** · Webhook de status das mensagens · P1 · 1,5d — Entregue, lida, falhou. Verificação do token da Meta.
+- [ ] **CAL-112** · Equipe com acessos e papéis · P0 · 4–5d — Dono, gerente, recepção e profissional com login; convites; RLS por papel. Plano em `docs/planos/CAL-112.md`.
 - [x] **CAL-111** · Ajustes de mensagens automáticas · P0 · 1d — Ligar/desligar confirmação, lembrete (24 h e/ou 2 h) e cancelamento por negócio; desligar mensagens de um agendamento; envios bloqueados ficam como `skipped`.
 - [x] **CAL-073** · Opt-out do cliente · P1 · 0,5d — Respeitar quem pede para não receber mensagens.
 
