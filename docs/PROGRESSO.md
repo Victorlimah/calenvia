@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-064
-- Card em andamento: CAL-065
-- Próximo card: CAL-086
-- Atualizado em: 2026-11-14 08:10
+- Último card concluído: CAL-086
+- Card em andamento: CAL-099
+- Próximo card: CAL-100
+- Atualizado em: 2026-11-14 08:25
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -69,6 +69,10 @@
 | CAL-092 | Concluído | 34daf2a | scripts/backup.sh + scripts/restore-check.sh (testado: backup local criptografado → reset → carga → 18 tabelas com as mesmas contagens → login/agenda ok); workflow .github/workflows/backup.yml diário com teste de restauração; docs/BACKUP.md | BACKUP_PASSPHRASE=x scripts/backup.sh && BACKUP_PASSPHRASE=x scripts/restore-check.sh backups/<arquivo>.enc --yes |
 | CAL-054 | Concluído | aa63c63 | /og por negócio (nome, logo, cor, chamada) e opengraph-image do site via next/og; metadados completos (canônico, OG, Twitter, noindex com agenda fechada); JSON-LD LocalBusiness (horários, ofertas, ReserveAction); robots.txt e sitemap.xml por host | npm test (seo/local-business.test.ts); npm run test:e2e (seo.spec.ts) |
 | CAL-064 | Concluído (no navegador) | 0ff14ad | NewBookingNotifier no shell do painel: agendamento feito pela página → aviso na tela com link e notificação do sistema (Realtime); Ajustes › Ligar avisos neste aparelho | npm test (agenda/new-booking.test.ts); npm run test:e2e (avisos.spec.ts) |
+| CAL-065 | Concluído | 0dda79a | manifest.webmanifest por host (painel: atalhos Novo/Bloquear/Clientes), ícones gerados com next/og, service worker mínimo com offline.html (sem cache de dados), notificações pelo service worker (Android); middleware libera esses arquivos | npm run test:e2e (pwa.spec.ts); no celular: app.localhost… › Instalar app |
+| CAL-086 | Concluído | 1cd812b | demo.{domínio}: Studio Exemplo recriado todo dia (cron /api/cron/demo-reset, idempotente), sem mensagens, faixa de demonstração, botão no site; 'demo' bloqueado no cadastro | npm run test:db (demo.test.ts); npm run test:e2e (demo.spec.ts); curl -H 'Authorization: Bearer dev-cron-secret' localhost:3000/api/cron/demo-reset |
+| CAL-081 | Bloqueado | — | Nota fiscal depende do gateway (CAL-075) e do enquadramento fiscal (CAL-011) | — |
+| CAL-082 | Bloqueado | — | Régua de cobrança depende do gateway e dos webhooks de pagamento (CAL-075/076/077) | — |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -106,6 +110,7 @@
 - Sem serviços externos novos: monitoramento (CAL-029) e métricas (CAL-085) são próprios; Sentry/Plausible/PostHog podem entrar depois com aprovação do Victor.
 - Rate limit não se aplica a 127.0.0.1 em desenvolvimento (os E2E fazem muitas chamadas); RATE_LIMIT_LOCAL=1 liga localmente.
 - LGPD: apagar dados de um cliente anonimiza (não remove linhas), para o faturamento do dono continuar certo. O número vira 5500xxxxxxxxx (DDD 00 não existe).
+- Suíte E2E: uma falha intermitente apareceu numa rodada completa e não se repetiu com o mesmo código (60/60 na rodada seguinte).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
@@ -121,6 +126,7 @@
 - CAL-089: para ligar o captcha invisível, criar um widget Turnstile (modo invisível/gerenciado) na Cloudflare e definir NEXT_PUBLIC_TURNSTILE_SITE_KEY e TURNSTILE_SECRET_KEY na Vercel. Definir também RATE_LIMIT_SALT.
 - CAL-092: ligar o backup diário criando os segredos SUPABASE_DB_URL e BACKUP_PASSPHRASE no GitHub; recomendado também o plano Pro do Supabase (backup diário + PITR).
 - CAL-064: aviso com o painel fechado precisa de Web Push (dependência web-push + chaves VAPID) ou e-mail (serviço como Resend). Decidir qual e aprovar a dependência/serviço.
+- CAL-086: em produção, rodar uma vez GET /api/cron/demo-reset (com o CRON_SECRET) para criar a demonstração; depois o cron recria todo dia às 04:00.
 
 ## Plano do card atual
 —
