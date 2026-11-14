@@ -7,6 +7,9 @@ export default defineConfig({
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
+  // O modo dev compila cada página na primeira visita: damos folga.
+  expect: { timeout: 15_000 },
+  timeout: 60_000,
   use: {
     baseURL: "http://app.localhost:3000",
     trace: "retain-on-failure",

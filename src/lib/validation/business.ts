@@ -193,3 +193,26 @@ export function defaultWeekHours(): DayHours[] {
     };
   });
 }
+
+export const appearanceSchema = z.object({
+  accent_color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Cor inválida."),
+  headline: z
+    .string()
+    .trim()
+    .max(90, "Use no máximo 90 caracteres.")
+    .optional()
+    .transform((v) => (v ? v : null)),
+  subheadline: z
+    .string()
+    .trim()
+    .max(200, "Use no máximo 200 caracteres.")
+    .optional()
+    .transform((v) => (v ? v : null)),
+});
+export type AppearanceInput = z.input<typeof appearanceSchema>;
+
+export const testimonialSchema = z.object({
+  author_name: z.string().trim().min(1, "Informe o nome.").max(60),
+  text: z.string().trim().min(5, "Escreva o depoimento.").max(400, "Use no máximo 400 caracteres."),
+});
+export type TestimonialInput = z.input<typeof testimonialSchema>;

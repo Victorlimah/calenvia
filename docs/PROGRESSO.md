@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-038
-- Card em andamento: —
-- Próximo card: CAL-037
+- Card em andamento: CAL-037
+- Próximo card: CAL-062
 - Atualizado em: 2026-11-14 01:39
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -42,6 +42,7 @@
 - Server actions NÃO usam redirect() para caminhos internos: o redirect da action é resolvido sem passar pelo middleware (rewrite por host) e cai na rota errada (/[slug]). As actions devolvem { redirectTo } e o cliente faz router.push.
 - Um negócio por conta no MVP (getCurrentBusiness pega o primeiro do dono). Salvar horários e serviços do profissional usa funções SQL atômicas (save_business_hours, set_staff_services) com RLS (security invoker).
 - Tabela extra business_photos (galeria 'fotos do trabalho', até 12 fotos) — não estava na seção 4 do CLAUDE.md, mas a página pública precisa. Imagens no bucket público business-media/{business_id}/{tipo}/; compressão no navegador para WebP.
+- Tabela extra business_testimonials (depoimentos cadastrados pelo dono, até 10) para a seção de depoimentos da página pública.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
@@ -49,4 +50,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-—
+/ajustes/aparencia: logo, capa, cor de destaque (paleta + seletor), título e subtítulo, galeria de fotos; prévia ao vivo (mini página escura com a cor). Action saveAppearanceAction com Zod (cor #RRGGBB, textos ≤ 120/200).

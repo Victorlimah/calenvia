@@ -73,3 +73,21 @@ test("envia e remove a foto de um profissional", async ({ page }) => {
   await page.getByRole("button", { name: "Remover foto" }).click();
   await expect(page.getByRole("button", { name: "Remover foto" })).toHaveCount(0);
 });
+
+test("aparência: prévia ao vivo, cor e capa", async ({ page }) => {
+  await loginAsZe(page, "/ajustes/aparencia");
+  const preview = page.getByRole("complementary", { name: "Prévia da página" });
+  await page.getByLabel("Título da página").fill("Corte de respeito");
+  await expect(preview.getByRole("heading", { name: "Corte de respeito" })).toBeVisible();
+  await page.getByRole("button", { name: "Cor #1F9D55" }).click();
+  await page.getByRole("button", { name: "Salvar aparência" }).click();
+  await expect(page.getByText("Aparência salva.")).toBeVisible();
+  await page.getByLabel("Enviar foto de capa").setInputFiles("tests/e2e/fixtures/foto.png");
+  await expect(page.getByRole("button", { name: "Remover capa" })).toBeVisible({ timeout: 15000 });
+  // restaura
+  await page.getByRole("button", { name: "Remover capa" }).click();
+  await page.getByLabel("Título da página").fill("Seu corte no horário certo, sem fila.");
+  await page.getByRole("button", { name: "Cor #F5B014" }).click();
+  await page.getByRole("button", { name: "Salvar aparência" }).click();
+  await expect(page.getByText("Aparência salva.")).toBeVisible();
+});

@@ -218,6 +218,42 @@ export type Database = {
           },
         ];
       };
+      business_testimonials: {
+        Row: {
+          author_name: string;
+          business_id: string;
+          created_at: string;
+          id: string;
+          sort_order: number;
+          text: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_name: string;
+          business_id: string;
+          created_at?: string;
+          id?: string;
+          sort_order?: number;
+          text: string;
+        };
+        Update: {
+          author_name?: string;
+          business_id?: string;
+          created_at?: string;
+          id?: string;
+          sort_order?: number;
+          text?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_testimonials_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       businesses: {
         Row: {
           accent_color: string;
