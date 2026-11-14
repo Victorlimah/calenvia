@@ -533,6 +533,25 @@ export type Database = {
           },
         ];
       };
+      rate_limits: {
+        Row: {
+          count: number;
+          key: string;
+          window_start: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          count?: number;
+          key: string;
+          window_start: string;
+        };
+        Update: {
+          count?: number;
+          key?: string;
+          window_start?: string;
+        };
+        Relationships: [];
+      };
       services: {
         Row: {
           business_id: string;
@@ -836,6 +855,10 @@ export type Database = {
         Returns: number;
       };
       gen_manage_code: { Args: Record<PropertyKey, never>; Returns: string };
+      hit_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_seconds: number };
+        Returns: boolean;
+      };
       increment_message_usage: {
         Args: { p_business_id: string; p_period: string };
         Returns: number;

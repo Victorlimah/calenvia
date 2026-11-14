@@ -8,6 +8,7 @@ import { getPublicAppointment } from "@/lib/public/appointment";
 import { getPublicBusiness } from "@/lib/public/business";
 import { noticeText } from "@/lib/public/faq";
 import { ManageClient } from "./manage-client";
+import { checkRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 type Props = { params: Promise<{ slug: string; code: string }> };
 
@@ -17,6 +18,14 @@ export default async function GerenciarPage({ params }: Props) {
   const { slug, code } = await params;
   const business = await getPublicBusiness(slug);
   if (!business) notFound();
+  if (!(await checkRateLimit("lookup"))) {
+    return (
+      <main className="mx-auto max-w-xl px-4 pt-16 text-center">
+        <h1 className="font-display text-2xl font-extrabold">Muitas tentativas</h1>
+        <p className="mt-2 text-night-sub">{RATE_LIMIT_MESSAGE}</p>
+      </main>
+    );
+  }
   const appt = await getPublicAppointment(business.id, code);
   if (!appt) notFound();
 

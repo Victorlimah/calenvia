@@ -16,6 +16,11 @@ import { afterBooking } from "@/lib/booking/after-booking";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { bookingSchema } from "@/lib/validation/booking";
 import { track } from "@/lib/metrics";
+import { headers } from "next/headers";
+import { verifyCaptcha } from "@/lib/captcha";
+import { MAX_FUTURE_BOOKINGS_PER_CUSTOMER, TOO_MANY_BOOKINGS_MESSAGE } from "@/lib/booking/limits";
+import { normalizeMobile } from "@/lib/phone";
+import { checkRateLimit, clientIp, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 const availabilityInput = z.object({
   slug: z.string().min(3).max(40),
@@ -39,6 +44,7 @@ export async function availabilityAction(
 ): Promise<{ ok: true; data: PublicAvailability } | { ok: false; error: string }> {
   const parsed = availabilityInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
+  if (!(await checkRateLimit("availability"))) return { ok: false, error: RATE_LIMIT_MESSAGE };
   const business = await getPublicBusiness(parsed.data.slug);
   if (!business || !isBookingOpen(business)) return { ok: false, error: "Agenda indisponível." };
   const { services, staff } = await getPublicCatalog(business.id);
@@ -82,6 +88,11 @@ export async function bookAction(input: unknown): Promise<BookResult> {
     return { ok: false, error: "Confira seus dados.", fieldErrors: zodFieldErrors(parsed.error) };
   }
   const data = parsed.data;
+  const ip = clientIp(await headers());
+  if (!(await checkRateLimit("book", ip))) return { ok: false, error: RATE_LIMIT_MESSAGE };
+  if (!(await verifyCaptcha(data.captchaToken, ip))) {
+    return { ok: false, error: "Não conseguimos confirmar que você não é um robô. Tente de novo." };
+  }
   const business = await getPublicBusiness(data.slug);
   if (!business || !isBookingOpen(business)) {
     return {
@@ -90,8 +101,20 @@ export async function bookAction(input: unknown): Promise<BookResult> {
       code: "business_unavailable",
     };
   }
+  const phone = normalizeMobile(data.whatsapp);
+  const db = createSupabaseAdminClient();
+  const { count: future } = await db
+    .from("appointments")
+    .select("id", { count: "exact", head: true })
+    .eq("business_id", business.id)
+    .eq("customer_whatsapp", phone ?? "")
+    .eq("status", "confirmed")
+    .gt("starts_at", new Date().toISOString());
+  if ((future ?? 0) >= MAX_FUTURE_BOOKINGS_PER_CUSTOMER) {
+    return { ok: false, error: TOO_MANY_BOOKINGS_MESSAGE };
+  }
   try {
-    const appointment = await createAppointment(createSupabaseAdminClient(), {
+    const appointment = await createAppointment(db, {
       business,
       serviceId: data.serviceId,
       staffId: data.staffId,

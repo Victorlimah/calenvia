@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/money";
 import { maskPhoneInput } from "@/lib/phone";
 import { customerSchema, type CustomerInput } from "@/lib/validation/booking";
 import { bookAction } from "@/app/(negocio)/[slug]/agendar/actions";
+import { Captcha } from "./captcha";
 import type { PublicService } from "./types";
 
 const STORAGE_KEY = "calenvia:cliente";
@@ -60,6 +61,7 @@ export function CustomerStep({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<{ message: string; conflict: boolean } | null>(null);
   const [remember, setRemember] = useState(true);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const form = useForm<CustomerInput>({
     resolver: zodResolver(customerSchema),
     defaultValues: { name: "", whatsapp: "" },
@@ -83,6 +85,7 @@ export function CustomerStep({
         start,
         ...values,
         website: honeypot,
+        captchaToken,
       });
       if (result.ok) {
         router.push(`/confirmado/${result.code}`);
@@ -102,6 +105,7 @@ export function CustomerStep({
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
+      <Captcha onToken={setCaptchaToken} />
       <div className="rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-4 text-sm">
         <p className="font-display text-lg font-bold">{service.name}</p>
         <p className="mt-1 text-night-sub">

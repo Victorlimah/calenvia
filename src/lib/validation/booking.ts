@@ -18,5 +18,7 @@ export const bookingSchema = customerSchema.extend({
   start: z.string().datetime({ offset: true }),
   /** Campo-isca contra robôs: humanos não preenchem. */
   website: z.string().max(0).optional(),
+  /** Token do captcha invisível (só quando ligado). */
+  captchaToken: z.string().max(2048).nullable().optional(),
 });
 export type BookingInput = z.infer<typeof bookingSchema>;

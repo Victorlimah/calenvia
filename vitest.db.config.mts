@@ -9,6 +9,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/db/**/*.test.ts"],
+    setupFiles: ["tests/db/next-headers-mock.ts"],
     fileParallelism: false,
     testTimeout: 20000,
   },

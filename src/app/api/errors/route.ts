@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { reportError } from "@/lib/monitoring";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,9 @@ const body = z.object({
 
 /** Recebe erros do navegador (error boundaries). Sem dados de usuário. */
 export async function POST(req: NextRequest) {
+  if (!(await checkRateLimit("beacon", clientIp(req.headers)))) {
+    return new NextResponse(null, { status: 429 });
+  }
   const text = await req.text();
   if (text.length > 8000) return new NextResponse(null, { status: 413 });
   let json: unknown;

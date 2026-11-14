@@ -7,6 +7,7 @@ import { customerManagePolicy, type ManageBlockReason } from "@/lib/booking/mana
 import { getPublicAppointment } from "@/lib/public/appointment";
 import { getPublicBusiness } from "@/lib/public/business";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { checkRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 export type ManageResult = { ok: true } | { ok: false; error: string };
 
@@ -24,6 +25,7 @@ const BLOCKED: Record<ManageBlockReason, string> = {
 async function load(input: unknown) {
   const parsed = base.safeParse(input);
   if (!parsed.success) return { error: "Pedido inválido." } as const;
+  if (!(await checkRateLimit("manage"))) return { error: RATE_LIMIT_MESSAGE } as const;
   const business = await getPublicBusiness(parsed.data.slug);
   if (!business) return { error: "Negócio não encontrado." } as const;
   const appt = await getPublicAppointment(business.id, parsed.data.code);
