@@ -13,16 +13,26 @@ import {
   signUpSchema,
 } from "@/lib/validation/auth";
 
-export async function signInAction(input: unknown, next?: string): Promise<ActionResult> {
+// Importante: não usar redirect() para caminhos internos aqui. O redirect de uma server action
+// é resolvido sem passar pelo middleware (que faz o rewrite por host) e cairia na rota errada.
+// Devolvemos o destino e o navegador navega (router.push), passando pelo middleware.
+
+export async function signInAction(
+  input: unknown,
+  next?: string,
+): Promise<ActionResult<{ redirectTo: string }>> {
   const parsed = signInSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ok: false, error: authErrorMessage(error.message) };
-  redirect(safeNextPath(next));
+  return { ok: true, data: { redirectTo: safeNextPath(next) } };
 }
 
-export async function signUpAction(input: unknown, plan?: string): Promise<ActionResult> {
+export async function signUpAction(
+  input: unknown,
+  plan?: string,
+): Promise<ActionResult<{ redirectTo: string }>> {
   const parsed = signUpSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createSupabaseServerClient();
@@ -43,7 +53,7 @@ export async function signUpAction(input: unknown, plan?: string): Promise<Actio
   if (!data.session) {
     return { ok: true, message: "Enviamos um link de confirmação para o seu e-mail." };
   }
-  redirect(nextPath);
+  return { ok: true, data: { redirectTo: nextPath } };
 }
 
 export async function signInWithGoogleAction(next?: string): Promise<ActionResult> {
@@ -85,8 +95,8 @@ export async function updatePasswordAction(input: unknown): Promise<ActionResult
   return { ok: true, message: "Senha alterada." };
 }
 
-export async function signOutAction(): Promise<void> {
+export async function signOutAction(): Promise<ActionResult> {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
-  redirect("/entrar");
+  return { ok: true };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, Button, Field, Input } from "@/components/ui";
@@ -9,6 +10,7 @@ import { signUpSchema, type SignUpInput } from "@/lib/validation/auth";
 import { signUpAction } from "../actions";
 
 export function SignUpForm({ plan }: { plan?: string }) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -19,9 +21,11 @@ export function SignUpForm({ plan }: { plan?: string }) {
     setError(null);
     startTransition(async () => {
       const result = await signUpAction(values, plan);
-      if (!result) return;
-      if (result.ok) setMessage(result.message ?? null);
-      else setError(result.error);
+      if (!result.ok) setError(result.error);
+      else if (result.data?.redirectTo) {
+        router.push(result.data.redirectTo);
+        router.refresh();
+      } else setMessage(result.message ?? null);
     });
   });
 

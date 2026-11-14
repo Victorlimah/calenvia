@@ -33,6 +33,8 @@
 - Roteamento por host: app.* é reescrito para /painel/*, {slug}.* para /{slug}/*. O middleware injeta x-calenvia-host/x-calenvia-slug e os layouts dão 404 se a rota for aberta pelo host errado (ex.: calenvia.com.br/barbearia-do-ze). Todo login/cadastro fica no host do painel (app.*), para não depender de cookie entre subdomínios.
 - Ordem: CAL-017 (design system) foi feito antes do CAL-026 (autenticação), porque as telas de login já precisam dos componentes. CAL-022 (deploy) é preparado sem deploy (proibido no modo autônomo).
 - Playwright usa o Google Chrome já instalado (`channel: chrome`), sem baixar navegadores. Testes E2E em tests/e2e (`npm run test:e2e`), precisam do Supabase local com seed.
+- Server actions NÃO usam redirect() para caminhos internos: o redirect da action é resolvido sem passar pelo middleware (rewrite por host) e cai na rota errada (/[slug]). As actions devolvem { redirectTo } e o cliente faz router.push.
+- Um negócio por conta no MVP (getCurrentBusiness pega o primeiro do dono). Salvar horários e serviços do profissional usa funções SQL atômicas (save_business_hours, set_staff_services) com RLS (security invoker).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.

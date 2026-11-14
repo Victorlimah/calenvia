@@ -694,6 +694,11 @@ export type Database = {
         Returns: number;
       };
       is_business_owner: { Args: { p_business_id: string }; Returns: boolean };
+      save_business_hours: { Args: { p_business_id: string; p_days: Json }; Returns: undefined };
+      set_staff_services: {
+        Args: { p_service_ids: string[]; p_staff_member_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;

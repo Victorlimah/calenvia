@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, Button, Field, Input } from "@/components/ui";
@@ -9,6 +10,7 @@ import { signInSchema, type SignInInput } from "@/lib/validation/auth";
 import { signInAction } from "../actions";
 
 export function SignInForm({ next }: { next?: string }) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const form = useForm<SignInInput>({ resolver: zodResolver(signInSchema) });
@@ -18,7 +20,11 @@ export function SignInForm({ next }: { next?: string }) {
     setError(null);
     startTransition(async () => {
       const result = await signInAction(values, next);
-      if (result && !result.ok) setError(result.error);
+      if (!result.ok) setError(result.error);
+      else {
+        router.push(result.data?.redirectTo ?? "/");
+        router.refresh();
+      }
     });
   });
 
