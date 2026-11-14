@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-089
-- Card em andamento: CAL-090
-- Próximo card: CAL-091
-- Atualizado em: 2026-11-14 07:36
+- Último card concluído: CAL-092
+- Card em andamento: CAL-054
+- Próximo card: CAL-064
+- Atualizado em: 2026-11-14 07:48
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -64,6 +64,9 @@
 | CAL-085 | Concluído | e6cd17d | product_events + metrics_funnel() (migration 20261114001000); eventos de visita, cadastro, negócio, primeiro serviço, onboarding, primeiro agendamento; docs/METRICAS.md com consultas | npm run test:db (metrics.test.ts) |
 | CAL-088 | Concluído (checkout pendente) | b534ff5 | tests/e2e/jornada.spec.ts: cliente agenda → confirmação → dono vê → cliente cancela pelo link → agenda atualiza em tempo real → aviso de cancelamento; job e2e no CI (Supabase local + Chromium). Teste do checkout entra com o CAL-076 | npm run test:e2e (jornada.spec.ts) |
 | CAL-089 | Concluído | 51af434 | hit_rate_limit no Postgres (migration 20261114001100, IP só como hash com sal); limites no agendar (5/10 min, 20/dia), horários (120/min), gerenciar (10/10 min), leitura de código (40/10 min), beacons (30/min); máx. 3 horários futuros por WhatsApp pelo link; Turnstile opcional (NEXT_PUBLIC_TURNSTILE_SITE_KEY + TURNSTILE_SECRET_KEY) | npm run test:db (spam.test.ts) |
+| CAL-090 | Concluído | d72d76b | tests/db/security.test.ts varre o schema: RLS em toda tabela, views security_invoker, funções definer com search_path e sem acesso anônimo; para toda tabela com business_id o dono A não lê/altera/apaga/cria no B e o anônimo não lê; src/lib/security.test.ts garante que nenhum componente cliente usa service_role/segredos; docs/SEGURANCA.md | npm run test:db (security.test.ts); npm test (security.test.ts) |
+| CAL-091 | Concluído | 1041305 | Aviso de privacidade no passo de dados do agendamento; /clientes/[id]: baixar dados (JSON, rota /clientes/[id]/dados) e apagar dados (erase_customer, migration 20261114001200: anonimiza cliente, agendamentos e mensagens, cancela futuros, mantém valores) | npm run test:db (rls.test.ts › LGPD); npm run test:e2e (clientes.spec.ts) |
+| CAL-092 | Concluído | 34daf2a | scripts/backup.sh + scripts/restore-check.sh (testado: backup local criptografado → reset → carga → 18 tabelas com as mesmas contagens → login/agenda ok); workflow .github/workflows/backup.yml diário com teste de restauração; docs/BACKUP.md | BACKUP_PASSPHRASE=x scripts/backup.sh && BACKUP_PASSPHRASE=x scripts/restore-check.sh backups/<arquivo>.enc --yes |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -100,6 +103,7 @@
 - Lighthouse não pôde ser baixado (npx bloqueado pelas permissões). A meta do CAL-053 foi verificada com axe-core (já instalado, agora em devDependencies) e pelo tamanho dos bundles do build. Rodar o Lighthouse manualmente no deploy de preview.
 - Sem serviços externos novos: monitoramento (CAL-029) e métricas (CAL-085) são próprios; Sentry/Plausible/PostHog podem entrar depois com aprovação do Victor.
 - Rate limit não se aplica a 127.0.0.1 em desenvolvimento (os E2E fazem muitas chamadas); RATE_LIMIT_LOCAL=1 liga localmente.
+- LGPD: apagar dados de um cliente anonimiza (não remove linhas), para o faturamento do dono continuar certo. O número vira 5500xxxxxxxxx (DDD 00 não existe).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
@@ -113,6 +117,7 @@
 - CAL-029: decidir se quer Sentry (serviço externo). Até lá, defina ERROR_WEBHOOK_URL na Vercel (ex.: webhook do Slack/Discord) para receber os erros.
 - CAL-053: rodar o Lighthouse (celular) no deploy de preview para confirmar ≥ 90.
 - CAL-089: para ligar o captcha invisível, criar um widget Turnstile (modo invisível/gerenciado) na Cloudflare e definir NEXT_PUBLIC_TURNSTILE_SITE_KEY e TURNSTILE_SECRET_KEY na Vercel. Definir também RATE_LIMIT_SALT.
+- CAL-092: ligar o backup diário criando os segredos SUPABASE_DB_URL e BACKUP_PASSPHRASE no GitHub; recomendado também o plano Pro do Supabase (backup diário + PITR).
 
 ## Plano do card atual
 —
