@@ -43,3 +43,29 @@ export async function goToCustomerStep(
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page.getByRole("heading", { name: "Seus dados" })).toBeVisible();
 }
+
+export async function loginAsZe(page: Page, next = "/") {
+  await page.goto(`http://app.localhost:3000/entrar?next=${encodeURIComponent(next)}`);
+  await page.getByLabel("E-mail").fill("ze@calenvia.dev");
+  await page.getByLabel("Senha").fill("calenvia123");
+  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await page.waitForURL(
+    (u) => u.host === "app.localhost:3000" && !u.pathname.startsWith("/entrar"),
+  );
+}
+
+/** Próximo dia (no fuso da barbearia) com agendamentos do seed. */
+export async function seededDay(): Promise<string> {
+  const { data } = await admin
+    .from("appointments")
+    .select("starts_at")
+    .eq("business_id", ZE_BIZ)
+    .eq("status", "confirmed")
+    .gt("starts_at", new Date().toISOString())
+    .order("starts_at")
+    .limit(1)
+    .single();
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Fortaleza" }).format(
+    new Date(data!.starts_at),
+  );
+}
