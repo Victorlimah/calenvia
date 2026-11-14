@@ -1,8 +1,8 @@
 export default function NegocioNotFound() {
   return (
-    <main className="bg-night text-night-fg flex min-h-dvh flex-col items-center justify-center px-6 text-center">
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-night px-6 text-center text-night-fg">
       <h1 className="font-display text-3xl font-extrabold">Página não encontrada</h1>
-      <p className="text-night-sub mt-3 max-w-sm">
+      <p className="mt-3 max-w-sm text-night-sub">
         Confira se o endereço está certo. Se o link veio de um estabelecimento, peça o link
         atualizado.
       </p>

@@ -38,7 +38,7 @@ export function Hero({
   return (
     <section
       className={cn(
-        "bg-night text-night-fg relative isolate overflow-hidden",
+        "relative isolate overflow-hidden bg-night text-night-fg",
         preview ? "rounded-[var(--radius-card)]" : "",
       )}
     >
@@ -61,7 +61,7 @@ export function Hero({
       )}
       <div
         aria-hidden="true"
-        className="from-night via-night/70 to-night/20 absolute inset-0 -z-10 bg-gradient-to-t"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-night via-night/70 to-night/20"
       />
       <div
         className={cn("mx-auto max-w-2xl px-5", preview ? "py-8" : "pt-10 pb-14 md:pt-16 md:pb-20")}
@@ -77,7 +77,7 @@ export function Hero({
           ) : (
             <span
               aria-hidden="true"
-              className="font-display inline-flex size-12 items-center justify-center rounded-2xl text-xl font-extrabold"
+              className="inline-flex size-12 items-center justify-center rounded-2xl font-display text-xl font-extrabold"
               style={{ background: accent, color: ctaText }}
             >
               {name.trim().charAt(0).toUpperCase()}
@@ -85,18 +85,18 @@ export function Hero({
           )}
           <div>
             <p className="font-display text-lg leading-tight font-bold">{name}</p>
-            <p className="text-night-sub text-sm">{segmentLabel}</p>
+            <p className="text-sm text-night-sub">{segmentLabel}</p>
           </div>
         </div>
         <h1
           className={cn(
-            "font-display mt-8 leading-[1.05] font-extrabold tracking-tight",
+            "mt-8 font-display leading-[1.05] font-extrabold tracking-tight",
             preview ? "text-3xl" : "text-[2.6rem] md:text-6xl",
           )}
         >
           {headline || defaultHeadline(name)}
         </h1>
-        <p className={cn("text-night-sub mt-4", preview ? "text-sm" : "text-lg")}>
+        <p className={cn("mt-4 text-night-sub", preview ? "text-sm" : "text-lg")}>
           {subheadline || DEFAULT_SUBHEADLINE}
         </p>
         <Cta

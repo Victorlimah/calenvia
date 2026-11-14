@@ -19,7 +19,7 @@ export function OnboardingProgress() {
   );
   return (
     <nav aria-label="Etapas do cadastro" className="mt-5">
-      <p className="text-ink-2 text-sm font-medium">
+      <p className="text-sm font-medium text-ink-2">
         Etapa {current + 1} de {ONBOARDING_STEPS.length}: {ONBOARDING_STEPS[current].label}
       </p>
       <ol className="mt-2 grid grid-cols-5 gap-1.5">

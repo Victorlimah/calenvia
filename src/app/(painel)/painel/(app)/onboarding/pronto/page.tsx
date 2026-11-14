@@ -16,10 +16,10 @@ export default async function OnboardingProntoPage() {
         <p className="text-4xl" aria-hidden="true">
           🎉
         </p>
-        <h1 className="font-display text-ink mt-2 text-3xl font-extrabold">
+        <h1 className="mt-2 font-display text-3xl font-extrabold text-ink">
           Sua página está no ar!
         </h1>
-        <p className="text-ink-2 mt-1">
+        <p className="mt-1 text-ink-2">
           Mande o link para seus clientes. Os agendamentos aparecem na sua agenda.
         </p>
       </div>

@@ -19,8 +19,8 @@ export default async function OnboardingProfissionaisPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-ink text-3xl font-extrabold">Quem atende?</h1>
-        <p className="text-ink-2 mt-1">
+        <h1 className="font-display text-3xl font-extrabold text-ink">Quem atende?</h1>
+        <p className="mt-1 text-ink-2">
           Seus clientes escolhem o profissional ou deixam “sem preferência”.
         </p>
       </div>

@@ -89,7 +89,7 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
               </Button>
             ) : null}
           </div>
-          <p className="text-muted text-sm">
+          <p className="text-sm text-muted">
             Dica: use uma foto do seu espaço ou do seu trabalho, na horizontal.
           </p>
         </Card>
@@ -118,7 +118,7 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
                     style={{ background: c }}
                   />
                 ))}
-                <label className="border-ink-2 relative inline-flex size-11 cursor-pointer items-center justify-center rounded-full border border-dashed text-xs font-semibold">
+                <label className="relative inline-flex size-11 cursor-pointer items-center justify-center rounded-full border border-dashed border-ink-2 text-xs font-semibold">
                   <span aria-hidden="true">+</span>
                   <input
                     type="color"
@@ -165,7 +165,7 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
       </div>
 
       <aside className="lg:sticky lg:top-6" aria-label="Prévia da página">
-        <p className="text-ink-2 mb-2 text-sm font-semibold">Prévia ao vivo</p>
+        <p className="mb-2 text-sm font-semibold text-ink-2">Prévia ao vivo</p>
         <Hero
           preview
           name={business.name}
@@ -194,7 +194,7 @@ function GalleryCard({
     <Card className="space-y-4">
       <div>
         <h2 className="font-display text-xl font-bold">Fotos do trabalho</h2>
-        <p className="text-muted text-sm">
+        <p className="text-sm text-muted">
           Até {MAX_GALLERY_PHOTOS} fotos. Aparecem na sua página.
         </p>
       </div>
@@ -207,7 +207,7 @@ function GalleryCard({
               <button
                 type="button"
                 aria-label="Remover foto"
-                className="bg-night/80 absolute top-1 right-1 inline-flex size-9 items-center justify-center rounded-full text-lg text-white"
+                className="absolute top-1 right-1 inline-flex size-9 items-center justify-center rounded-full bg-night/80 text-lg text-white"
                 onClick={() => remove.run(() => removeGalleryPhotoAction(p.id))}
               >
                 ×
@@ -253,14 +253,14 @@ function TestimonialsCard({
     <Card className="space-y-4">
       <div>
         <h2 className="font-display text-xl font-bold">Depoimentos</h2>
-        <p className="text-muted text-sm">
+        <p className="text-sm text-muted">
           Copie elogios que você recebeu no WhatsApp ou no Instagram.
         </p>
       </div>
       {testimonials.length ? (
         <ul className="space-y-2">
           {testimonials.map((t) => (
-            <li key={t.id} className="bg-paper-2 flex gap-3 rounded-xl p-3">
+            <li key={t.id} className="flex gap-3 rounded-xl bg-paper-2 p-3">
               <div className="min-w-0 flex-1 text-sm">
                 <p>“{t.text}”</p>
                 <p className="mt-1 font-semibold">{t.author_name}</p>

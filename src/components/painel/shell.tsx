@@ -41,10 +41,10 @@ export function PainelShell({
 }) {
   const pathname = usePathname().replace(/^\/painel(?=\/|$)/, "") || "/";
   return (
-    <div className="bg-paper min-h-dvh md:flex">
-      <aside className="border-line hidden w-64 shrink-0 flex-col border-r bg-white px-4 py-6 md:sticky md:top-0 md:flex md:h-dvh">
+    <div className="min-h-dvh bg-paper md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-line bg-white px-4 py-6 md:sticky md:top-0 md:flex md:h-dvh">
         <Logo />
-        <p className="text-ink-2 mt-6 truncate px-3 text-sm font-semibold">{businessName}</p>
+        <p className="mt-6 truncate px-3 text-sm font-semibold text-ink-2">{businessName}</p>
         <nav aria-label="Menu principal" className="mt-3 flex flex-col gap-1">
           {NAV.map((item) => {
             const active = item.match(pathname);
@@ -73,7 +73,7 @@ export function PainelShell({
 
       <nav
         aria-label="Menu principal"
-        className="border-line fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
       >
         {NAV.map((item) => {
           const active = item.match(pathname);
@@ -105,7 +105,7 @@ export function SignOutButton({ className }: { className?: string }) {
       type="button"
       disabled={pending}
       className={cn(
-        "text-ink-2 hover:bg-paper-2 flex min-h-11 w-full items-center rounded-xl px-3 text-left font-semibold",
+        "flex min-h-11 w-full items-center rounded-xl px-3 text-left font-semibold text-ink-2 hover:bg-paper-2",
         className,
       )}
       onClick={() =>

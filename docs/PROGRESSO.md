@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-047
-- Card em andamento: —
-- Próximo card: CAL-048
+- Card em andamento: CAL-048
+- Próximo card: CAL-049
 - Atualizado em: 2026-11-14 02:00
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -62,4 +62,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-—
+Server action loadAvailabilityAction(slug, serviceId, staffId, from) (service role, revalida entrada com Zod) → resumo de 14 dias + horários do dia (grupos Manhã/Tarde/Noite) + próximo dia livre. Passo 3: faixa horizontal de dias (dias fechados/lotados desabilitados), grade de horários por período, atalho 'Próximo dia com horário', estados de carregamento/erro/vazio.

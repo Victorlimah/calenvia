@@ -59,7 +59,7 @@ export function SignInForm({ next }: { next?: string }) {
       <div className="text-right">
         <Link
           href="/recuperar-senha"
-          className="text-brand inline-flex min-h-11 items-center text-sm font-semibold"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-brand"
         >
           Esqueci minha senha
         </Link>

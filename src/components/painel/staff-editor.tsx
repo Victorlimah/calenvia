@@ -80,10 +80,10 @@ export function StaffEditor({
                 <Avatar name={p.name} url={p.photo_url} />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-ink font-semibold">{p.name}</p>
+                    <p className="font-semibold text-ink">{p.name}</p>
                     {!p.is_active ? <Badge>Desativado</Badge> : null}
                   </div>
-                  <p className="text-ink-2 truncate text-sm">
+                  <p className="truncate text-sm text-ink-2">
                     {p.role ? `${p.role} · ` : ""}
                     {p.service_ids.length === 0
                       ? "Nenhum serviço"
@@ -143,7 +143,7 @@ export function Avatar({
   return (
     <span
       aria-hidden="true"
-      className="bg-brand-50 text-brand inline-flex shrink-0 items-center justify-center rounded-full font-bold"
+      className="inline-flex shrink-0 items-center justify-center rounded-full bg-brand-50 font-bold text-brand"
       style={{ width: size, height: size }}
     >
       {initials || "?"}
@@ -242,7 +242,7 @@ function StaffForm({
         <fieldset className="space-y-1">
           <legend className="mb-1 text-sm font-semibold">Serviços que faz</legend>
           {services.length === 0 ? (
-            <p className="text-muted text-sm">Cadastre serviços primeiro.</p>
+            <p className="text-sm text-muted">Cadastre serviços primeiro.</p>
           ) : null}
           {services.map((s) => (
             <Checkbox

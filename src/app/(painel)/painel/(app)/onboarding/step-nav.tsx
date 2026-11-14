@@ -10,14 +10,14 @@ export function StepNav({
   disabled?: boolean;
 }) {
   return (
-    <div className="border-line flex gap-3 border-t pt-5">
+    <div className="flex gap-3 border-t border-line pt-5">
       <ButtonLink href={back} variant="ghost">
         Voltar
       </ButtonLink>
       {disabled ? (
         <span
           aria-disabled="true"
-          className="bg-line text-muted inline-flex min-h-14 flex-1 items-center justify-center rounded-[var(--radius-control)] px-6 font-semibold"
+          className="inline-flex min-h-14 flex-1 items-center justify-center rounded-[var(--radius-control)] bg-line px-6 font-semibold text-muted"
         >
           Continuar
         </span>

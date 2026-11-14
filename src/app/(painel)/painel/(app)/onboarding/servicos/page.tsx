@@ -17,8 +17,8 @@ export default async function OnboardingServicosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-ink text-3xl font-extrabold">O que você oferece?</h1>
-        <p className="text-ink-2 mt-1">
+        <h1 className="font-display text-3xl font-extrabold text-ink">O que você oferece?</h1>
+        <p className="mt-1 text-ink-2">
           Cadastre seus serviços com duração e preço. Dá para mudar tudo depois.
         </p>
       </div>

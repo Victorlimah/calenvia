@@ -17,7 +17,7 @@ export function SectionTitle({ kicker, title }: { kicker?: string; title: string
           {kicker}
         </p>
       ) : null}
-      <h2 className="font-display mt-1 text-3xl leading-tight font-extrabold md:text-4xl">
+      <h2 className="mt-1 font-display text-3xl leading-tight font-extrabold md:text-4xl">
         {title}
       </h2>
     </div>
@@ -59,13 +59,13 @@ export function HowItWorks({ automatic }: { automatic: boolean }) {
           className="rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-5"
         >
           <span
-            className="font-display inline-flex size-9 items-center justify-center rounded-full font-extrabold"
+            className="inline-flex size-9 items-center justify-center rounded-full font-display font-extrabold"
             style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
           >
             {i + 1}
           </span>
-          <p className="font-display mt-3 text-lg font-bold">{s.t}</p>
-          <p className="text-night-sub mt-1">{s.d}</p>
+          <p className="mt-3 font-display text-lg font-bold">{s.t}</p>
+          <p className="mt-1 text-night-sub">{s.d}</p>
         </li>
       ))}
     </ol>
@@ -94,9 +94,9 @@ export function ServicesList({ services }: { services: PublicService[] }) {
                 ) : null}
               </div>
               {s.description ? (
-                <p className="text-night-sub mt-1 text-sm">{s.description}</p>
+                <p className="mt-1 text-sm text-night-sub">{s.description}</p>
               ) : null}
-              <p className="text-night-sub mt-2 text-sm">{formatDuration(s.duration_min)}</p>
+              <p className="mt-2 text-sm text-night-sub">{formatDuration(s.duration_min)}</p>
             </div>
             <div className="text-right">
               <p className="font-display text-lg font-bold">{formatPrice(s.price_cents)}</p>
@@ -144,8 +144,8 @@ export function Team({ staff }: { staff: PublicStaff[] }) {
           className="flex flex-col items-center rounded-[var(--radius-card)] bg-white/5 p-5 text-center"
         >
           <Avatar name={p.name} url={p.photo_url} size={80} />
-          <p className="font-display mt-3 font-bold">{p.name}</p>
-          {p.role ? <p className="text-night-sub text-sm">{p.role}</p> : null}
+          <p className="mt-3 font-display font-bold">{p.name}</p>
+          {p.role ? <p className="text-sm text-night-sub">{p.role}</p> : null}
         </li>
       ))}
     </ul>
@@ -170,7 +170,7 @@ export function Testimonials({
               “
             </p>
             <blockquote className="mt-1 text-lg">{t.text}</blockquote>
-            <figcaption className="text-night-sub mt-3 font-semibold">— {t.author_name}</figcaption>
+            <figcaption className="mt-3 font-semibold text-night-sub">— {t.author_name}</figcaption>
           </figure>
         </li>
       ))}
@@ -223,7 +223,7 @@ export function Location({
         <div className="rounded-[var(--radius-card)] bg-white/5 p-5">
           <p className="font-display text-lg font-bold">Endereço</p>
           <p className="mt-2">{address}</p>
-          {reference ? <p className="text-night-sub mt-1">{reference}</p> : null}
+          {reference ? <p className="mt-1 text-night-sub">{reference}</p> : null}
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
             target="_blank"
@@ -265,7 +265,7 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
               +
             </span>
           </summary>
-          <p className="text-night-sub pb-5">{f.a}</p>
+          <p className="pb-5 text-night-sub">{f.a}</p>
         </details>
       ))}
     </div>
@@ -286,7 +286,7 @@ export function CtaButton({ accent, className = "" }: { accent: string; classNam
 
 export function StickyCta({ accent, name }: { accent: string; name: string }) {
   return (
-    <div className="bg-night/90 fixed inset-x-0 bottom-0 z-40 border-t border-white/10 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-night/90 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
       <div className="mx-auto flex max-w-2xl items-center gap-3">
         <p className="hidden min-w-0 flex-1 truncate font-semibold sm:block">{name}</p>
         <CtaButton accent={accent} className="w-full sm:w-auto" />

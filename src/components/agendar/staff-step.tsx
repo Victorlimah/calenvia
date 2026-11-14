@@ -48,8 +48,8 @@ export function StaffStep({
                 <Avatar name={o.name} url={o.photo} size={48} />
               )}
               <span className="min-w-0 flex-1">
-                <span className="font-display block text-lg font-bold">{o.name}</span>
-                {o.detail ? <span className="text-night-sub block text-sm">{o.detail}</span> : null}
+                <span className="block font-display text-lg font-bold">{o.name}</span>
+                {o.detail ? <span className="block text-sm text-night-sub">{o.detail}</span> : null}
               </span>
               <span
                 aria-hidden="true"

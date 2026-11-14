@@ -23,15 +23,15 @@ export default async function AjustesLinkPage() {
         href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
         target="_blank"
         rel="noopener"
-        className="border-line text-ink hover:border-brand flex min-h-12 items-center justify-center rounded-[var(--radius-control)] border bg-white px-4 font-semibold"
+        className="flex min-h-12 items-center justify-center rounded-[var(--radius-control)] border border-line bg-white px-4 font-semibold text-ink hover:border-brand"
       >
         Enviar o link pelo WhatsApp
       </a>
       {b.whatsapp ? (
-        <p className="text-muted text-center text-sm">
+        <p className="text-center text-sm text-muted">
           Seu WhatsApp na página:{" "}
           <a
-            className="text-brand font-semibold"
+            className="font-semibold text-brand"
             href={waMeLink(b.whatsapp)}
             target="_blank"
             rel="noopener"

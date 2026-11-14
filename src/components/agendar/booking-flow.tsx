@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { formatDuration } from "@/lib/dates";
+import { formatDayLabel, formatDuration, formatTime } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
 import { readableTextOn } from "@/lib/color";
 import { cn } from "@/lib/cn";
 import { ServiceStep } from "./service-step";
 import { StaffStep } from "./staff-step";
+import { TimeStep } from "./time-step";
 import {
   STEPS,
   STEP_TITLES,
@@ -55,7 +56,7 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-xl flex-col" data-ready={ready || undefined}>
-      <header className="bg-night/95 sticky top-0 z-30 border-b border-white/10 px-4 pt-3 pb-4 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-night/95 px-4 pt-3 pb-4 backdrop-blur">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -66,12 +67,12 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
             ←
           </button>
           <p className="min-w-0 flex-1 truncate font-semibold">{business.name}</p>
-          <Link href="/" className="text-night-sub text-sm underline underline-offset-4">
+          <Link href="/" className="text-sm text-night-sub underline underline-offset-4">
             Sair
           </Link>
         </div>
         <div className="mt-3">
-          <p className="text-night-sub text-sm" aria-live="polite">
+          <p className="text-sm text-night-sub" aria-live="polite">
             Passo {index + 1} de {STEPS.length}
           </p>
           <ol className="mt-2 grid grid-cols-4 gap-1.5" aria-label="Progresso">
@@ -115,7 +116,19 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
               staff={eligible}
               selectedId={selection.staffId}
               accent={business.accent}
-              onSelect={(id) => update({ staffId: id, start: null })}
+              onSelect={(id) => update({ staffId: id, date: null, start: null })}
+            />
+          ) : null}
+          {step === "horario" && service ? (
+            <TimeStep
+              slug={business.slug}
+              serviceId={service.id}
+              staffId={staffId}
+              timezone={business.timezone}
+              accent={business.accent}
+              date={selection.date}
+              start={selection.start}
+              onChange={(v) => update(v)}
             />
           ) : null}
           {step !== "servico" && !service ? (
@@ -130,11 +143,12 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
       </main>
 
       {step !== "dados" ? (
-        <footer className="bg-night/95 fixed inset-x-0 bottom-0 z-30 border-t border-white/10 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+        <footer className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-night/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
           <div className="mx-auto max-w-xl">
             <Summary
               service={service}
               staffName={step === "servico" ? undefined : (chosenStaff?.name ?? "Sem preferência")}
+              when={whenLabel(selection.start, business.timezone)}
             />
             <button
               type="button"
@@ -161,7 +175,7 @@ function Summary({
   staffName?: string;
   when?: string;
 }) {
-  if (!service) return <p className="text-night-sub text-sm">Nenhum serviço escolhido</p>;
+  if (!service) return <p className="text-sm text-night-sub">Nenhum serviço escolhido</p>;
   return (
     <div className="text-sm">
       <div className="flex items-baseline justify-between gap-3">
@@ -172,10 +186,16 @@ function Summary({
         <p className="font-bold">{formatPrice(service.price_cents)}</p>
       </div>
       {staffName || when ? (
-        <p className="text-night-sub mt-0.5 truncate">
+        <p className="mt-0.5 truncate text-night-sub">
           {[staffName, when].filter(Boolean).join(" · ")}
         </p>
       ) : null}
     </div>
   );
+}
+
+export function whenLabel(start: string | null, timezone: string): string | undefined {
+  if (!start) return undefined;
+  const d = new Date(start);
+  return `${formatDayLabel(d, timezone)} às ${formatTime(d, timezone)}`;
 }

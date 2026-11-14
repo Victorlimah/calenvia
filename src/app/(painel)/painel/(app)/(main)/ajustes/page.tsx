@@ -39,16 +39,16 @@ export default async function AjustesPage() {
   return (
     <PageBody>
       <PageHeader title="Ajustes" description={businessDisplayHost(business.slug)} />
-      <ul className="divide-line border-line divide-y overflow-hidden rounded-[var(--radius-card)] border bg-white">
+      <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-white">
         {ITEMS.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
-              className="hover:bg-paper-2 flex min-h-16 items-center gap-3 px-5 py-3"
+              className="flex min-h-16 items-center gap-3 px-5 py-3 hover:bg-paper-2"
             >
               <span className="min-w-0 flex-1">
-                <span className="text-ink block font-semibold">{item.title}</span>
-                <span className="text-muted block truncate text-sm">{item.desc}</span>
+                <span className="block font-semibold text-ink">{item.title}</span>
+                <span className="block truncate text-sm text-muted">{item.desc}</span>
               </span>
               <span aria-hidden="true" className="text-muted">
                 ›
@@ -57,7 +57,7 @@ export default async function AjustesPage() {
           </li>
         ))}
       </ul>
-      <div className="border-line rounded-[var(--radius-card)] border bg-white p-2 md:hidden">
+      <div className="rounded-[var(--radius-card)] border border-line bg-white p-2 md:hidden">
         <SignOutButton />
       </div>
     </PageBody>

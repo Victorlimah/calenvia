@@ -125,12 +125,12 @@ export default async function NegocioPage({ params }: Props) {
           <h2 className="font-display text-4xl leading-tight font-extrabold">
             Seu horário está esperando
           </h2>
-          <p className="text-night-sub mt-3">Escolha o melhor dia e hora para você.</p>
+          <p className="mt-3 text-night-sub">Escolha o melhor dia e hora para você.</p>
           <CtaButton accent={accent} className="mt-8 w-full sm:w-auto" />
         </div>
       </section>
 
-      <footer className="text-night-sub px-5 pt-6 pb-32 text-center text-xs">
+      <footer className="px-5 pt-6 pb-32 text-center text-xs text-night-sub">
         Agendamento online por{" "}
         <a href="https://calenvia.com.br" className="underline underline-offset-2">
           Calenvia

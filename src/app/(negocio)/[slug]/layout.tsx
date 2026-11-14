@@ -15,7 +15,7 @@ export default async function NegocioLayout({
   const accent = business?.accent_color ?? "#4B3FD9";
   return (
     <div
-      className="bg-night text-night-fg min-h-dvh"
+      className="min-h-dvh bg-night text-night-fg"
       style={{ ["--accent" as string]: accent, ["--accent-fg" as string]: readableTextOn(accent) }}
     >
       {children}

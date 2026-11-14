@@ -3,7 +3,7 @@ import { OnboardingProgress } from "./progress";
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-paper min-h-dvh">
+    <div className="min-h-dvh bg-paper">
       <header className="mx-auto w-full max-w-xl px-4 pt-6">
         <Logo />
         <OnboardingProgress />

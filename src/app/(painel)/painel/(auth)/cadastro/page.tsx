@@ -17,8 +17,8 @@ export default async function CadastroPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-ink text-3xl font-extrabold">Criar sua conta</h1>
-        <p className="text-ink-2 mt-1">
+        <h1 className="font-display text-3xl font-extrabold text-ink">Criar sua conta</h1>
+        <p className="mt-1 text-ink-2">
           {plan ? (
             <>
               Plano escolhido: <strong>{PLAN_LABELS[plan]}</strong>.{" "}
@@ -28,17 +28,17 @@ export default async function CadastroPage({
         </p>
       </div>
       <SignUpForm plan={plan ?? undefined} />
-      <div className="text-muted flex items-center gap-3 text-sm" aria-hidden="true">
-        <span className="bg-line h-px flex-1" />
+      <div className="flex items-center gap-3 text-sm text-muted" aria-hidden="true">
+        <span className="h-px flex-1 bg-line" />
         ou
-        <span className="bg-line h-px flex-1" />
+        <span className="h-px flex-1 bg-line" />
       </div>
       <GoogleButton next={next} label="Continuar com Google" />
-      <p className="text-ink-2 text-center text-sm">
+      <p className="text-center text-sm text-ink-2">
         Já tem conta?{" "}
         <Link
           href="/entrar"
-          className="text-brand font-semibold underline-offset-2 hover:underline"
+          className="font-semibold text-brand underline-offset-2 hover:underline"
         >
           Entrar
         </Link>

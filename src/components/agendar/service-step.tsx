@@ -57,9 +57,9 @@ export function ServiceStep({
                   ) : null}
                 </span>
                 {s.description ? (
-                  <span className="text-night-sub mt-0.5 block text-sm">{s.description}</span>
+                  <span className="mt-0.5 block text-sm text-night-sub">{s.description}</span>
                 ) : null}
-                <span className="text-night-sub mt-1 block text-sm">
+                <span className="mt-1 block text-sm text-night-sub">
                   {formatDuration(s.duration_min)}
                 </span>
               </span>

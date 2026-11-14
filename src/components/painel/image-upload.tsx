@@ -74,7 +74,7 @@ export function ImageUpload({ businessId, kind, label, onUploaded, children, cla
         disabled={busy}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "border-line text-ink hover:border-brand inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] border bg-white px-4 text-sm font-semibold disabled:opacity-60",
+          "inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] border border-line bg-white px-4 text-sm font-semibold text-ink hover:border-brand disabled:opacity-60",
         )}
       >
         {busy ? <Spinner label="Enviando" /> : null}
@@ -93,7 +93,7 @@ export function ImageUpload({ businessId, kind, label, onUploaded, children, cla
         }}
       />
       {error ? (
-        <p role="alert" className="text-danger text-sm font-medium">
+        <p role="alert" className="text-sm font-medium text-danger">
           {error}
         </p>
       ) : null}

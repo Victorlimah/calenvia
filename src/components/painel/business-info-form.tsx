@@ -224,7 +224,7 @@ export function BusinessInfoForm({ defaults, submitLabel, onSaved }: Props) {
             <button
               key={s}
               type="button"
-              className="border-line text-ink hover:border-brand min-h-11 rounded-full border bg-white px-3 text-sm font-medium"
+              className="min-h-11 rounded-full border border-line bg-white px-3 text-sm font-medium text-ink hover:border-brand"
               onClick={() => {
                 slugTouched.current = true;
                 form.setValue("slug", s, { shouldValidate: true });

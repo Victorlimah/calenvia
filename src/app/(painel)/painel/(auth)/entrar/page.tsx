@@ -15,8 +15,8 @@ export default async function EntrarPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-ink text-3xl font-extrabold">Entrar</h1>
-        <p className="text-ink-2 mt-1">Acesse a agenda do seu negócio.</p>
+        <h1 className="font-display text-3xl font-extrabold text-ink">Entrar</h1>
+        <p className="mt-1 text-ink-2">Acesse a agenda do seu negócio.</p>
       </div>
       {erro === "link" ? (
         <Alert tone="warning">Esse link expirou ou já foi usado. Entre ou peça um novo link.</Alert>
@@ -24,11 +24,11 @@ export default async function EntrarPage({
       <SignInForm next={next} />
       <Divider />
       <GoogleButton next={next} />
-      <p className="text-ink-2 text-center text-sm">
+      <p className="text-center text-sm text-ink-2">
         Ainda não tem conta?{" "}
         <Link
           href="/cadastro"
-          className="text-brand font-semibold underline-offset-2 hover:underline"
+          className="font-semibold text-brand underline-offset-2 hover:underline"
         >
           Criar conta
         </Link>
@@ -39,10 +39,10 @@ export default async function EntrarPage({
 
 function Divider() {
   return (
-    <div className="text-muted flex items-center gap-3 text-sm" aria-hidden="true">
-      <span className="bg-line h-px flex-1" />
+    <div className="flex items-center gap-3 text-sm text-muted" aria-hidden="true">
+      <span className="h-px flex-1 bg-line" />
       ou
-      <span className="bg-line h-px flex-1" />
+      <span className="h-px flex-1 bg-line" />
     </div>
   );
 }

@@ -14,10 +14,10 @@ export default async function OnboardingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-ink text-3xl font-extrabold">
+        <h1 className="font-display text-3xl font-extrabold text-ink">
           {ownerName ? `Olá, ${ownerName.split(" ")[0]}! ` : ""}Vamos montar sua página
         </h1>
-        <p className="text-ink-2 mt-1">Comece pelos dados do seu negócio.</p>
+        <p className="mt-1 text-ink-2">Comece pelos dados do seu negócio.</p>
       </div>
       <StepOne
         defaults={

@@ -4,7 +4,7 @@ import { siteUrl } from "@/lib/hosts";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-paper flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-paper">
       <header className="mx-auto w-full max-w-md px-4 pt-8">
         <Link href={siteUrl()} aria-label="Calenvia — página inicial">
           <Logo />

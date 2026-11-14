@@ -13,8 +13,8 @@ export default async function OnboardingHorariosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-ink text-3xl font-extrabold">Quando você atende?</h1>
-        <p className="text-ink-2 mt-1">
+        <h1 className="font-display text-3xl font-extrabold text-ink">Quando você atende?</h1>
+        <p className="mt-1 text-ink-2">
           Deixamos um horário comum preenchido. Ajuste os dias e o intervalo de almoço.
         </p>
       </div>

@@ -67,7 +67,7 @@ export function HoursEditor({ initial, submitLabel = "Salvar horários", onSaved
                 <input
                   type="checkbox"
                   role="switch"
-                  className="accent-brand size-5"
+                  className="size-5 accent-brand"
                   checked={d.is_open}
                   onChange={(e) =>
                     update(weekday, {
@@ -121,7 +121,7 @@ export function HoursEditor({ initial, submitLabel = "Salvar horários", onSaved
                     <button
                       type="button"
                       aria-label={`Remover intervalo ${i + 1} de ${name}`}
-                      className="text-ink-2 hover:bg-paper-2 inline-flex size-12 items-center justify-center rounded-xl text-xl"
+                      className="inline-flex size-12 items-center justify-center rounded-xl text-xl text-ink-2 hover:bg-paper-2"
                       onClick={() =>
                         update(weekday, { breaks: d.breaks!.filter((_, j) => j !== i) })
                       }
@@ -171,7 +171,7 @@ function TimeInput({
 }) {
   return (
     <label className="block space-y-1">
-      <span className="text-ink-2 block text-sm" aria-hidden="true">
+      <span className="block text-sm text-ink-2" aria-hidden="true">
         {visibleLabel}
       </span>
       <input
@@ -180,7 +180,7 @@ function TimeInput({
         step={900}
         value={value.slice(0, 5)}
         onChange={(e) => onChange(e.target.value)}
-        className="border-line block min-h-12 w-full rounded-[var(--radius-control)] border bg-white px-3 text-base"
+        className="block min-h-12 w-full rounded-[var(--radius-control)] border border-line bg-white px-3 text-base"
       />
     </label>
   );

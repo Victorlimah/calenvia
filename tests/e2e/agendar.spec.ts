@@ -54,3 +54,29 @@ test("passo 2: sem preferência é o padrão e só aparecem profissionais aptos"
   await page.getByRole("radio", { name: /Rafael Lima/ }).click();
   await expect(page.getByRole("contentinfo")).toContainText("Rafael Lima");
 });
+
+test("passo 3: faixa de dias, dias fechados desabilitados e grade de horários", async ({
+  page,
+}) => {
+  await page.goto("/agendar");
+  await flowReady(page);
+  await page.getByRole("radio", { name: /Corte masculino/ }).click();
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByRole("heading", { name: "Escolha o dia e o horário" })).toBeVisible();
+  const days = page.getByRole("list", { name: "Dias" }).getByRole("button");
+  await expect(days).toHaveCount(14);
+  // Barbearia fecha domingo e segunda
+  await expect(
+    page.getByRole("button", { name: /^domingo, .*sem horários/ }).first(),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: /^segunda-feira, .*sem horários/ }).first(),
+  ).toBeDisabled();
+  // escolhe um horário da tarde
+  const tarde = page.getByRole("list", { name: "Horários da tarde" }).getByRole("button");
+  await tarde.first().click();
+  await expect(tarde.first()).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("contentinfo")).toContainText(" às ");
+  await expect(page.getByRole("button", { name: "Continuar" })).toBeEnabled();
+});

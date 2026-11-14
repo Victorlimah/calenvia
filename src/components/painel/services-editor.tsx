@@ -61,11 +61,11 @@ export function ServicesEditor({
               <Card className="flex items-start gap-3 p-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-ink font-semibold">{s.name}</p>
+                    <p className="font-semibold text-ink">{s.name}</p>
                     {s.is_featured ? <Badge tone="brand">Mais pedido</Badge> : null}
                     {!s.is_active ? <Badge>Desativado</Badge> : null}
                   </div>
-                  <p className="text-ink-2 mt-0.5 text-sm">
+                  <p className="mt-0.5 text-sm text-ink-2">
                     {formatDuration(s.duration_min)} · {formatPrice(s.price_cents)}
                   </p>
                 </div>
@@ -115,7 +115,7 @@ function IconButton({
       type="button"
       aria-label={label}
       title={label}
-      className="text-ink-2 hover:bg-paper-2 inline-flex size-11 items-center justify-center rounded-xl text-lg disabled:opacity-30"
+      className="inline-flex size-11 items-center justify-center rounded-xl text-lg text-ink-2 hover:bg-paper-2 disabled:opacity-30"
       {...props}
     >
       {children}
@@ -158,7 +158,7 @@ function ServiceForm({
   );
 
   return (
-    <Card className="border-brand-soft space-y-4">
+    <Card className="space-y-4 border-brand-soft">
       <form onSubmit={onSubmit} noValidate className="space-y-4">
         <p className="font-display text-lg font-bold">
           {service ? "Editar serviço" : "Novo serviço"}
@@ -182,7 +182,7 @@ function ServiceForm({
                 id={id}
                 aria-describedby={describedBy}
                 aria-invalid={invalid}
-                className="border-line block min-h-12 w-full rounded-[var(--radius-control)] border bg-white px-3 text-base"
+                className="block min-h-12 w-full rounded-[var(--radius-control)] border border-line bg-white px-3 text-base"
                 {...form.register("duration_min")}
               >
                 {[...new Set([...DURATIONS, service?.duration_min ?? 30])]
@@ -269,8 +269,8 @@ function ServiceForm({
 
 export function Checkbox({ label, ...props }: { label: string } & React.ComponentProps<"input">) {
   return (
-    <label className="text-ink flex min-h-11 cursor-pointer items-center gap-3 text-base">
-      <input type="checkbox" className="accent-brand size-5" {...props} />
+    <label className="flex min-h-11 cursor-pointer items-center gap-3 text-base text-ink">
+      <input type="checkbox" className="size-5 accent-brand" {...props} />
       {label}
     </label>
   );

@@ -78,7 +78,7 @@ export function SignUpForm({ plan }: { plan?: string }) {
       <Button type="submit" size="lg" block loading={pending}>
         Criar conta
       </Button>
-      <p className="text-muted text-center text-xs">
+      <p className="text-center text-xs text-muted">
         Ao criar a conta você concorda com os{" "}
         <a href={siteUrl("/termos")} className="underline">
           Termos
