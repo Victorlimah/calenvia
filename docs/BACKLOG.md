@@ -31,7 +31,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-039** · Regras da agenda · P0 · 1d — Antecedência mínima, dias à frente, intervalo entre horários (15/30/60).
 - [x] **CAL-038** · Upload de imagens · P1 · 1d — Supabase Storage, compressão, limite de tamanho, logo/capa/fotos.
 - [x] **CAL-037** · Aparência da página · P1 · 2d — Logo, capa, cor de destaque, título e subtítulo, com prévia ao vivo.
-- [ ] **CAL-062** · Link da página nos ajustes · P0 · 0,5d — Copiar link, ver página, dica para a bio do Instagram.
+- [x] **CAL-062** · Link da página nos ajustes · P0 · 0,5d — Copiar link, ver página, dica para a bio do Instagram.
 
 ### Sprint 3 — Motor de disponibilidade
 - [ ] **CAL-041** · Motor de horários disponíveis · P0 · 3d — Regras da seção 5 do CLAUDE.md. Funções puras em `src/lib/availability`.
