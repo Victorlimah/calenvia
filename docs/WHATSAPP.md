@@ -61,8 +61,12 @@ O Vercel Cron chama `GET /api/cron/reminders` a cada 10 minutos (`vercel.json`),
 
 Testar localmente: `curl -H "Authorization: Bearer dev-cron-secret" http://localhost:3000/api/cron/reminders`.
 
-## Webhook de status
-- URL: `https://calenvia.com.br/api/webhooks/whatsapp`
-- Verify token: o valor de `WHATSAPP_WEBHOOK_VERIFY_TOKEN`.
+## Webhook de status (CAL-070)
+- URL: `https://calenvia.com.br/api/webhooks/whatsapp` (`src/app/api/webhooks/whatsapp/route.ts`).
+- Verify token: o valor de `WHATSAPP_WEBHOOK_VERIFY_TOKEN` (GET com `hub.challenge`).
 - Assinar o campo `messages` do app na Meta.
-- Assinatura: definir `WHATSAPP_APP_SECRET` para validar o cabeçalho `X-Hub-Signature-256`.
+- Assinatura: `WHATSAPP_APP_SECRET` (App secret do app na Meta) valida o cabeçalho `X-Hub-Signature-256`.
+  No modo `live` ele é obrigatório: sem ele o webhook responde 503 e não altera nada.
+- Status: `sent → delivered → read` nunca volta (eventos podem chegar fora de ordem); `failed` só vale
+  antes de entregue, grava o erro da Meta e devolve a mensagem à cota do mês.
+- IDs desconhecidos respondem 200 (a Meta não reenvia); erro no banco responde 500 (a Meta reenvia).

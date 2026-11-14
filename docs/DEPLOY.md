@@ -20,7 +20,7 @@ Passo a passo para o dono do projeto. Nada disso foi executado automaticamente.
 3. **Variáveis de ambiente** (Production e Preview), conforme `.env.example`:
    - `NEXT_PUBLIC_ROOT_DOMAIN=calenvia.com.br`
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-   - `WHATSAPP_MODE=live` (só depois da Meta aprovada) e as chaves do WhatsApp
+   - `WHATSAPP_MODE=live` (só depois da Meta aprovada) e as chaves do WhatsApp, incluindo `WHATSAPP_APP_SECRET` (obrigatório para o webhook)
    - `CRON_SECRET` (um texto aleatório longo; a Vercel envia como `Authorization: Bearer ...` no cron)
    - Chaves do gateway de pagamento (CAL-075)
 4. **Cron**: `vercel.json` agenda `/api/cron/reminders` a cada 10 minutos. No plano Hobby a Vercel só permite cron diário: o plano Pro da Vercel é necessário antes de cobrar clientes.
