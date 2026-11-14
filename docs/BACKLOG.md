@@ -17,7 +17,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-024** · Multi-tenant com RLS · P0 · 2d — `business_id` em todas as tabelas de negócio. Dono só lê e escreve o próprio negócio. Testes de policy.
 - [x] **CAL-027** · Datas e fuso horário · P0 · 1d — `src/lib/dates.ts`: UTC no banco, fuso do negócio na exibição, formatação pt-BR, testes de virada de dia.
 - [x] **CAL-030** · Dados de demonstração (seed) · P1 · 0,5d — 2 negócios de exemplo (barbearia e manicure) com serviços, profissionais, horários e agendamentos.
-- [ ] **CAL-025** · Subdomínio por negócio · P0 · 1,5d — `middleware.ts` + `src/lib/hosts.ts` separando site, painel e negócio. Funciona com `*.localhost:3000` em dev.
+- [x] **CAL-025** · Subdomínio por negócio · P0 · 1,5d — `middleware.ts` + `src/lib/hosts.ts` separando site, painel e negócio. Funciona com `*.localhost:3000` em dev.
 - [ ] **CAL-026** · Autenticação do dono · P0 · 1d — E-mail e senha + Google, recuperação de senha, rotas do painel protegidas.
 - [ ] **CAL-022** · Deploy na Vercel · P0 · 0,5d — Preview e produção, domínio curinga configurado. *(Plano pago da Vercel antes de cobrar clientes.)*
 
