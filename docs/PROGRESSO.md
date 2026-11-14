@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-028
-- Card em andamento: —
-- Próximo card: CAL-021
+- Card em andamento: CAL-021
+- Próximo card: CAL-023
 - Atualizado em: 2026-11-14 01:01
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -15,7 +15,10 @@
 - Docker Desktop foi iniciado (`systemctl --user start docker-desktop`) para rodar o Supabase local.
 - Next.js 15 (não 16) porque o CLAUDE.md fala em `middleware.ts` (no 16 virou `proxy.ts`).
 - Supabase CLI instalado como devDependency (`npx supabase`), sem instalação global.
+- Dev usa Supabase local (`npx supabase start`). O arquivo `.env.local` (ignorado pelo git) tem as chaves públicas de demonstração do Supabase local.
 
 ## Bloqueios (precisam do Victor)
+- CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
+
 ## Plano do card atual
-—
+1) supabase init (config.toml); 2) clients em src/lib/supabase: server (cookies, @supabase/ssr), browser, service role (server-only); 3) tipos do banco em src/lib/supabase/types.ts; 4) npx supabase start para validar; 5) script db:types.
