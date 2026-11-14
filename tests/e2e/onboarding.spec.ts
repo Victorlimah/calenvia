@@ -8,7 +8,7 @@ test("dono novo escolhe o Pro no site, cria a conta e conclui o onboarding", asy
   await page.getByLabel("E-mail").fill(`carla+${stamp}@calenvia.dev`);
   await page.getByLabel("Senha").fill("senhaforte123");
   await page.getByRole("button", { name: "Criar conta" }).click();
-  await expect(page).toHaveURL(/\/onboarding/);
+  await expect(page).toHaveURL(/\/onboarding/, { timeout: 45_000 }); // cadastro pode demorar no modo dev
 
   // Passo 1: dados do negócio
   await page.getByLabel("Nome do negócio").fill(`Studio Carla ${stamp}`);
@@ -54,7 +54,7 @@ test("slug já usado mostra sugestões", async ({ page }) => {
   await page.getByLabel("E-mail").fill(`ze2+${Date.now()}@calenvia.dev`);
   await page.getByLabel("Senha").fill("senhaforte123");
   await page.getByRole("button", { name: "Criar conta" }).click();
-  await expect(page).toHaveURL(/\/onboarding/);
+  await expect(page).toHaveURL(/\/onboarding/, { timeout: 45_000 }); // cadastro pode demorar no modo dev
   await page.getByLabel("Nome do negócio").fill("Barbearia do Zé");
   await expect(page.getByText("Esse endereço já está em uso.")).toBeVisible();
   await expect(page.getByRole("button", { name: "barbearia-do-ze-oficial" })).toBeVisible();

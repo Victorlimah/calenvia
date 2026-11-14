@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-105
-- Card em andamento: CAL-106
-- Próximo card: CAL-107
-- Atualizado em: 2026-11-14 08:57
+- Último card concluído: CAL-110
+- Card em andamento: — (backlog de código concluído; restam só itens bloqueados)
+- Próximo card: CAL-075 (decisão do Victor)
+- Atualizado em: 2026-11-14 09:17
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -81,6 +81,11 @@
 | CAL-103 | Bloqueado | — | Sinal/pagamento antecipado via Pix depende do gateway (CAL-075) | — |
 | CAL-104 | Concluído | 48851f4 | Lista de espera: cliente entra pelo passo de horários (dia, período, nome, WhatsApp; servidor grava, limite por IP); dono vê na agenda do dia e avisa pelo wa.me com link direto para os horários ou remove (waitlist_entries) | npm test (waitlist.test.ts); npm run test:e2e (espera.spec.ts) |
 | CAL-105 | Concluído | d33db3f | Pacotes: Ajustes › Pacotes; vender no cliente (receita no Financeiro); 'Descontar do pacote' no agendamento (use_package_session atômico, zera o valor do agendamento) | npm test (packages.test.ts); npm run test:db (rls.test.ts › Pacotes); npm run test:e2e (pacotes.spec.ts) |
+| CAL-106 | Concluído | ce9e506 | Avaliações: 'Pedir avaliação no WhatsApp' no agendamento concluído; /{slug}/avaliar/{code} (1–5 + comentário, uma vez, até 30 dias); /avaliacoes com média e publicar como depoimento; nota na página (≥3) e aggregateRating no JSON-LD | npm test (reviews.test.ts); npm run test:e2e (avaliacoes.spec.ts) |
+| CAL-107 | Concluído (sem OAuth) | 6678bf7 | Link privado ICS por negócio/profissional para assinar no Google Agenda, iPhone e Outlook (/api/calendario/{token}); Ajustes › Google Agenda e celular; corrige escape de ';' no .ics | npm test (ics.test.ts); npm run test:e2e (google-agenda.spec.ts) |
+| CAL-108 | Bloqueado | — | Embedded Signup depende da conta/app da Meta (CAL-066) | — |
+| CAL-109 | Concluído (sem recompensa) | 2fd7196 | Código de indicação por negócio; ?ref= do site levado ao cadastro; referred_by gravado pelo servidor; /indicar com link, WhatsApp e lista (my_referrals) | npm test (referrals.test.ts); npm run test:e2e (indicacao.spec.ts) |
+| CAL-110 | Concluído | 349d83b | docs/APP-NATIVO.md: manter PWA; gatilhos para reavaliar; caminho Capacitor | — |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -137,6 +142,8 @@
 - CAL-086: em produção, rodar uma vez GET /api/cron/demo-reset (com o CRON_SECRET) para criar a demonstração; depois o cron recria todo dia às 04:00.
 - CAL-099: para o HTTPS do domínio próprio sair sozinho, definir VERCEL_TOKEN e VERCEL_PROJECT_ID (e VERCEL_TEAM_ID se usar time) na Vercel.
 - CAL-101: definir o canal oficial de suporte (CAL-096), o prazo de resposta em src/lib/company.ts e SUPPORT_WEBHOOK_URL para receber os pedidos.
+- CAL-107: sincronização bidirecional com o Google Agenda (OAuth) precisa de um projeto no Google Cloud; o link ICS cobre a visualização.
+- CAL-109: definir a recompensa da indicação (ex.: 1 mês grátis) — depende da cobrança (CAL-075/076).
 
 ## Plano do card atual
 —

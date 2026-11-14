@@ -9,6 +9,9 @@ test.afterAll(reset);
 test("horário próprio do profissional: folga muda a página pública", async ({ page }) => {
   await loginAsZe(page, "/ajustes/profissionais");
   await page.getByRole("link", { name: "Horário de Rafael Lima" }).click();
+  await expect(page).toHaveURL(new RegExp(`/ajustes/profissionais/${RAFAEL}/horario`), {
+    timeout: 45_000,
+  });
   await expect(page.getByRole("heading", { name: "Horário de Rafael Lima" })).toBeVisible();
   await page.getByRole("radio", { name: /Horário próprio/ }).check();
   // Rafael folga às quartas

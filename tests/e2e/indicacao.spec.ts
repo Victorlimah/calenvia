@@ -23,7 +23,7 @@ test("indicação: link do site leva ao cadastro e o indicado aparece para quem 
   await visitor.getByLabel("E-mail").fill(`indicada+${stamp}@calenvia.dev`);
   await visitor.getByLabel("Senha").fill("senhaforte123");
   await visitor.getByRole("button", { name: "Criar conta" }).click();
-  await expect(visitor).toHaveURL(/\/onboarding/);
+  await expect(visitor).toHaveURL(/\/onboarding/, { timeout: 45_000 }); // cadastro pode demorar no modo dev
   await visitor.getByLabel("Nome do negócio").fill(`Indicada ${stamp}`);
   await visitor.getByLabel("Tipo de negócio").selectOption("estetica");
   await visitor.getByLabel("WhatsApp do negócio").fill("85999997777");
