@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { SignOutButton } from "@/components/painel/shell";
+import { NotificationSettings } from "@/components/painel/notification-settings";
 import { requireReadyBusiness } from "@/lib/business/current";
 import { businessDisplayHost } from "@/lib/hosts";
 
@@ -57,6 +58,7 @@ export default async function AjustesPage() {
           </li>
         ))}
       </ul>
+      <NotificationSettings />
       <div className="rounded-[var(--radius-card)] border border-line bg-white p-2 md:hidden">
         <SignOutButton />
       </div>

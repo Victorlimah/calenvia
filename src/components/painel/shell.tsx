@@ -6,6 +6,7 @@ import { useTransition } from "react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/cn";
 import { signOutAction } from "@/app/(painel)/painel/(auth)/actions";
+import { NewBookingNotifier } from "./new-booking-notifier";
 
 const NAV = [
   {
@@ -34,14 +35,19 @@ const NAV = [
 
 export function PainelShell({
   businessName,
+  businessId,
+  timezone,
   children,
 }: {
   businessName: string;
+  businessId: string;
+  timezone: string;
   children: React.ReactNode;
 }) {
   const pathname = usePathname().replace(/^\/painel(?=\/|$)/, "") || "/";
   return (
     <div className="min-h-dvh bg-paper md:flex">
+      <NewBookingNotifier businessId={businessId} timezone={timezone} />
       <aside className="hidden w-64 shrink-0 flex-col border-r border-line bg-white px-4 py-6 md:sticky md:top-0 md:flex md:h-dvh">
         <Logo />
         <p className="mt-6 truncate px-3 text-sm font-semibold text-ink-2">{businessName}</p>
