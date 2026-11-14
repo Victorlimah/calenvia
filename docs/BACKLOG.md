@@ -10,7 +10,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 ## M1 · MVP — o sistema funcionando de ponta a ponta
 
 ### Sprint 1 — Fundação
-- [ ] **CAL-020** · Repositório e projeto Next.js · P0 · 0,5d — Next.js + TypeScript strict + Tailwind, estrutura de pastas do CLAUDE.md, scripts `dev`, `lint`, `typecheck`, `test`.
+- [x] **CAL-020** · Repositório e projeto Next.js · P0 · 0,5d — Next.js + TypeScript strict + Tailwind, estrutura de pastas do CLAUDE.md, scripts `dev`, `lint`, `typecheck`, `test`.
 - [ ] **CAL-028** · Lint, formatação e CI · P1 · 0,5d — ESLint, Prettier, Vitest e GitHub Actions rodando lint + typecheck + testes em todo PR.
 - [ ] **CAL-021** · Projeto Supabase (dev e produção) · P0 · 0,5d — Supabase CLI configurado, migrations versionadas, clients server/browser/service role em `src/lib/supabase`.
 - [ ] **CAL-023** · Modelagem do banco de dados · P0 · 2d — Tabelas da seção 4 do CLAUDE.md, com índices e a constraint anti-conflito em `appointments`.
