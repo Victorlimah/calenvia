@@ -13,7 +13,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-020** · Repositório e projeto Next.js · P0 · 0,5d — Next.js + TypeScript strict + Tailwind, estrutura de pastas do CLAUDE.md, scripts `dev`, `lint`, `typecheck`, `test`.
 - [x] **CAL-028** · Lint, formatação e CI · P1 · 0,5d — ESLint, Prettier, Vitest e GitHub Actions rodando lint + typecheck + testes em todo PR.
 - [x] **CAL-021** · Projeto Supabase (dev e produção) · P0 · 0,5d — Supabase CLI configurado, migrations versionadas, clients server/browser/service role em `src/lib/supabase`.
-- [ ] **CAL-023** · Modelagem do banco de dados · P0 · 2d — Tabelas da seção 4 do CLAUDE.md, com índices e a constraint anti-conflito em `appointments`.
+- [x] **CAL-023** · Modelagem do banco de dados · P0 · 2d — Tabelas da seção 4 do CLAUDE.md, com índices e a constraint anti-conflito em `appointments`.
 - [ ] **CAL-024** · Multi-tenant com RLS · P0 · 2d — `business_id` em todas as tabelas de negócio. Dono só lê e escreve o próprio negócio. Testes de policy.
 - [ ] **CAL-027** · Datas e fuso horário · P0 · 1d — `src/lib/dates.ts`: UTC no banco, fuso do negócio na exibição, formatação pt-BR, testes de virada de dia.
 - [ ] **CAL-030** · Dados de demonstração (seed) · P1 · 0,5d — 2 negócios de exemplo (barbearia e manicure) com serviços, profissionais, horários e agendamentos.
