@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-044
-- Card em andamento: CAL-045
+- Último card concluído: CAL-045
+- Card em andamento: —
 - Próximo card: CAL-046
-- Atualizado em: 2026-11-14 01:48
+- Atualizado em: 2026-11-14 01:52
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -31,6 +31,7 @@
 | CAL-042 | Concluído | b40edd7 | Sem preferência: slot livre se algum apto livre (staffIds por slot); pickStaffForSlot escolhe o com menos agendamentos no dia, empate alfabético; 7 testes | npm test |
 | CAL-043 | Concluído | 11f8682 | src/lib/booking: loadAvailabilityContext (banco → motor), createAppointment (revalida serviço, profissional apto, slot livre; sem preferência escolhe o profissional; copia preço/cliente; 23P01 vira 'Esse horário acabou de ser reservado. Escolha outro.'), upsertCustomer. Testes de integração com o Supabase local, incluindo corrida de 2 pedidos simultâneos | npm run test:db (tests/db/booking.test.ts) |
 | CAL-044 | Concluído | 9665d90 | src/lib/availability/rules.test.ts: 24 cenários (cabe antes de fechar, atravessa almoço, dois intervalos, conflito parcial, status cancelado/concluído/falta, outro profissional, remarcação, bloqueio do profissional/geral/vários dias, antecedência hoje/1 dia/após fechar, horário próprio e folga, sem preferência juntando horários, Manaus, 'hoje' no fuso, noite que vira o dia em UTC) | npm test |
+| CAL-045 | Concluído | 634513c | Página {slug}: Hero com CTA, Como funciona, Serviços (mais pedido, cada um leva a /agendar?servico=), Fotos e Equipe, Depoimentos, Onde fica + horários (hoje destacado), Dúvidas automáticas, chamada final, barra fixa; fundo escuro com --accent; página indisponível para assinatura suspensa; 404 amigável. src/lib/plans.ts com testes | abrir barbearia-do-ze.localhost:3000; npm run test:e2e (negocio.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -59,4 +60,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Página pública {slug}: loader server-side (service role, só colunas públicas): negócio + serviços ativos + profissionais ativos + horários + fotos + depoimentos; seções: Hero (CTA), Como funciona (3 passos), Serviços (selo mais pedido), Fotos + Equipe, Depoimentos, Onde fica + horários, Dúvidas (geradas pelas regras), Chamada final; barra fixa no rodapé com 'Agendar meu horário'; fundo escuro e cor de destaque; 404 amigável e página 'indisponível' se suspenso.
+—
