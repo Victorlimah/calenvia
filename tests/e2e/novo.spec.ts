@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { cleanupCustomer, loginAsZe } from "./helpers";
 
 const PHONE = "5585933330001";

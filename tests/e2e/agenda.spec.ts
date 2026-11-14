@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { loginAsZe, seededDay } from "./helpers";
 
 test("agenda do dia mostra agendamentos, livres e bloqueios", async ({ page }) => {

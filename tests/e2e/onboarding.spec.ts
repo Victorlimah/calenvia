@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("dono novo cria a conta e conclui o onboarding", async ({ page }) => {
   const stamp = Date.now();

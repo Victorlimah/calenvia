@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-059
-- Card em andamento: —
-- Próximo card: CAL-067
+- Card em andamento: CAL-067
+- Próximo card: CAL-068
 - Atualizado em: 2026-11-14 02:23
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -72,4 +72,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-—
+CAL-066 é fora do código (pulado). CAL-067: textos já versionados em src/lib/messages/templates.ts; adicionar definição dos 3 templates de utilidade no formato da Meta (nome, idioma pt_BR, categoria UTILITY, corpo com {{1}}…{{n}} e exemplos) em src/lib/whatsapp/templates.ts + docs/WHATSAPP.md com o passo a passo para cadastrar; teste que garante que o corpo com variáveis substituídas é igual ao texto usado na prévia.

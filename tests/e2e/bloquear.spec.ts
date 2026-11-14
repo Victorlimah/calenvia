@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { admin, loginAsZe, seededDay, ZE_BIZ } from "./helpers";
 
 test.afterAll(async () => {

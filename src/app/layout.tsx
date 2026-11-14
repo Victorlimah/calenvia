@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
+import { HydrationMarker } from "@/components/hydration-marker";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
 const bricolage = Bricolage_Grotesque({
@@ -24,7 +25,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.variable} ${bricolage.variable} antialiased`}>{children}</body>
+      <body className={`${inter.variable} ${bricolage.variable} antialiased`}>
+        {children}
+        <HydrationMarker />
+      </body>
     </html>
   );
 }

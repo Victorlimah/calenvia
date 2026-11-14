@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "./fixtures";
+import type { Page } from "@playwright/test";
 
 async function loginAsZe(page: Page, next = "/") {
   await page.goto(`/entrar?next=${encodeURIComponent(next)}`);

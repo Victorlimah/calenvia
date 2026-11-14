@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("dono entra com e-mail e senha e vê o painel", async ({ page }) => {
   await page.goto("/agenda");

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { cleanupCustomer, flowReady, goToCustomerStep } from "./helpers";
 
 const PHONE = "5585966660001";
