@@ -7,6 +7,7 @@ import { appUrl, businessUrl, rootDomain, siteUrl } from "@/lib/hosts";
 import { DEFAULT_FAIR_USE_LIMIT, PLANS, type PlanId } from "@/lib/plans";
 import "./landing.css";
 import { VisitBeacon } from "@/components/site/visit-beacon";
+import { RefCapture } from "@/components/site/ref-capture";
 
 export const metadata: Metadata = {
   title: "Calenvia — agendamento online com confirmação no WhatsApp",
@@ -39,6 +40,7 @@ export default function SiteHome() {
     <div className="lp" id="landing">
       <RevealOnScroll rootId="landing" />
       <VisitBeacon />
+      <RefCapture />
       <LandingHeader loginUrl={appUrl("/entrar")} />
       <main id="topo">
         <section className="hero">

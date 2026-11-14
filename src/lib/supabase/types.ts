@@ -283,6 +283,8 @@ export type Database = {
           owner_id: string;
           plan: string;
           plan_status: string;
+          referral_code: string | null;
+          referred_by: string | null;
           segment: string | null;
           slot_interval_min: number;
           slug: string;
@@ -312,6 +314,8 @@ export type Database = {
           owner_id: string;
           plan?: string;
           plan_status?: string;
+          referral_code?: string | null;
+          referred_by?: string | null;
           segment?: string | null;
           slot_interval_min?: number;
           slug: string;
@@ -340,6 +344,8 @@ export type Database = {
           owner_id?: string;
           plan?: string;
           plan_status?: string;
+          referral_code?: string | null;
+          referred_by?: string | null;
           segment?: string | null;
           slot_interval_min?: number;
           slug?: string;
@@ -347,7 +353,15 @@ export type Database = {
           timezone?: string;
           whatsapp?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "businesses_referred_by_fkey";
+            columns: ["referred_by"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       custom_domains: {
         Row: {
@@ -1251,6 +1265,14 @@ export type Database = {
         Returns: {
           step: string;
           total: number;
+        }[];
+      };
+      my_referrals: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          active: boolean;
+          created_at: string;
+          name: string;
         }[];
       };
       owns_media_path: { Args: { p_name: string }; Returns: boolean };

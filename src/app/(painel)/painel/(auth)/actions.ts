@@ -6,6 +6,7 @@ import { safeNextPath } from "@/lib/auth/paths";
 import { appUrl } from "@/lib/hosts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { track } from "@/lib/metrics";
+import { normalizeRefCode } from "@/lib/referrals";
 import {
   authErrorMessage,
   forgotPasswordSchema,
@@ -33,6 +34,7 @@ export async function signInAction(
 export async function signUpAction(
   input: unknown,
   plan?: string,
+  refCode?: string,
 ): Promise<ActionResult<{ redirectTo: string }>> {
   const parsed = signUpSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
@@ -42,7 +44,11 @@ export async function signUpAction(
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { name: parsed.data.name, plan_intent: plan ?? null },
+      data: {
+        name: parsed.data.name,
+        plan_intent: plan ?? null,
+        ref_code: normalizeRefCode(refCode),
+      },
       emailRedirectTo: appUrl(`/auth/callback?next=${encodeURIComponent(nextPath)}`),
     },
   });

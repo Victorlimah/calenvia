@@ -3,15 +3,17 @@ import type { Metadata } from "next";
 import { PLAN_LABELS, parsePlanParam } from "@/lib/plan-param";
 import { GoogleButton } from "../google-button";
 import { SignUpForm } from "./sign-up-form";
+import { normalizeRefCode } from "@/lib/referrals";
 
 export const metadata: Metadata = { title: "Criar conta — Calenvia" };
 
 export default async function CadastroPage({
   searchParams,
 }: {
-  searchParams: Promise<{ plano?: string }>;
+  searchParams: Promise<{ plano?: string; ref?: string }>;
 }) {
-  const { plano } = await searchParams;
+  const { plano, ref } = await searchParams;
+  const refCode = normalizeRefCode(ref) ?? undefined;
   const plan = parsePlanParam(plano);
   const next = plan ? `/onboarding?plano=${plan}` : "/onboarding";
   return (
@@ -27,7 +29,7 @@ export default async function CadastroPage({
           Em poucos minutos sua página de agendamento fica pronta.
         </p>
       </div>
-      <SignUpForm plan={plan ?? undefined} />
+      <SignUpForm plan={plan ?? undefined} refCode={refCode} />
       <div className="flex items-center gap-3 text-sm text-muted" aria-hidden="true">
         <span className="h-px flex-1 bg-line" />
         ou

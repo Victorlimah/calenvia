@@ -13,6 +13,7 @@ import { agendaRulesSchema, businessInfoSchema, weekHoursSchema } from "@/lib/va
 import { track } from "@/lib/metrics";
 import { validateCustomText } from "@/lib/messages/custom";
 import { z } from "zod";
+import { newRefCode, normalizeRefCode } from "@/lib/referrals";
 
 export async function checkSlugAction(raw: string): Promise<SlugCheck> {
   await requireUser();
@@ -55,6 +56,22 @@ export async function saveBusinessInfoAction(input: unknown): Promise<ActionResu
   }
   if (!current && saved) {
     await track("business_created", { businessId: saved.id });
+    // Indicação (CAL-109): código próprio e quem indicou.
+    const admin = createSupabaseAdminClient();
+    const ref = normalizeRefCode(user.user_metadata?.ref_code as string | undefined);
+    const { data: referrer } = ref
+      ? await admin.from("businesses").select("id").eq("referral_code", ref).maybeSingle()
+      : { data: null };
+    for (let i = 0; i < 3; i++) {
+      const { error: codeError } = await admin
+        .from("businesses")
+        .update({
+          referral_code: newRefCode(),
+          referred_by: referrer && referrer.id !== saved.id ? referrer.id : null,
+        })
+        .eq("id", saved.id);
+      if (!codeError) break;
+    }
     // Plano escolhido no site (CAL-084). O dono não pode mudar o plano (privilégio de coluna):
     // gravamos pelo servidor, ainda como 'pending' até o checkout existir (CAL-076).
     const plan = parsePlanParam(user.user_metadata?.plan_intent as string | undefined);

@@ -118,7 +118,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-106** · Avaliação após o atendimento · P3 · 2d
 - [x] **CAL-107** · Integração com Google Agenda · P3 · 3d
 - [ ] **CAL-108** · Número próprio do negócio no WhatsApp (Embedded Signup) · P3 · 5d
-- [ ] **CAL-109** · Programa de indicação · P3 · 2d
+- [x] **CAL-109** · Programa de indicação · P3 · 2d
 - [ ] **CAL-110** · Avaliar app nativo · P3 · 1d
 
 ---

@@ -36,7 +36,8 @@ const NAV = [
       p.startsWith("/relatorios") ||
       p.startsWith("/ajuda") ||
       p.startsWith("/financeiro") ||
-      p.startsWith("/avaliacoes"),
+      p.startsWith("/avaliacoes") ||
+      p.startsWith("/indicar"),
   },
 ];
 

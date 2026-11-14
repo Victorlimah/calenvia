@@ -9,7 +9,7 @@ import { siteUrl } from "@/lib/hosts";
 import { signUpSchema, type SignUpInput } from "@/lib/validation/auth";
 import { signUpAction } from "../actions";
 
-export function SignUpForm({ plan }: { plan?: string }) {
+export function SignUpForm({ plan, refCode }: { plan?: string; refCode?: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export function SignUpForm({ plan }: { plan?: string }) {
   const onSubmit = form.handleSubmit((values) => {
     setError(null);
     startTransition(async () => {
-      const result = await signUpAction(values, plan);
+      const result = await signUpAction(values, plan, refCode);
       if (!result.ok) setError(result.error);
       else if (result.data?.redirectTo) {
         router.push(result.data.redirectTo);
