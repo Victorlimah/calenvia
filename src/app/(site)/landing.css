@@ -438,12 +438,13 @@
   animation: lp-bob 5s ease-in-out infinite 1.2s;
 }
 .lp .float-wpp .t {
+  /* verde mais escuro que --green: texto pequeno precisa de contraste AA */
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--green);
+  color: #157a41;
   margin-bottom: 6px;
 }
 .lp .float-wpp p {

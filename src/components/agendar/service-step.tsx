@@ -24,7 +24,7 @@ export function ServiceStep({
       {services.map((s) => {
         const selected = s.id === selectedId;
         return (
-          <li key={s.id}>
+          <li key={s.id} role="none">
             <button
               type="button"
               role="radio"

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Avatar } from "@/components/painel/staff-editor";
+import { Avatar } from "@/components/avatar";
 import { formatDuration, formatHourShort } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
 import { readableTextOn } from "@/lib/color";

@@ -638,7 +638,12 @@ export default function SiteHome() {
               </article>
             </div>
 
-            <div className="compare reveal">
+            <div
+              className="compare reveal"
+              role="region"
+              aria-label="Comparação dos planos (role para os lados)"
+              tabIndex={0}
+            >
               <table>
                 <caption className="sr-only">Comparação dos planos da Calenvia</caption>
                 <thead>

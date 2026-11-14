@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar } from "@/components/painel/staff-editor";
+import { Avatar } from "@/components/avatar";
 import { readableTextOn } from "@/lib/color";
 import type { PublicStaff } from "./types";
 
@@ -27,7 +27,7 @@ export function StaffStep({
       {options.map((o) => {
         const selected = o.id === selectedId || (staff.length === 1 && o.id === staff[0].id);
         return (
-          <li key={o.id ?? "qualquer"}>
+          <li key={o.id ?? "qualquer"} role="none">
             <button
               type="button"
               role="radio"

@@ -27,6 +27,21 @@ function writeToUrl(state: FlowState, mode: "push" | "replace") {
 export function useFlowState(initial: FlowState) {
   const [state, setState] = useState<FlowState>(initial);
   const stateRef = useRef(state);
+  const titleRef = useRef<string>("");
+
+  // O pushState/replaceState faz o Next re-renderizar os metadados da rota e o <title>
+  // some (página sem título falha no WCAG). Guardamos o título e restauramos.
+  useEffect(() => {
+    if (document.title) titleRef.current = document.title;
+  }, []);
+  useEffect(() => {
+    const restore = () => {
+      if (!document.title && titleRef.current) document.title = titleRef.current;
+    };
+    restore();
+    const t = setTimeout(restore, 50);
+    return () => clearTimeout(t);
+  }, [state]);
 
   useEffect(() => {
     stateRef.current = state;
