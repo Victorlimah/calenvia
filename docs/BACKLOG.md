@@ -54,7 +54,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-056** · Filtro por profissional e navegação de dias · P0 · 1d — Chips por profissional, setas, seletor de data e visão de semana.
 - [x] **CAL-057** · Detalhe do agendamento · P0 · 2d — Concluído, faltou, remarcar, cancelar (com confirmação) e "Chamar no WhatsApp".
 - [x] **CAL-058** · Novo agendamento manual · P0 · 1,5d — Só horários livres, busca de cliente existente, opção de enviar confirmação.
-- [ ] **CAL-059** · Bloquear horário · P0 · 1d — Profissional ou todos, início, fim e motivo.
+- [x] **CAL-059** · Bloquear horário · P0 · 1d — Profissional ou todos, início, fim e motivo.
 
 ---
 

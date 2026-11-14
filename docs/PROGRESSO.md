@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-058
-- Card em andamento: CAL-059
-- Próximo card: CAL-066
-- Atualizado em: 2026-11-14 02:22
+- Último card concluído: CAL-059
+- Card em andamento: —
+- Próximo card: CAL-067
+- Atualizado em: 2026-11-14 02:23
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -43,6 +43,7 @@
 | CAL-056 | Concluído | f25d7e0 | Chips por profissional (Todos + cada um), setas (dia ou semana), seletor de data, alternância Dia/Semana; semana começa na segunda e lista agendamentos por dia com contagem | npm run test:e2e (agenda.spec.ts) |
 | CAL-057 | Concluído | bac15d0 | /agendamento/[id]: dados completos, histórico de mensagens; Concluído/Faltou (com desfazer; concluído atualiza última visita do cliente), Remarcar (escolhe dia/profissional e horário livre calculado pelo motor ignorando o próprio agendamento), Cancelar com confirmação, Chamar no WhatsApp, Enviar confirmação (plano B). Lógica de remarcação em src/lib/booking/reschedule.ts (reusada no CAL-052) | npm run test:e2e (detalhe.spec.ts) |
 | CAL-058 | Concluído | 97bc0c4 | /novo: serviço, profissional (sem preferência), dia, só horários livres (motor, sem antecedência mínima), cliente existente pela busca (nome ou telefone) ou novo, observações, opção 'Enviar confirmação' (sem envio automático, abre o detalhe com o aviso para mandar pelo wa.me); pré-preenche data/hora/profissional vindos da agenda | npm run test:e2e (novo.spec.ts) |
+| CAL-059 | Concluído | 13c721b | /bloquear: profissional ou todos, período com hora ou dia inteiro (vários dias), motivo; aviso quando há agendamentos no período; lista de próximos bloqueios com remover; botão Bloquear na agenda | npm run test:e2e (bloquear.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -71,4 +72,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-/bloquear: profissional ou todos, dia + hora início/fim (ou dia inteiro), motivo; lista de próximos bloqueios com excluir; validação fim > início; aviso se houver agendamentos no período (não bloqueia, só avisa). Botão 'Bloquear horário' na agenda.
+—
