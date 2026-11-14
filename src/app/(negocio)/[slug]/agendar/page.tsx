@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteUrl } from "@/lib/hosts";
 import { notFound } from "next/navigation";
 import { BookingFlow } from "@/components/agendar/booking-flow";
 import { parseFlowParams } from "@/components/agendar/flow-params";
@@ -37,6 +38,7 @@ export default async function AgendarPage({ params, searchParams }: Props) {
         accent: business.accent_color,
         timezone: business.timezone,
         automaticMessages: canSendAutomaticMessages(business),
+        privacyUrl: siteUrl("/privacidade"),
       }}
       services={services}
       staff={staff}

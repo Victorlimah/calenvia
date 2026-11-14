@@ -142,6 +142,9 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
               start={selection.start}
               whenLabel={whenLabel(selection.start, business.timezone) ?? ""}
               onConflict={() => update({ step: "horario", start: null }, "push")}
+              businessName={business.name}
+              automaticMessages={business.automaticMessages}
+              privacyUrl={business.privacyUrl}
             />
           ) : null}
           {step === "dados" && service && !selection.start ? (

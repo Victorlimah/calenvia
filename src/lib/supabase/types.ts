@@ -377,6 +377,7 @@ export type Database = {
         Row: {
           business_id: string;
           created_at: string;
+          erased_at: string | null;
           id: string;
           last_visit_at: string | null;
           name: string;
@@ -387,6 +388,7 @@ export type Database = {
         Insert: {
           business_id: string;
           created_at?: string;
+          erased_at?: string | null;
           id?: string;
           last_visit_at?: string | null;
           name: string;
@@ -396,6 +398,7 @@ export type Database = {
         Update: {
           business_id?: string;
           created_at?: string;
+          erased_at?: string | null;
           id?: string;
           last_visit_at?: string | null;
           name?: string;
@@ -854,6 +857,7 @@ export type Database = {
         Args: { p_business_id: string; p_limit: number; p_period: string };
         Returns: number;
       };
+      erase_customer: { Args: { p_customer_id: string }; Returns: undefined };
       gen_manage_code: { Args: Record<PropertyKey, never>; Returns: string };
       hit_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };

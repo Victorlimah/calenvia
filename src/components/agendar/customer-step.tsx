@@ -42,6 +42,9 @@ type Props = {
   start: string;
   whenLabel: string;
   onConflict: () => void;
+  businessName: string;
+  automaticMessages: boolean;
+  privacyUrl: string;
 };
 
 const inputClass =
@@ -56,6 +59,9 @@ export function CustomerStep({
   start,
   whenLabel,
   onConflict,
+  businessName,
+  automaticMessages,
+  privacyUrl,
 }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -206,6 +212,16 @@ export function CustomerStep({
       >
         {pending ? "Confirmando…" : "Confirmar agendamento"}
       </button>
+      <p className="text-xs leading-relaxed text-night-sub">
+        Ao confirmar, a {businessName} usa seu nome e WhatsApp só para este atendimento
+        {automaticMessages
+          ? ", e você recebe a confirmação e o lembrete no WhatsApp (responda SAIR para parar)"
+          : ""}
+        .{" "}
+        <a href={privacyUrl} target="_blank" rel="noopener" className="underline">
+          Política de privacidade
+        </a>
+      </p>
     </form>
   );
 }

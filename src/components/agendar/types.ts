@@ -1,6 +1,8 @@
 import type { PublicService, PublicStaff } from "@/lib/public/business";
 
 export type FlowBusiness = {
+  /** Política de privacidade da Calenvia (site). */
+  privacyUrl: string;
   slug: string;
   name: string;
   accent: string;

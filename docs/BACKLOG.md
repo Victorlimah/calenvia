@@ -93,7 +93,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-088** · Testes ponta a ponta · P1 · 2d — Playwright: agendar, cancelar, agendamento manual, assinatura.
 - [x] **CAL-089** · Proteção contra spam · P1 · 1d — Rate limit por IP e captcha invisível no agendamento público.
 - [x] **CAL-090** · Revisão de segurança das regras de acesso · P0 · 1d — Testes provando que um negócio nunca vê dados de outro.
-- [ ] **CAL-091** · LGPD dos clientes finais · P1 · 1,5d — Consentimento no agendamento, exportar e apagar dados de um cliente.
+- [x] **CAL-091** · LGPD dos clientes finais · P1 · 1,5d — Consentimento no agendamento, exportar e apagar dados de um cliente.
 - [ ] **CAL-092** · Backups e recuperação · P1 · 0,5d — Backup diário e teste de restauração.
 
 ---

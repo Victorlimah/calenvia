@@ -179,6 +179,51 @@ describe("Lista de clientes (CAL-063)", () => {
   });
 });
 
+describe("LGPD: apagar dados do cliente (CAL-091)", () => {
+  it("anonimiza cliente e agendamentos, cancela futuros, mantém valores", async () => {
+    const { rows: c } = await db.query(
+      `select id, whatsapp from public.customers where business_id = $1`,
+      [BIZ_A],
+    );
+    await db.query(`update public.appointments set price_cents = 4000 where business_id = $1`, [
+      BIZ_A,
+    ]);
+    await actAs(db, OWNER_A);
+    await db.query(`select public.erase_customer($1)`, [c[0].id]);
+    const { rows: after } = await db.query(
+      `select name, whatsapp, erased_at is not null as erased from public.customers where id = $1`,
+      [c[0].id],
+    );
+    expect(after[0]).toMatchObject({ name: "Cliente removido", erased: true });
+    expect(after[0].whatsapp).toMatch(/^5500\d{9}$/);
+    const { rows: appts } = await db.query(
+      `select customer_name, customer_whatsapp, notes, status, price_cents
+       from public.appointments where customer_id = $1`,
+      [c[0].id],
+    );
+    expect(appts[0]).toMatchObject({
+      customer_name: "Cliente removido",
+      customer_whatsapp: after[0].whatsapp,
+      notes: null,
+      status: "canceled", // era futuro (2030)
+      price_cents: 4000,
+    });
+    expect(JSON.stringify(appts)).not.toContain(c[0].whatsapp);
+  });
+
+  it("não apaga cliente de outro negócio", async () => {
+    const { rows } = await db.query(`select id from public.customers where business_id = $1`, [
+      BIZ_B,
+    ]);
+    await actAs(db, OWNER_A);
+    await db.query("savepoint denied");
+    await expect(db.query(`select public.erase_customer($1)`, [rows[0].id])).rejects.toThrow(
+      /not allowed/,
+    );
+    await db.query("rollback to savepoint denied");
+  });
+});
+
 describe("RLS: visitante anônimo", () => {
   it.each(["businesses", ...TENANT_TABLES])("não lê %s", async (table) => {
     await actAs(db, null);

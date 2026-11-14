@@ -12,6 +12,7 @@ import { formatPhone, waMeLink } from "@/lib/phone";
 import { canSendAutomaticMessages } from "@/lib/plans";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { CustomerNameForm } from "./customer-name-form";
+import { PrivacyCard } from "./privacy-card";
 
 export const metadata: Metadata = { title: "Cliente — Calenvia" };
 
@@ -26,6 +27,11 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
     .eq("business_id", business.id)
     .maybeSingle();
   if (!c || !c.id) notFound();
+  const { data: raw } = await supabase
+    .from("customers")
+    .select("erased_at")
+    .eq("id", c.id)
+    .single();
   const { data: history } = await supabase
     .from("appointments")
     .select("id, starts_at, status, price_cents, services(name), staff_members(name)")
@@ -79,6 +85,8 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
       {canSendAutomaticMessages(business) ? (
         <CustomerMessages customerId={c.id} optedOut={Boolean(c.opted_out_at)} />
       ) : null}
+
+      <PrivacyCard customerId={c.id} erased={Boolean(raw?.erased_at)} />
 
       <section aria-labelledby="historico" className="space-y-2">
         <h2 id="historico" className="font-display text-lg font-bold">
