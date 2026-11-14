@@ -1,0 +1,49 @@
+name: Backup diário
+
+# CAL-092: backup diário do banco de produção + teste de restauração.
+# Só roda quando os segredos SUPABASE_DB_URL e BACKUP_PASSPHRASE estiverem configurados no repositório.
+on:
+  schedule:
+    - cron: "0 6 * * *" # 03:00 em Brasília
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Segredos configurados?
+        id: check
+        run: |
+          if [ -n "$SUPABASE_DB_URL" ] && [ -n "$BACKUP_PASSPHRASE" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Defina SUPABASE_DB_URL e BACKUP_PASSPHRASE para ligar o backup."
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ok == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ok == 'true'
+        with:
+          node-version: 24
+          cache: npm
+      - if: steps.check.outputs.ok == 'true'
+        run: npm ci && sudo apt-get install -y postgresql-client
+      - name: Backup (criptografado)
+        if: steps.check.outputs.ok == 'true'
+        run: scripts/backup.sh
+      - name: Teste de restauração num Supabase descartável
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          npx supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector,supavisor
+          unset SUPABASE_DB_URL
+          scripts/restore-check.sh "$(ls backups/*.enc | head -1)" --yes
+      - uses: actions/upload-artifact@v4
+        if: steps.check.outputs.ok == 'true'
+        with:
+          name: backup-${{ github.run_id }}
+          path: backups/*.enc
+          retention-days: 30
