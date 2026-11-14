@@ -158,6 +158,7 @@ export async function sendWhatsApp(
       appointment_id: appointment.id,
       type,
       to_number: appointment.customer_whatsapp,
+      appointment_starts_at: appointment.starts_at,
       template: WHATSAPP_TEMPLATES[type].name,
       status: "queued",
     })

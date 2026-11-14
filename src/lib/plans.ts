@@ -102,8 +102,15 @@ export function planOf(business: Pick<BusinessPlan, "plan">): Plan {
 }
 
 /** Assinatura em situação de uso (pendente conta como uso até o checkout existir). */
+export const USABLE_PLAN_STATUSES: PlanStatus[] = ["pending", "active", "past_due"];
+
 export function isPlanUsable(business: Pick<BusinessPlan, "plan_status">): boolean {
-  return ["pending", "active", "past_due"].includes(business.plan_status);
+  return (USABLE_PLAN_STATUSES as string[]).includes(business.plan_status);
+}
+
+/** Planos que enviam mensagens automáticas (para filtrar consultas, ex.: cron de lembretes). */
+export function plansWithAutomaticMessages(): PlanId[] {
+  return PLAN_ORDER.filter((id) => PLANS[id].features.automaticMessages);
 }
 
 /** A página pública aceita agendamentos? */

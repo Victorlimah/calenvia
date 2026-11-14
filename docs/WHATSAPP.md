@@ -48,6 +48,19 @@ Erros de envio nunca desfazem o agendamento.
 - A partir de 80% da cota, a agenda mostra um aviso; ao esgotar, o aviso muda e a confirmação volta
   a ser pelo `wa.me` até o 1º dia do mês seguinte. `/assinatura` mostra o uso do mês.
 
+## Lembretes (CAL-069)
+
+O Vercel Cron chama `GET /api/cron/reminders` a cada 10 minutos (`vercel.json`), com
+`Authorization: Bearer $CRON_SECRET`. A regra fica em `src/lib/whatsapp/reminders.ts`:
+
+- agendado com 24 h ou mais de antecedência → lembrete **24 h antes**;
+- agendado com menos de 24 h → lembrete **2 h antes** (se houver pelo menos 2 h entre a confirmação e o lembrete);
+- agendado com menos de 4 h → sem lembrete;
+- nunca a menos de 30 min do horário, nunca para cancelados, clientes com opt-out ou planos sem envio automático;
+- um lembrete por agendamento **e horário** (índice único em `messages`): remarcar gera um novo; erro da Meta tenta de novo até 3 vezes.
+
+Testar localmente: `curl -H "Authorization: Bearer dev-cron-secret" http://localhost:3000/api/cron/reminders`.
+
 ## Webhook de status
 - URL: `https://calenvia.com.br/api/webhooks/whatsapp`
 - Verify token: o valor de `WHATSAPP_WEBHOOK_VERIFY_TOKEN`.

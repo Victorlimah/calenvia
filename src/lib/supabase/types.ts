@@ -435,6 +435,7 @@ export type Database = {
       messages: {
         Row: {
           appointment_id: string | null;
+          appointment_starts_at: string | null;
           business_id: string;
           created_at: string;
           error: string | null;
@@ -449,6 +450,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           appointment_id?: string | null;
+          appointment_starts_at?: string | null;
           business_id: string;
           created_at?: string;
           error?: string | null;
@@ -462,6 +464,7 @@ export type Database = {
         };
         Update: {
           appointment_id?: string | null;
+          appointment_starts_at?: string | null;
           business_id?: string;
           created_at?: string;
           error?: string | null;

@@ -65,7 +65,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-067** · Templates de mensagem · P0 · 1d — Confirmação, lembrete e cancelamento (categoria utilidade). Textos versionados no código.
 - [x] **CAL-068** · Envio da confirmação ao agendar · P0 · 2d — `sendWhatsApp()` com modo `mock` e `live`, gravação em `messages`.
 - [x] **CAL-071** · Contador de mensagens e limites por plano · P0 · 1,5d — `message_usage` por mês, 300 no Pro, uso justo no Pro+, aviso ao dono perto do limite.
-- [ ] **CAL-069** · Lembrete automático · P0 · 2d — Vercel Cron a cada 10 min, sem duplicar, ignora cancelados.
+- [x] **CAL-069** · Lembrete automático · P0 · 2d — Vercel Cron a cada 10 min, sem duplicar, ignora cancelados.
 - [ ] **CAL-070** · Webhook de status das mensagens · P1 · 1,5d — Entregue, lida, falhou. Verificação do token da Meta.
 - [ ] **CAL-073** · Opt-out do cliente · P1 · 0,5d — Respeitar quem pede para não receber mensagens.
 

@@ -1,5 +1,12 @@
 import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
+import { admin, ZE_BIZ } from "./helpers";
+
+// Garante que o profissional de teste não fica no seed (quebraria os testes de banco).
+const removeBruno = () =>
+  admin.from("staff_members").delete().eq("business_id", ZE_BIZ).eq("name", "Bruno Teste");
+test.beforeAll(removeBruno);
+test.afterAll(removeBruno);
 
 async function loginAsZe(page: Page, next = "/") {
   await page.goto(`/entrar?next=${encodeURIComponent(next)}`);
@@ -29,7 +36,11 @@ test("cadastra profissional com serviços", async ({ page }) => {
   await page.getByLabel("Barba completa").uncheck();
   await page.getByRole("button", { name: "Salvar profissional" }).click();
   await expect(page.getByText("Bruno Teste")).toBeVisible();
-  await page.getByRole("button", { name: "Editar" }).last().click();
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "Bruno Teste" })
+    .getByRole("button", { name: "Editar" })
+    .click();
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Excluir" }).click();
   await expect(page.getByText("Bruno Teste")).toHaveCount(0);
