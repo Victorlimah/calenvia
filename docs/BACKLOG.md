@@ -99,7 +99,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 ---
 
 ## M3 · Lançamento
-- [ ] **CAL-054** · SEO e prévia de link por negócio · P2 · 1d — Meta tags e imagem Open Graph com nome e logo.
+- [x] **CAL-054** · SEO e prévia de link por negócio · P2 · 1d — Meta tags e imagem Open Graph com nome e logo.
 - [ ] **CAL-064** · Aviso ao dono de novo agendamento · P2 · 1,5d — Notificação no navegador ou e-mail.
 - [ ] **CAL-065** · Painel instalável (PWA) · P2 · 1d
 - [ ] **CAL-086** · Demonstração pública · P1 · 1d — Negócio de exemplo para o visitante testar.

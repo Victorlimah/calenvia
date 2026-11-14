@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LandingHeader } from "@/components/site/landing-header";
 import { PhoneDemo } from "@/components/site/phone-demo";
 import { RevealOnScroll } from "@/components/site/reveal";
-import { appUrl, rootDomain } from "@/lib/hosts";
+import { appUrl, rootDomain, siteUrl } from "@/lib/hosts";
 import { DEFAULT_FAIR_USE_LIMIT, PLANS, type PlanId } from "@/lib/plans";
 import "./landing.css";
 import { VisitBeacon } from "@/components/site/visit-beacon";
@@ -12,6 +12,17 @@ export const metadata: Metadata = {
   title: "Calenvia — agendamento online com confirmação no WhatsApp",
   description:
     "Página de agendamento própria para o seu negócio. O cliente escolhe o horário sozinho e recebe a confirmação no WhatsApp.",
+  alternates: { canonical: siteUrl("/") },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: siteUrl("/"),
+    siteName: "Calenvia",
+    title: "Calenvia — Sua agenda cheia. Seu WhatsApp em paz.",
+    description:
+      "Página de agendamento própria, confirmação e lembrete automáticos no WhatsApp. Para barbearias, salões, clínicas e todo negócio com horário marcado.",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 function price(id: PlanId) {

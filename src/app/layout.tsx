@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
 import { HydrationMarker } from "@/components/hydration-marker";
+import { siteUrl } from "@/lib/hosts";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
 const bricolage = Bricolage_Grotesque({
@@ -12,6 +13,7 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl("/")),
   title: "Calenvia — agendamento online pelo WhatsApp",
   description: "Sua página de agendamento com confirmação e lembrete automáticos no WhatsApp.",
 };

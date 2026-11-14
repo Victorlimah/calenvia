@@ -19,6 +19,8 @@ import { todayIn, weekdayOf } from "@/lib/dates";
 import { canSendAutomaticMessages, isBookingOpen } from "@/lib/plans";
 import { getPublicBusiness, getPublicCatalog, getPublicPageContent } from "@/lib/public/business";
 import { buildFaq } from "@/lib/public/faq";
+import { businessUrl } from "@/lib/hosts";
+import { jsonLdString, localBusinessJsonLd } from "@/lib/seo/local-business";
 import { Unavailable } from "./unavailable";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -27,9 +29,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const b = await getPublicBusiness(slug);
   if (!b) return { title: "Página não encontrada" };
+  const title = `${b.name} — Agende seu horário`;
+  const description =
+    b.subheadline ??
+    `Agende online na ${b.name}${b.address ? `, ${b.address.split("—").pop()?.trim()}` : ""}. Rápido, sem criar conta.`;
+  const url = businessUrl(b.slug, "/");
+  const image = { url: businessUrl(b.slug, "/og"), width: 1200, height: 630, alt: b.name };
   return {
-    title: `${b.name} — Agende seu horário`,
-    description: b.subheadline ?? `Agende online na ${b.name}. Rápido, sem criar conta.`,
+    title,
+    description,
+    alternates: { canonical: url },
+    robots: isBookingOpen(b) ? undefined : { index: false },
+    openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      url,
+      siteName: b.name,
+      title,
+      description,
+      images: [image],
+    },
+    twitter: { card: "summary_large_image", title, description, images: [image.url] },
   };
 }
 
@@ -46,8 +66,23 @@ export default async function NegocioPage({ params }: Props) {
   const accent = business.accent_color;
   const faq = buildFaq(business);
 
+  const jsonLd = localBusinessJsonLd({
+    name: business.name,
+    url: businessUrl(business.slug, "/"),
+    image: business.cover_url ?? business.logo_url,
+    address: business.address,
+    whatsapp: business.whatsapp,
+    description: business.subheadline,
+    hours: content.hours,
+    services,
+  });
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
+      />
       <Hero
         name={business.name}
         segmentLabel={segmentLabel(business.segment)}
