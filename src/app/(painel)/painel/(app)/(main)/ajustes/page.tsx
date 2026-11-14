@@ -43,6 +43,7 @@ const ITEMS = [
     desc: "Sua página no seu endereço (Pro+)",
   },
   { href: "/assinatura", title: "Assinatura", desc: "Plano, faturas e mensagens do mês" },
+  { href: "/ajuda", title: "Ajuda", desc: "Dúvidas frequentes e fale com a gente" },
 ];
 
 export default async function AjustesPage() {

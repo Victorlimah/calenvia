@@ -786,6 +786,45 @@ export type Database = {
           },
         ];
       };
+      support_requests: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          id: string;
+          message: string;
+          priority: boolean;
+          status: string;
+          topic: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          id?: string;
+          message: string;
+          priority?: boolean;
+          status?: string;
+          topic: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          id?: string;
+          message?: string;
+          priority?: boolean;
+          status?: string;
+          topic?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "support_requests_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       time_blocks: {
         Row: {
           business_id: string;
