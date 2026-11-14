@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-056
-- Card em andamento: CAL-057
+- Último card concluído: CAL-057
+- Card em andamento: —
 - Próximo card: CAL-058
-- Atualizado em: 2026-11-14 02:17
+- Atualizado em: 2026-11-14 02:20
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -41,6 +41,7 @@
 | CAL-072 | Concluído | f7da840 | confirmationWaLink/reminderWaLink (texto pronto para o número do cliente), SendWhatsAppButton para o painel (abre o WhatsApp e registra o envio manual em messages com template 'wa.me'), action markManualMessageAction (confere posse com RLS antes de gravar com service role). Usado na agenda/detalhe (Sprint 5) | npm test (wa-link.test.ts); no painel, agendamentos do Básico mostram 'Enviar confirmação no WhatsApp' |
 | CAL-055 | Concluído | 9a40c5c | Painel /: linha do tempo do dia (fuso do negócio) com agendamentos (status com cor, aviso de confirmação não enviada), bloqueios, horários livres clicáveis (→ /novo já preenchido), cancelados recolhidos; resumo (agendamentos, livres, previsto); navegação ‹ Hoje ›; buildTimeline puro com testes | Entrar como ze@calenvia.dev; npm run test:e2e (agenda.spec.ts) |
 | CAL-056 | Concluído | f25d7e0 | Chips por profissional (Todos + cada um), setas (dia ou semana), seletor de data, alternância Dia/Semana; semana começa na segunda e lista agendamentos por dia com contagem | npm run test:e2e (agenda.spec.ts) |
+| CAL-057 | Concluído | bac15d0 | /agendamento/[id]: dados completos, histórico de mensagens; Concluído/Faltou (com desfazer; concluído atualiza última visita do cliente), Remarcar (escolhe dia/profissional e horário livre calculado pelo motor ignorando o próprio agendamento), Cancelar com confirmação, Chamar no WhatsApp, Enviar confirmação (plano B). Lógica de remarcação em src/lib/booking/reschedule.ts (reusada no CAL-052) | npm run test:e2e (detalhe.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -69,4 +70,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-/agendamento/[id]: detalhe (cliente, telefone, serviço, profissional, horário, valor, origem, observações, histórico de mensagens); ações: Concluído, Faltou, Remarcar (escolher novo dia/horário com o motor, ignorando o próprio agendamento), Cancelar (com confirmação), Chamar no WhatsApp; plano B: enviar confirmação. Actions com RLS do dono; cancelamento grava canceled_at.
+—
