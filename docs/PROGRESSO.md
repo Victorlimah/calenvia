@@ -1,13 +1,14 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-020
-- Card em andamento: CAL-028
+- Último card concluído: CAL-028
+- Card em andamento: —
 - Próximo card: CAL-021
-- Atualizado em: 2026-11-14 01:00
+- Atualizado em: 2026-11-14 01:01
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
 | CAL-020 | Concluído | 65f4c54 | Next.js 15 (App Router) + TS strict + Tailwind 4, fontes Bricolage/Inter, grupos (site)/(painel)/(negocio), .env.example, scripts | npm run dev / lint / typecheck / test / build |
+| CAL-028 | Concluído | dbb7a54 | Prettier (+plugin Tailwind), eslint-config-prettier, workflow .github/workflows/ci.yml (format:check, lint, typecheck, test) | npm run format:check && npm run lint |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -17,4 +18,4 @@
 
 ## Bloqueios (precisam do Victor)
 ## Plano do card atual
-1) Prettier + plugin tailwind + eslint-config-prettier; 2) scripts format/format:check; 3) GitHub Actions (.github/workflows/ci.yml) com lint, typecheck, test, format:check; 4) teste de exemplo não necessário.
+—
