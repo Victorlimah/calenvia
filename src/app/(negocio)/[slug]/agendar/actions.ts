@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { getPublicAppointment } from "@/lib/public/appointment";
 import { getPublicBusiness, getPublicCatalog } from "@/lib/public/business";
 import { publicAvailability, type PublicAvailability } from "@/lib/public/availability";
 import { isBookingOpen } from "@/lib/plans";
@@ -29,6 +30,7 @@ const availabilityInput = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .nullable()
     .optional(),
+  manageCode: z.string().max(10).nullable().optional(),
 });
 
 export async function availabilityAction(
@@ -47,8 +49,15 @@ export async function availabilityAction(
   ) {
     return { ok: false, error: "Profissional indisponível." };
   }
+  let excludeAppointmentId: string | null = null;
+  if (parsed.data.manageCode) {
+    const appt = await getPublicAppointment(business.id, parsed.data.manageCode);
+    if (!appt) return { ok: false, error: "Agendamento não encontrado." };
+    excludeAppointmentId = appt.id;
+  }
   try {
     const data = await publicAvailability(business, {
+      excludeAppointmentId,
       serviceId: service.id,
       durationMin: service.duration_min,
       staffId: parsed.data.staffId,

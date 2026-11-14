@@ -35,6 +35,8 @@ export async function publicAvailability(
     staffId: string | null;
     from?: string | null;
     date?: string | null;
+    /** Remarcação: o horário atual do próprio agendamento conta como livre. */
+    excludeAppointmentId?: string | null;
   },
   now: Date = new Date(),
 ): Promise<PublicAvailability> {
@@ -58,6 +60,7 @@ export async function publicAvailability(
     serviceId: query.serviceId,
     durationMin: query.durationMin,
     staffId: query.staffId,
+    excludeAppointmentId: query.excludeAppointmentId ?? undefined,
   };
   const days = getDaysSummary(ctx, base, from, STRIP_DAYS);
 

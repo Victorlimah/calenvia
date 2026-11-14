@@ -28,6 +28,8 @@ type Props = {
   date: string | null;
   start: string | null;
   onChange: (value: { date: string | null; start: string | null }) => void;
+  /** Remarcação pelo link: o horário atual do agendamento conta como livre. */
+  manageCode?: string;
 };
 
 export function TimeStep({
@@ -39,6 +41,7 @@ export function TimeStep({
   date,
   start,
   onChange,
+  manageCode,
 }: Props) {
   const [from, setFrom] = useState<string | null>(date);
   const [data, setData] = useState<PublicAvailability | null>(null);
@@ -50,7 +53,7 @@ export function TimeStep({
     let alive = true;
     setLoading(true);
     setError(null);
-    availabilityAction({ slug, serviceId, staffId, from, date })
+    availabilityAction({ slug, serviceId, staffId, from, date, manageCode })
       .then((r) => {
         if (!alive) return;
         if (!r.ok) return setError(r.error);
@@ -63,7 +66,7 @@ export function TimeStep({
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, serviceId, staffId, from, date, attempt]);
+  }, [slug, serviceId, staffId, from, date, attempt, manageCode]);
 
   const accentFg = readableTextOn(accent);
   const label = (d: string, pattern: string) =>
