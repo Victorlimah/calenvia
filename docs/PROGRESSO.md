@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-027
-- Card em andamento: —
-- Próximo card: CAL-030
+- Card em andamento: CAL-030
+- Próximo card: CAL-025
 - Atualizado em: 2026-11-14 01:12
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -29,4 +29,4 @@
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 
 ## Plano do card atual
-—
+supabase/seed.sql: 2 donos com login (auth.users + identities, senha 'calenvia123'), Barbearia do Zé (pro, Fortaleza) e Ana Nails (basic, São Paulo), serviços, profissionais, staff_services, horários, almoço, clientes e agendamentos relativos a hoje; validar com db reset.
