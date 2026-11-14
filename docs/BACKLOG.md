@@ -41,7 +41,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 
 ### Sprint 4 — Página pública e agendamento
 - [x] **CAL-045** · Landing pública do negócio · P0 · 3d — Seções da seção 6 do CLAUDE.md, CTA único e barra fixa, cor de destaque do negócio.
-- [ ] **CAL-046** · Agendamento: escolher serviço · P0 · 1d — Lista com duração e preço, progresso de 4 passos, resumo fixo no rodapé.
+- [x] **CAL-046** · Agendamento: escolher serviço · P0 · 1d — Lista com duração e preço, progresso de 4 passos, resumo fixo no rodapé.
 - [ ] **CAL-047** · Agendamento: escolher profissional · P0 · 0,5d — "Sem preferência" como padrão + profissionais aptos.
 - [ ] **CAL-048** · Agendamento: data e horário · P0 · 2d — Faixa de dias, grade Manhã/Tarde/Noite, dias fechados desabilitados, atalho para o próximo dia livre.
 - [ ] **CAL-049** · Agendamento: dados do cliente · P0 · 1d — Nome e WhatsApp com máscara `(00) 0 0000-0000` e validação. Lembra os dados no navegador.
