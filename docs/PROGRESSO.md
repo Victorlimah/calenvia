@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-086
-- Card em andamento: CAL-099
-- Próximo card: CAL-100
-- Atualizado em: 2026-11-14 08:25
+- Último card concluído: CAL-101
+- Card em andamento: CAL-102
+- Próximo card: CAL-104
+- Atualizado em: 2026-11-14 08:41
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -73,6 +73,10 @@
 | CAL-086 | Concluído | 1cd812b | demo.{domínio}: Studio Exemplo recriado todo dia (cron /api/cron/demo-reset, idempotente), sem mensagens, faixa de demonstração, botão no site; 'demo' bloqueado no cadastro | npm run test:db (demo.test.ts); npm run test:e2e (demo.spec.ts); curl -H 'Authorization: Bearer dev-cron-secret' localhost:3000/api/cron/demo-reset |
 | CAL-081 | Bloqueado | — | Nota fiscal depende do gateway (CAL-075) e do enquadramento fiscal (CAL-011) | — |
 | CAL-082 | Bloqueado | — | Régua de cobrança depende do gateway e dos webhooks de pagamento (CAL-075/076/077) | — |
+| CAL-099 | Concluído | 8e52b84 | /ajustes/dominio (Pro+): validação, instruções DNS A/CNAME, checagem no DNS público, cadastro automático na Vercel (VERCEL_TOKEN/VERCEL_PROJECT_ID); middleware resolve domínios verificados de negócios Pro+ ativos (cache 60 s); robots/sitemap no domínio próprio | npm test (domains/*.test.ts); npm run test:e2e (dominio.spec.ts) |
+| CAL-100 | Concluído | 13a477a | /relatorios (Pro+): faturado, previsto, ticket médio, faltas (taxa e valor), quebras por serviço/profissional/dia/período, melhores clientes; src/lib/reports/monthly.ts | npm test (reports/monthly.test.ts); npm run test:e2e (relatorios.spec.ts) |
+| CAL-074 | Concluído | e70818d | /ajustes/mensagens: textos da confirmação e do lembrete enviados pelo WhatsApp do dono, com variáveis, prévia, validação e restaurar padrão (businesses.message_texts); automáticas seguem os templates da Meta | npm test (messages/custom.test.ts); npm run test:e2e (mensagens.spec.ts) |
+| CAL-101 | Concluído | cedf259 | /ajuda: dúvidas frequentes, 'Fale com a gente' (support_requests, prioridade pelo plano, SUPPORT_WEBHOOK_URL), histórico; Pro+ com prazo de resposta menor | npm run test:e2e (ajuda.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -127,6 +131,8 @@
 - CAL-092: ligar o backup diário criando os segredos SUPABASE_DB_URL e BACKUP_PASSPHRASE no GitHub; recomendado também o plano Pro do Supabase (backup diário + PITR).
 - CAL-064: aviso com o painel fechado precisa de Web Push (dependência web-push + chaves VAPID) ou e-mail (serviço como Resend). Decidir qual e aprovar a dependência/serviço.
 - CAL-086: em produção, rodar uma vez GET /api/cron/demo-reset (com o CRON_SECRET) para criar a demonstração; depois o cron recria todo dia às 04:00.
+- CAL-099: para o HTTPS do domínio próprio sair sozinho, definir VERCEL_TOKEN e VERCEL_PROJECT_ID (e VERCEL_TEAM_ID se usar time) na Vercel.
+- CAL-101: definir o canal oficial de suporte (CAL-096), o prazo de resposta em src/lib/company.ts e SUPPORT_WEBHOOK_URL para receber os pedidos.
 
 ## Plano do card atual
 —
