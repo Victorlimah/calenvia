@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-024
-- Card em andamento: CAL-027
+- Último card concluído: CAL-027
+- Card em andamento: —
 - Próximo card: CAL-030
-- Atualizado em: 2026-11-14 01:10
+- Atualizado em: 2026-11-14 01:12
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -12,6 +12,7 @@
 | CAL-021 | Concluído | e27d8d9 | supabase/config.toml, clients em src/lib/supabase (server com cookies, browser, admin service_role com server-only), tipos gerados (npm run db:types) | npx supabase start && npm run db:types |
 | CAL-023 | Concluído | d161603 | Migration 20261114000100: 14 tabelas, índices, FKs compostas, EXCLUDE gist anti-conflito, gen_manage_code(), increment_message_usage(), RLS + policies do dono | npx supabase db reset && npm run db:types |
 | CAL-024 | Concluído | fd8ebc0 | 23 testes de RLS (tests/db/rls.test.ts): dono só lê/escreve o próprio negócio, não muda plano, não escreve em messages/usage, anon sem acesso | npx supabase start && npm run test:db |
+| CAL-027 | Concluído | 007473f | src/lib/dates.ts: conversão data/hora local ↔ UTC, intervalo do dia, dia da semana, período YYYY-MM, formatação pt-BR, duração; 15 testes | npm test |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -28,4 +29,4 @@
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 
 ## Plano do card atual
-src/lib/dates.ts com date-fns-tz: zonedDayRange (início/fim do dia no fuso → UTC), wallTimeToUtc(data local + HH:mm), toZoned, formatadores pt-BR (data, hora, dia da semana, 'sábado, 15/11'), periodo YYYY-MM no fuso, weekday no fuso. Testes de virada de dia, Fortaleza (UTC-3), Noronha/Manaus.
+—
