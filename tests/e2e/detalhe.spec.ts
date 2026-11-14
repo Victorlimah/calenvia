@@ -49,7 +49,9 @@ test("plano B: enviar confirmação abre o WhatsApp com a mensagem e registra o 
   await btn.click();
   await (await popup).close();
   await expect(page.getByRole("link", { name: "Reenviar confirmação" })).toBeVisible();
-  await expect(page.getByLabel("Mensagens")).toContainText("Confirmação · pelo seu WhatsApp");
+  await expect(page.getByRole("region", { name: "Mensagens", exact: true })).toContainText(
+    "Confirmação · pelo seu WhatsApp",
+  );
 });
 
 test("opt-out: o dono pausa e religa as mensagens automáticas do cliente", async ({ page }) => {

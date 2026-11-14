@@ -6,6 +6,7 @@ import { loadServices, loadStaff } from "@/lib/business/load";
 import { isLocalDate, todayIn } from "@/lib/dates";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NewAppointmentForm } from "./new-appointment-form";
+import { canSendAutomaticMessages } from "@/lib/plans";
 
 export const metadata: Metadata = { title: "Novo agendamento — Calenvia" };
 
@@ -51,6 +52,7 @@ export default async function NovoPage({ searchParams }: Props) {
             duration_min: s.duration_min,
             price_cents: s.price_cents,
           }))}
+          automaticMessages={canSendAutomaticMessages(business)}
           staff={activeStaff.map((s) => ({ id: s.id, name: s.name, serviceIds: s.service_ids }))}
           initial={{
             date,

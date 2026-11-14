@@ -20,7 +20,15 @@ const ZE = "0b000000-0000-4000-8000-000000000001"; // Pro
 const ANA = "0b000000-0000-4000-8000-000000000002"; // Básico
 const CORTE = "0c000000-0000-4000-8000-000000000001";
 const MANICURE = "0c000000-0000-4000-8000-000000000011";
-const PHONES = ["5585955550201", "5585955550202", "5585955550203", "5511955550204"];
+const PHONES = [
+  "5585955550201",
+  "5585955550202",
+  "5585955550203",
+  "5511955550204",
+  "5585955550205",
+  "5585955550206",
+  "5585955550207",
+];
 const H = 60 * 60 * 1000;
 // Bem no futuro, para não pegar agendamentos do seed nem de outros testes.
 const START = new Date("2032-05-10T13:00:00Z");
@@ -51,6 +59,7 @@ async function makeAppointment(opts: {
   start: Date;
   optedOut?: boolean;
   status?: "confirmed" | "canceled";
+  createdAt?: Date;
 }) {
   const { data: c } = await db
     .from("customers")
@@ -74,6 +83,7 @@ async function makeAppointment(opts: {
       customer_name: "Lembrete Teste",
       customer_whatsapp: opts.phone,
       status: opts.status ?? "confirmed",
+      ...(opts.createdAt ? { created_at: opts.createdAt.toISOString() } : {}),
       canceled_at: opts.status === "canceled" ? new Date().toISOString() : null,
     })
     .select("id")
@@ -90,11 +100,19 @@ async function cleanup() {
 }
 
 let main: string;
+let optedOut: string;
+
+const settings = (v: { reminder_enabled?: boolean; reminder_offsets_min?: number[] }) =>
+  db
+    .from("business_message_settings")
+    .update({ reminder_enabled: true, reminder_offsets_min: [120], ...v })
+    .eq("business_id", ZE);
 
 beforeAll(async () => {
   await cleanup();
+  await settings({});
   main = await makeAppointment({ business: ZE, service: CORTE, phone: PHONES[0], start: START });
-  // não recebem: cancelado (Pro), opt-out (Pro), plano Básico
+  // não recebem: cancelado (Pro) e plano Básico; opt-out fica registrado como skipped
   await makeAppointment({
     business: ZE,
     service: CORTE,
@@ -102,7 +120,7 @@ beforeAll(async () => {
     start: new Date(START.getTime() + H),
     status: "canceled",
   });
-  await makeAppointment({
+  optedOut = await makeAppointment({
     business: ZE,
     service: CORTE,
     phone: PHONES[2],
@@ -112,45 +130,86 @@ beforeAll(async () => {
   await makeAppointment({ business: ANA, service: MANICURE, phone: PHONES[3], start: START });
 });
 
-afterAll(cleanup);
+afterAll(async () => {
+  await settings({});
+  await cleanup();
+});
 
 async function reminders(appointmentId: string) {
   const { data } = await db
     .from("messages")
-    .select("status, appointment_starts_at")
+    .select("status, skip_reason, reminder_offset_min, appointment_starts_at")
     .eq("appointment_id", appointmentId)
     .eq("type", "reminder")
     .order("created_at");
   return data ?? [];
 }
 
-describe("cron de lembretes (CAL-069)", () => {
-  it("antes de 24 h do horário nada sai", async () => {
-    const r = await runReminders({ db, transport, now: new Date(START.getTime() - 25 * H) });
-    expect(r.sent).toBe(0);
+const run = (hoursBefore: number, start = START) =>
+  runReminders({ db, transport, now: new Date(start.getTime() - hoursBefore * H) });
+
+describe("cron de lembretes (CAL-069 / CAL-111)", () => {
+  it("padrão: só o lembrete de 2 h; antes disso nada sai", async () => {
+    expect((await run(25)).sent).toBe(0);
+    expect((await run(3)).sent).toBe(0);
     expect(sent).toHaveLength(0);
   });
 
-  it("24 h antes: só o agendamento confirmado do Pro, sem opt-out, recebe", async () => {
-    const r = await runReminders({ db, transport, now: new Date(START.getTime() - 24 * H) });
-    expect(r).toMatchObject({ checked: 1, due: 1, sent: 1, failed: 0 });
+  it("2 h antes: o confirmado do Pro recebe; opt-out fica como skipped; Básico e cancelado não", async () => {
+    const r = await run(2);
+    expect(r.sent).toBe(1);
     expect(sent.map((s) => [s.kind, s.to])).toEqual([["reminder", PHONES[0]]]);
-    expect(await reminders(main)).toEqual([
-      { status: "sent", appointment_starts_at: expect.any(String) },
+    expect(await reminders(main)).toMatchObject([{ status: "sent", reminder_offset_min: 120 }]);
+    const r2 = await run(2, new Date(START.getTime() + 2 * H)); // 2 h antes do opt-out
+    expect(r2.skipped.opted_out).toBe(1);
+    expect(await reminders(optedOut)).toMatchObject([
+      { status: "skipped", skip_reason: "opted_out", reminder_offset_min: 120 },
     ]);
   });
 
-  it("rodar de novo (10 min depois) não duplica", async () => {
-    const r = await runReminders({
-      db,
-      transport,
-      now: new Date(START.getTime() - 24 * H + 10 * 60 * 1000),
-    });
-    expect(r.sent).toBe(0);
+  it("rodar de novo não duplica (nem o skipped)", async () => {
+    await run(1.8);
+    await run(1.8, new Date(START.getTime() + 2 * H));
     expect(sent).toHaveLength(1);
+    expect(await reminders(main)).toHaveLength(1);
+    expect(await reminders(optedOut)).toHaveLength(1);
+  });
+
+  it("24 h + 2 h: dois lembretes, cada um uma vez só", async () => {
+    await settings({ reminder_offsets_min: [1440, 120] });
+    const start = new Date(START.getTime() + 3 * 24 * H);
+    const id = await makeAppointment({ business: ZE, service: CORTE, phone: PHONES[4], start });
+    for (const h of [24, 23.8, 2, 1.8, 1]) await run(h, start);
+    expect((await reminders(id)).map((m) => [m.status, m.reminder_offset_min])).toEqual([
+      ["sent", 1440],
+      ["sent", 120],
+    ]);
+  });
+
+  it("agendado com 1 h de antecedência: não sai nem o de 24 h nem o de 2 h", async () => {
+    await settings({ reminder_offsets_min: [1440, 120] });
+    const start = new Date(START.getTime() + 4 * 24 * H);
+    const id = await makeAppointment({
+      business: ZE,
+      service: CORTE,
+      phone: PHONES[5],
+      start,
+      createdAt: new Date(start.getTime() - 1 * H),
+    });
+    for (const h of [0.9, 0.6]) await run(h, start);
+    expect(await reminders(id)).toEqual([]);
+  });
+
+  it("lembrete desligado no negócio: nada sai (vale para agendamentos já criados)", async () => {
+    await settings({ reminder_enabled: false, reminder_offsets_min: [1440, 120] });
+    const start = new Date(START.getTime() + 5 * 24 * H);
+    const id = await makeAppointment({ business: ZE, service: CORTE, phone: PHONES[6], start });
+    for (const h of [24, 2]) await run(h, start);
+    expect(await reminders(id)).toEqual([]);
   });
 
   it("remarcado para outro dia: novo lembrete para o novo horário", async () => {
+    await settings({});
     const newStart = new Date(START.getTime() + 24 * H);
     await db
       .from("appointments")
@@ -159,7 +218,7 @@ describe("cron de lembretes (CAL-069)", () => {
         ends_at: new Date(newStart.getTime() + 30 * 60 * 1000).toISOString(),
       })
       .eq("id", main);
-    const r = await runReminders({ db, transport, now: new Date(newStart.getTime() - 23 * H) });
+    const r = await run(2, newStart);
     expect(r.sent).toBe(1);
     const rows = await reminders(main);
     expect(rows).toHaveLength(2);

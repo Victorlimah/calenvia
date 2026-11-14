@@ -5,6 +5,7 @@ import { zonedDayRange, type LocalDate } from "@/lib/dates";
 import type { Business } from "@/lib/business/current";
 import type { Database } from "@/lib/supabase/types";
 import type { AgendaAppointment, AgendaBlock } from "./timeline";
+import { wasDelivered } from "@/lib/whatsapp/message-settings";
 
 type Client = SupabaseClient<Database>;
 
@@ -35,9 +36,7 @@ export async function loadAppointments(
     staffId: a.staff_member_id,
     staffName: a.staff_members?.name ?? "",
     priceCents: a.price_cents,
-    confirmationSent: (a.messages ?? []).some(
-      (m) => m.type === "confirmation" && m.status !== "failed",
-    ),
+    confirmationSent: (a.messages ?? []).some((m) => m.type === "confirmation" && wasDelivered(m)),
   }));
 }
 

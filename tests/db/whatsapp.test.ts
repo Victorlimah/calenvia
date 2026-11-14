@@ -47,6 +47,15 @@ async function usage() {
   return data?.count ?? 0;
 }
 
+async function log() {
+  const { data } = await db
+    .from("messages")
+    .select("type, status, skip_reason")
+    .eq("appointment_id", appointmentId)
+    .order("created_at");
+  return data ?? [];
+}
+
 async function cleanup() {
   await db.from("appointments").delete().eq("customer_whatsapp", PHONE);
   await db.from("customers").delete().eq("whatsapp", PHONE);
@@ -147,31 +156,84 @@ describe("sendWhatsApp no banco (CAL-068 / CAL-071)", () => {
     expect(await usage()).toBe(0);
   });
 
-  it("Básico: não envia e devolve o wa.me", async () => {
+  it("Básico: não envia, registra skipped (plan_basic) e devolve o wa.me", async () => {
     const { transport, sent } = fakeTransport();
     const r = await send(transport, { ...business, plan: "basic" });
-    expect(r).toMatchObject({ status: "skipped", reason: "plan" });
+    expect(r).toMatchObject({ status: "skipped", reason: "plan_basic" });
     expect(sent).toHaveLength(0);
-    const { count } = await db
-      .from("messages")
-      .select("id", { count: "exact", head: true })
-      .eq("appointment_id", appointmentId);
-    expect(count).toBe(0);
+    expect(await log()).toEqual([
+      { type: "confirmation", status: "skipped", skip_reason: "plan_basic" },
+    ]);
+    expect(await usage()).toBe(0);
   });
 
   it("cota do Pro esgotada no mês: não envia", async () => {
     await db.from("message_usage").insert({ business_id: BIZ, period: PERIOD, count: 300 });
     const { transport, sent } = fakeTransport();
     const r = await send(transport);
-    expect(r).toMatchObject({ status: "skipped", reason: "quota" });
+    expect(r).toMatchObject({ status: "skipped", reason: "no_quota" });
     expect(sent).toHaveLength(0);
     expect(await usage()).toBe(300);
+    expect(await log()).toEqual([
+      { type: "confirmation", status: "skipped", skip_reason: "no_quota" },
+    ]);
   });
 
   it("cliente com opt-out: não envia", async () => {
     await db.from("customers").update({ opted_out_at: NOW.toISOString() }).eq("id", customerId);
     const r = await send(fakeTransport().transport);
     expect(r).toMatchObject({ status: "skipped", reason: "opted_out" });
+    expect(await log()).toEqual([
+      { type: "confirmation", status: "skipped", skip_reason: "opted_out" },
+    ]);
+  });
+
+  it("CAL-111: confirmação desligada no negócio → skipped e a cota não muda", async () => {
+    await db
+      .from("business_message_settings")
+      .update({ confirmation_enabled: false })
+      .eq("business_id", BIZ);
+    try {
+      const { transport, sent } = fakeTransport();
+      const r = await send(transport);
+      expect(r).toMatchObject({ status: "skipped", reason: "disabled_by_business" });
+      expect(sent).toHaveLength(0);
+      expect(await usage()).toBe(0);
+      expect(await log()).toEqual([
+        { type: "confirmation", status: "skipped", skip_reason: "disabled_by_business" },
+      ]);
+    } finally {
+      await db
+        .from("business_message_settings")
+        .update({ confirmation_enabled: true })
+        .eq("business_id", BIZ);
+    }
+  });
+
+  it("CAL-111: agendamento com mensagens desligadas não recebe nada", async () => {
+    await db.from("appointments").update({ messages_enabled: false }).eq("id", appointmentId);
+    try {
+      const { transport, sent } = fakeTransport();
+      await send(transport);
+      await sendWhatsApp(
+        { db, transport, now: NOW },
+        { business, appointmentId, type: "reminder", reminderOffsetMin: 120 },
+      );
+      await db.from("appointments").update({ status: "canceled" }).eq("id", appointmentId);
+      await sendWhatsApp(
+        { db, transport, now: NOW },
+        { business, appointmentId, type: "cancellation" },
+      );
+      expect(sent).toHaveLength(0);
+      expect(await usage()).toBe(0);
+      expect((await log()).map((m) => `${m.type}:${m.skip_reason}`)).toEqual([
+        "confirmation:disabled_for_appointment",
+        "reminder:disabled_for_appointment",
+        "cancellation:disabled_for_appointment",
+      ]);
+    } finally {
+      await db.from("appointments").update({ messages_enabled: true }).eq("id", appointmentId);
+    }
   });
 
   it("agendamento cancelado: sem confirmação; com aviso de cancelamento", async () => {

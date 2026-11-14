@@ -24,9 +24,11 @@ type Props = {
     staffId: string | null;
     customer?: CustomerHit | null;
   };
+  /** Plano com mensagens automáticas (mostra a opção de desligar, CAL-111). */
+  automaticMessages?: boolean;
 };
 
-export function NewAppointmentForm({ services, staff, initial }: Props) {
+export function NewAppointmentForm({ services, staff, initial, automaticMessages }: Props) {
   const router = useRouter();
   const [serviceId, setServiceId] = useState(services[0].id);
   const eligible = useMemo(
@@ -47,6 +49,7 @@ export function NewAppointmentForm({ services, staff, initial }: Props) {
   const [newPhone, setNewPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [sendConfirmation, setSendConfirmation] = useState(true);
+  const [noAutomatic, setNoAutomatic] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -100,6 +103,7 @@ export function NewAppointmentForm({ services, staff, initial }: Props) {
         customer: customer ? null : { name: newName, whatsapp: newPhone },
         notes,
         sendConfirmation,
+        messagesEnabled: !noAutomatic,
       });
       if (r.ok && r.data)
         router.push(
@@ -262,6 +266,17 @@ export function NewAppointmentForm({ services, staff, initial }: Props) {
         />
         Enviar confirmação ao cliente no WhatsApp
       </label>
+      {automaticMessages ? (
+        <label className="flex min-h-11 cursor-pointer items-center gap-3">
+          <input
+            type="checkbox"
+            className="size-5 accent-brand"
+            checked={noAutomatic}
+            onChange={(e) => setNoAutomatic(e.target.checked)}
+          />
+          Não enviar mensagens automáticas para este agendamento
+        </label>
+      ) : null}
       {error ? <Alert tone="danger">{error}</Alert> : null}
       <Button size="lg" block loading={pending} onClick={submit}>
         Agendar

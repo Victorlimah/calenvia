@@ -1,58 +1,82 @@
 import { describe, expect, it } from "vitest";
 import { plansWithAutomaticMessages } from "@/lib/plans";
-import { isReminderDue, reminderDueAt } from "./reminders";
+import { reminderSlots } from "./message-settings";
+import { isReminderSlotDue, latestDueSlot } from "./reminders";
 
 const H = 60 * 60 * 1000;
-const START = new Date("2026-11-20T13:00:00Z"); // 10:00 em Fortaleza
+const START = new Date("2026-11-20T13:00:00Z");
 const at = (hoursBeforeStart: number) => new Date(START.getTime() - hoursBeforeStart * H);
 
-describe("quando sai o lembrete (CAL-069)", () => {
-  it("agendado com mais de 24 h: lembrete 24 h antes", () => {
-    expect(reminderDueAt(START, at(72))).toEqual(at(24));
-    expect(reminderDueAt(START, at(24))).toEqual(at(24));
-  });
-
-  it("agendado com menos de 24 h: lembrete 2 h antes", () => {
-    expect(reminderDueAt(START, at(23))).toEqual(at(2));
-    expect(reminderDueAt(START, at(4))).toEqual(at(2));
-  });
-
-  it("agendado com menos de 4 h: sem lembrete (a confirmação acabou de chegar)", () => {
-    expect(reminderDueAt(START, at(3.9))).toBeNull();
-    expect(reminderDueAt(START, at(1))).toBeNull();
-  });
-});
-
-describe("isReminderDue", () => {
+describe("isReminderSlotDue (CAL-111)", () => {
   const base = { start: START, createdAt: at(48), previous: [] };
 
-  it("antes da hora: não; depois da hora: sim", () => {
-    expect(isReminderDue(base, at(24.1))).toBe(false);
-    expect(isReminderDue(base, at(24))).toBe(true);
-    expect(isReminderDue(base, at(10))).toBe(true); // cron atrasado ainda manda
+  it("sai no horário da antecedência, nem antes", () => {
+    expect(isReminderSlotDue({ ...base, offsetMin: 1440, now: at(24.1) })).toBe(false);
+    expect(isReminderSlotDue({ ...base, offsetMin: 1440, now: at(24) })).toBe(true);
+    expect(isReminderSlotDue({ ...base, offsetMin: 120, now: at(2.1) })).toBe(false);
+    expect(isReminderSlotDue({ ...base, offsetMin: 120, now: at(2) })).toBe(true);
+  });
+
+  it("agendado depois do horário do lembrete: pula", () => {
+    expect(isReminderSlotDue({ ...base, createdAt: at(10), offsetMin: 1440, now: at(5) })).toBe(
+      false,
+    );
+    expect(isReminderSlotDue({ ...base, createdAt: at(1), offsetMin: 120, now: at(0.9) })).toBe(
+      false,
+    );
+  });
+
+  it("cada antecedência sai uma vez só", () => {
+    const sent24 = [{ offsetMin: 1440, status: "sent" }];
+    expect(isReminderSlotDue({ ...base, previous: sent24, offsetMin: 1440, now: at(23) })).toBe(
+      false,
+    );
+    // o de 24 h enviado não impede o de 2 h
+    expect(isReminderSlotDue({ ...base, previous: sent24, offsetMin: 120, now: at(2) })).toBe(true);
+    // skipped também conta como registrado (não repete)
+    expect(
+      isReminderSlotDue({
+        ...base,
+        previous: [{ offsetMin: 120, status: "skipped" }],
+        offsetMin: 120,
+        now: at(1.5),
+      }),
+    ).toBe(false);
+  });
+
+  it("registro antigo sem antecedência vale para todas", () => {
+    expect(
+      isReminderSlotDue({
+        ...base,
+        previous: [{ offsetMin: null, status: "sent" }],
+        offsetMin: 120,
+        now: at(2),
+      }),
+    ).toBe(false);
+  });
+
+  it("tenta de novo depois de falha, até 3 vezes", () => {
+    const f = { offsetMin: 120, status: "failed" };
+    expect(isReminderSlotDue({ ...base, previous: [f, f], offsetMin: 120, now: at(1.5) })).toBe(
+      true,
+    );
+    expect(isReminderSlotDue({ ...base, previous: [f, f, f], offsetMin: 120, now: at(1.5) })).toBe(
+      false,
+    );
   });
 
   it("a menos de 30 min do horário não manda mais", () => {
-    expect(isReminderDue(base, at(0.6))).toBe(true);
-    expect(isReminderDue(base, at(0.4))).toBe(false);
-    expect(isReminderDue(base, at(-1))).toBe(false);
+    expect(isReminderSlotDue({ ...base, offsetMin: 120, now: at(0.6) })).toBe(true);
+    expect(isReminderSlotDue({ ...base, offsetMin: 120, now: at(0.4) })).toBe(false);
   });
+});
 
-  it("não duplica: já existe lembrete enviado (ou na fila) para esse horário", () => {
-    expect(isReminderDue({ ...base, previous: [{ status: "sent" }] }, at(23))).toBe(false);
-    expect(isReminderDue({ ...base, previous: [{ status: "queued" }] }, at(23))).toBe(false);
-    expect(isReminderDue({ ...base, previous: [{ status: "delivered" }] }, at(23))).toBe(false);
-  });
-
-  it("tenta de novo depois de falha, até 3 tentativas", () => {
-    const failed = { status: "failed" };
-    expect(isReminderDue({ ...base, previous: [failed] }, at(23))).toBe(true);
-    expect(isReminderDue({ ...base, previous: [failed, failed] }, at(23))).toBe(true);
-    expect(isReminderDue({ ...base, previous: [failed, failed, failed] }, at(23))).toBe(false);
-  });
-
-  it("agendado em cima da hora não tem lembrete", () => {
-    expect(isReminderDue({ ...base, createdAt: at(3) }, at(1))).toBe(false);
+describe("latestDueSlot", () => {
+  const slots = reminderSlots(START, at(48), [1440, 120]);
+  it("com o cron parado, só o mais próximo do horário sai", () => {
+    expect(latestDueSlot(slots, at(25))).toBeNull();
+    expect(latestDueSlot(slots, at(23))?.offsetMin).toBe(1440);
+    expect(latestDueSlot(slots, at(1.5))?.offsetMin).toBe(120);
   });
 });
 

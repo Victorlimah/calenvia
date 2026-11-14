@@ -53,9 +53,7 @@ Erros de envio nunca desfazem o agendamento.
 O Vercel Cron chama `GET /api/cron/reminders` a cada 10 minutos (`vercel.json`), com
 `Authorization: Bearer $CRON_SECRET`. A regra fica em `src/lib/whatsapp/reminders.ts`:
 
-- agendado com 24 h ou mais de antecedência → lembrete **24 h antes**;
-- agendado com menos de 24 h → lembrete **2 h antes** (se houver pelo menos 2 h entre a confirmação e o lembrete);
-- agendado com menos de 4 h → sem lembrete;
+- (substituído pelo CAL-111, abaixo: antecedências configuráveis pelo negócio)
 - nunca a menos de 30 min do horário, nunca para cancelados, clientes com opt-out ou planos sem envio automático;
 - um lembrete por agendamento **e horário** (índice único em `messages`): remarcar gera um novo; erro da Meta tenta de novo até 3 vezes.
 
@@ -80,4 +78,22 @@ Testar localmente: `curl -H "Authorization: Bearer dev-cron-secret" http://local
   para todos os negócios em que o número é cliente.
 - O dono também pode pausar/religar no detalhe do agendamento ("Mensagens automáticas").
 - `sendWhatsApp()` e o cron de lembretes não enviam para quem tem opt-out.
+
+## Ajustes de mensagens automáticas (CAL-111)
+- Ajustes › Mensagens automáticas: ligar/desligar **confirmação**, **lembrete** (24 h e/ou 2 h antes;
+  padrão 2 h) e **aviso de cancelamento**, com prévia, estimativa de agendamentos por cota e uso do mês.
+  Tabela `business_message_settings` (uma linha por negócio, criada por trigger). Escrita só pela
+  server action, que confere o papel (dono; gerente com o CAL-112) e o plano — o Básico não liga nada
+  nem chamando a API do Supabase direto (sem permissão de escrita para `authenticated`).
+- Por agendamento: `appointments.messages_enabled` ("Não enviar mensagens automáticas para este
+  agendamento" no novo agendamento manual e no detalhe).
+- `sendWhatsApp()` decide nesta ordem (`decideSend`, função pura): plano → ajustes do negócio →
+  mensagens do agendamento → opt-out → cota. Se algo bloqueia, grava em `messages` com
+  `status = 'skipped'` e `skip_reason` (`plan_basic`, `disabled_by_business`,
+  `disabled_for_appointment`, `opted_out`, `no_quota`) e **não** conta na cota.
+- Cron: um lembrete por antecedência configurada (`messages.reminder_offset_min`, índice único por
+  agendamento + horário + antecedência). Agendamento criado depois do horário de um lembrete pula
+  aquele lembrete; se dois vencerem juntos (cron parado), só o mais próximo do horário sai.
+  Lembrete desligado no negócio não gera registro. Mudanças valem para os próximos envios.
+- Com a confirmação desligada, o detalhe do agendamento continua com "Enviar confirmação no WhatsApp".
 

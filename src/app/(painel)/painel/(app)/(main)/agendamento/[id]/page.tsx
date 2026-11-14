@@ -18,6 +18,12 @@ import { canManageByLink, canSendAutomaticMessages } from "@/lib/plans";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { confirmationWaLink } from "@/lib/whatsapp/wa-link";
 import { AppointmentActions } from "./appointment-actions";
+import { AppointmentMessagesToggle } from "@/components/painel/appointment-messages-toggle";
+import {
+  SKIP_REASON_LABELS,
+  wasDelivered,
+  type RecordedSkipReason,
+} from "@/lib/whatsapp/message-settings";
 
 export const metadata: Metadata = { title: "Agendamento — Calenvia" };
 
@@ -32,6 +38,7 @@ const MESSAGE_STATUS = {
   delivered: "Entregue",
   read: "Lida",
   failed: "Falhou",
+  skipped: "Não enviada",
 } as const;
 
 export default async function AgendamentoPage({
@@ -48,7 +55,7 @@ export default async function AgendamentoPage({
   const { data: a } = await supabase
     .from("appointments")
     .select(
-      "*, services(name, duration_min), staff_members(name), customers(opted_out_at), messages(id, type, status, template, sent_at, created_at)",
+      "*, services(name, duration_min), staff_members(name), customers(opted_out_at), messages(id, type, status, skip_reason, template, sent_at, created_at)",
     )
     .eq("id", id)
     .eq("business_id", business.id)
@@ -112,7 +119,7 @@ export default async function AgendamentoPage({
   const usable =
     !usage && a.status !== "canceled" ? usablePackage(custPackages ?? [], a.service_id) : null;
   const messages = [...(a.messages ?? [])].sort((x, y) => (x.created_at < y.created_at ? 1 : -1));
-  const confirmationSent = messages.some((m) => m.type === "confirmation" && m.status !== "failed");
+  const confirmationSent = messages.some((m) => m.type === "confirmation" && wasDelivered(m));
 
   return (
     <PageBody>
@@ -215,6 +222,10 @@ export default async function AgendamentoPage({
         />
       ) : null}
 
+      {canSendAutomaticMessages(business) && status === "confirmed" ? (
+        <AppointmentMessagesToggle appointmentId={a.id} enabled={a.messages_enabled} />
+      ) : null}
+
       {canSendAutomaticMessages(business) ? (
         <CustomerMessages
           customerId={a.customer_id}
@@ -237,6 +248,9 @@ export default async function AgendamentoPage({
                 </span>
                 <span className="text-ink-2">
                   {MESSAGE_STATUS[m.status as keyof typeof MESSAGE_STATUS]}
+                  {m.skip_reason
+                    ? ` (${SKIP_REASON_LABELS[m.skip_reason as RecordedSkipReason] ?? m.skip_reason})`
+                    : ""}
                   {m.sent_at
                     ? ` · ${formatDate(new Date(m.sent_at), tz).slice(0, 5)} ${formatTime(new Date(m.sent_at), tz)}`
                     : ""}

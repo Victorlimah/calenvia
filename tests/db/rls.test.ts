@@ -281,6 +281,57 @@ describe("Pacotes (CAL-105)", () => {
   });
 });
 
+describe("Ajustes de mensagens (CAL-111)", () => {
+  it("todo negócio novo ganha os ajustes padrão", async () => {
+    const { rows } = await db.query(
+      `select confirmation_enabled, reminder_enabled, reminder_offsets_min, cancellation_enabled
+       from public.business_message_settings where business_id = $1`,
+      [BIZ_A],
+    );
+    expect(rows).toEqual([
+      {
+        confirmation_enabled: true,
+        reminder_enabled: true,
+        reminder_offsets_min: [120],
+        cancellation_enabled: true,
+      },
+    ]);
+  });
+
+  it("dono lê os próprios ajustes, mas não altera direto pela API (só pelo servidor)", async () => {
+    await actAs(db, OWNER_A);
+    const { rows } = await db.query(`select business_id from public.business_message_settings`);
+    expect(rows).toEqual([{ business_id: BIZ_A }]);
+    await expectDenied(
+      `update public.business_message_settings set confirmation_enabled = false where business_id = $1`,
+      [BIZ_A],
+    );
+    await expectDenied(`insert into public.business_message_settings (business_id) values ($1)`, [
+      BIZ_B,
+    ]);
+  });
+
+  it("antecedência do lembrete só aceita 24 h e/ou 2 h", async () => {
+    await db.query("savepoint denied");
+    await expect(
+      db.query(
+        `update public.business_message_settings set reminder_offsets_min = '{30}' where business_id = $1`,
+        [BIZ_A],
+      ),
+    ).rejects.toThrow(/check constraint/);
+    await db.query("rollback to savepoint denied");
+  });
+
+  it("dono desliga as mensagens de um agendamento próprio", async () => {
+    await actAs(db, OWNER_A);
+    const r = await db.query(
+      `update public.appointments set messages_enabled = false where business_id = $1`,
+      [BIZ_A],
+    );
+    expect(r.rowCount).toBe(1);
+  });
+});
+
 describe("RLS: visitante anônimo", () => {
   it.each(["businesses", ...TENANT_TABLES])("não lê %s", async (table) => {
     await actAs(db, null);

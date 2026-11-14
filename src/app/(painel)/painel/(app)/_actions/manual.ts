@@ -90,6 +90,8 @@ const createInput = z
     customer: customerSchema.nullable(),
     notes: z.string().trim().max(500).optional(),
     sendConfirmation: z.boolean().default(true),
+    /** CAL-111: false = nenhuma mensagem automática para este agendamento. */
+    messagesEnabled: z.boolean().default(true),
   })
   .refine((v) => v.customerId || v.customer, {
     message: "Escolha ou cadastre o cliente.",
@@ -126,6 +128,13 @@ export async function createManualAppointmentAction(
       notes: parsed.data.notes || null,
       ignoreNotice: true,
     });
+    if (!parsed.data.messagesEnabled) {
+      await supabase
+        .from("appointments")
+        .update({ messages_enabled: false })
+        .eq("id", appointment.id)
+        .eq("business_id", business.id);
+    }
     const sent = parsed.data.sendConfirmation
       ? await afterBooking(business, appointment)
       : { automatic: false };

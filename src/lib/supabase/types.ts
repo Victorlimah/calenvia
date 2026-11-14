@@ -34,6 +34,7 @@ export type Database = {
           ends_at: string;
           id: string;
           manage_code: string;
+          messages_enabled: boolean;
           notes: string | null;
           price_cents: number;
           service_id: string;
@@ -53,6 +54,7 @@ export type Database = {
           ends_at: string;
           id?: string;
           manage_code?: string;
+          messages_enabled?: boolean;
           notes?: string | null;
           price_cents?: number;
           service_id: string;
@@ -71,6 +73,7 @@ export type Database = {
           ends_at?: string;
           id?: string;
           manage_code?: string;
+          messages_enabled?: boolean;
           notes?: string | null;
           price_cents?: number;
           service_id?: string;
@@ -181,6 +184,45 @@ export type Database = {
             foreignKeyName: "business_hours_business_id_fkey";
             columns: ["business_id"];
             isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_message_settings: {
+        Row: {
+          business_id: string;
+          cancellation_enabled: boolean;
+          confirmation_enabled: boolean;
+          reminder_enabled: boolean;
+          reminder_offsets_min: number[];
+          updated_at: string;
+          updated_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          cancellation_enabled?: boolean;
+          confirmation_enabled?: boolean;
+          reminder_enabled?: boolean;
+          reminder_offsets_min?: number[];
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          business_id?: string;
+          cancellation_enabled?: boolean;
+          confirmation_enabled?: boolean;
+          reminder_enabled?: boolean;
+          reminder_offsets_min?: number[];
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_message_settings_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: true;
             referencedRelation: "businesses";
             referencedColumns: ["id"];
           },
@@ -591,7 +633,9 @@ export type Database = {
           error: string | null;
           id: string;
           provider_message_id: string | null;
+          reminder_offset_min: number | null;
           sent_at: string | null;
+          skip_reason: string | null;
           status: string;
           template: string;
           to_number: string;
@@ -606,7 +650,9 @@ export type Database = {
           error?: string | null;
           id?: string;
           provider_message_id?: string | null;
+          reminder_offset_min?: number | null;
           sent_at?: string | null;
+          skip_reason?: string | null;
           status?: string;
           template: string;
           to_number: string;
@@ -620,7 +666,9 @@ export type Database = {
           error?: string | null;
           id?: string;
           provider_message_id?: string | null;
+          reminder_offset_min?: number | null;
           sent_at?: string | null;
+          skip_reason?: string | null;
           status?: string;
           template?: string;
           to_number?: string;
