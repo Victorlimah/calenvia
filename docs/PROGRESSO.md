@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-038
-- Card em andamento: CAL-037
+- Último card concluído: CAL-037
+- Card em andamento: —
 - Próximo card: CAL-062
-- Atualizado em: 2026-11-14 01:39
+- Atualizado em: 2026-11-14 01:42
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -25,6 +25,7 @@
 | CAL-033 | Concluído | 465c759 | Shell do painel (nav inferior no celular, lateral no desktop, sair), /ajustes (menu), /ajustes/servicos (nome, descrição, duração, preço, ativo, mais pedido, ordenar ↑↓, quem faz), /ajustes/negocio | npm run test:e2e (ajustes.spec.ts); entrar como ze@calenvia.dev |
 | CAL-039 | Concluído | e0f60a2 | /ajustes/regras: intervalo entre horários (15/30/60), antecedência mínima, dias à frente, prazo para remarcar/cancelar | npm run test:e2e (ajustes.spec.ts › regras) |
 | CAL-038 | Concluído | 8f59708 | Bucket business-media (5 MB, JPG/PNG/WebP) com policies por pasta do negócio; tabela business_photos; ImageUpload (compressão WebP no navegador, máx. 1600px, limite 10 MB); foto do profissional nos ajustes; actions de logo/capa/galeria; testes de policy do Storage | npm run test:db; npm run test:e2e (foto do profissional) |
+| CAL-037 | Concluído | 64a3326 | /ajustes/aparencia: logo, capa, cor de destaque (10 cores + seletor livre, texto do botão com contraste automático), título e subtítulo, galeria de fotos, depoimentos; prévia ao vivo usando o mesmo componente Hero da página pública | npm run test:e2e (ajustes.spec.ts › aparência) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -50,4 +51,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-/ajustes/aparencia: logo, capa, cor de destaque (paleta + seletor), título e subtítulo, galeria de fotos; prévia ao vivo (mini página escura com a cor). Action saveAppearanceAction com Zod (cor #RRGGBB, textos ≤ 120/200).
+—
