@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-023
-- Card em andamento: —
-- Próximo card: CAL-024
+- Card em andamento: CAL-024
+- Próximo card: CAL-027
 - Atualizado em: 2026-11-14 01:09
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -21,9 +21,10 @@
 - Status/plano/tipo em colunas text com CHECK (não enums), mais fácil de evoluir. FKs compostas (id, business_id) garantem que serviço/profissional/cliente de um agendamento são do mesmo negócio.
 - Colunas extras: businesses.message_limit_override (uso justo do Pro+ por negócio), businesses.onboarding_completed_at, plan_status com 'pending' (padrão até o pagamento). Índice único impede dois lembretes por agendamento. Slug com 3 a 40 caracteres.
 - Dono não pode alterar plan/plan_status (privilégio por coluna); só o servidor (service_role) muda isso.
+- Testes de banco (RLS etc.) ficam em tests/db e rodam com `npm run test:db` contra o Supabase local; no CI há um job `db` que sobe o Supabase. `npm test` continua só com testes unitários (rápido, sem Docker).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 
 ## Plano do card atual
-—
+RLS já está na migration do CAL-023. Neste card: testes de policy em SQL rodados pelo Vitest contra o Postgres local (pg + set role authenticated + request.jwt.claims), cobrindo leitura/escrita do próprio negócio, bloqueio do negócio alheio, anon sem acesso, plano imutável pelo dono. Script test:db separado (precisa do Supabase local).
