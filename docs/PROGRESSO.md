@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-048
-- Card em andamento: CAL-049
-- Próximo card: CAL-051
-- Atualizado em: 2026-11-14 02:04
+- Último card concluído: CAL-050
+- Card em andamento: CAL-072
+- Próximo card: CAL-055
+- Atualizado em: 2026-11-14 02:08
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -35,6 +35,9 @@
 | CAL-046 | Concluído | b9ac8a5 | /agendar: estado do fluxo na URL (voltar do celular funciona), barra de progresso de 4 passos, botão voltar, resumo fixo no rodapé com Continuar; passo 1 com serviços (duração, preço, mais pedido); serviço vindo da landing já marcado | barbearia-do-ze.localhost:3000/agendar; npm run test:e2e (agendar.spec.ts) |
 | CAL-047 | Concluído | 57252a0 | Passo 2: 'Sem preferência' como padrão + só profissionais aptos (foto/iniciais e cargo); com 1 apto ele já vem escolhido; trocar de serviço limpa profissional que não faz o novo serviço; resumo mostra o profissional | npm run test:e2e (agendar.spec.ts) |
 | CAL-048 | Concluído | 84ada0a | Passo 3: faixa de 14 dias (Hoje/dia da semana/número), navegação ‹ ›, dias fechados ou lotados desabilitados, grade Manhã/Tarde/Noite, atalho 'Ver próximo dia com horário', estados de carregamento/erro/vazio; server action availabilityAction (Zod, service role) usando o motor; resumo mostra 'sábado, 21/11 às 14:30' | npm run test:e2e (agendar.spec.ts › passo 3) |
+| CAL-049 | Concluído | 55f712b | Passo 4: nome + WhatsApp com máscara (00) 0 0000-0000, validação de celular, lembrar dados no navegador (localStorage protegido), campo-isca contra robôs, resumo; bookAction (Zod + createAppointment com service role) → /confirmado/{code}; conflito oferece 'Escolher outro horário' | npm run test:e2e (agendar.spec.ts › passo 4) |
+| CAL-051 | Concluído | 55f712b | upsertCustomer (negócio + WhatsApp normalizado, atualiza nome; agendamento guarda o nome do momento) ligado ao bookAction; teste de integração | npm run test:db (public-booking.test.ts) |
+| CAL-050 | Concluído | 55f712b | /confirmado/{code}: resumo, código, prévia da mensagem do WhatsApp (texto de referência, negrito), 'Adicionar ao calendário' (.ics com alarme 1h antes), 'Remarcar ou cancelar' no Pro; templates de mensagem versionados em src/lib/messages | Agendar em barbearia-do-ze.localhost:3000/agendar; npm test (templates, ics) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -63,4 +66,4 @@
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
 
 ## Plano do card atual
-Passo 4: nome e WhatsApp com máscara (00) 0 0000-0000, validação (celular), lembrar no navegador (localStorage com try/catch), resumo completo e botão Confirmar agendamento. bookAction no servidor (Zod + createAppointment) e redireciona para /confirmado/{code}.
+src/lib/whatsapp/wa-link.ts: confirmationWaLink(appointment, business) com o texto de confirmação pronto para o número do cliente. Componente SendConfirmationButton (painel) usado na agenda/detalhe. Na tela de confirmado do Básico: informar que o negócio vai confirmar. Testes.
