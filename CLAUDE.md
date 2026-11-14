@@ -190,3 +190,23 @@ npm run build
 npx supabase start        # Supabase local (precisa do Docker)
 npx supabase db reset     # aplica migrations + seed localmente
 ```
+
+## 10. Sessões curtas (economia de tokens)
+
+Cada card roda numa **sessão nova** (`/clear` entre cards). Nada de depender do histórico da conversa: o contexto vive nos arquivos.
+
+**Ao começar uma sessão**, leia só isto, nesta ordem:
+1. Este `CLAUDE.md`.
+2. O bloco **Status** e **Próxima sessão** no topo de `docs/PROGRESSO.md` (não leia o histórico inteiro).
+3. O item do card em `docs/BACKLOG.md` e, se existir, o plano em `docs/planos/CAL-xxx.md`.
+
+**Ao terminar (ou parar no meio)**, antes de encerrar:
+- Commit do que está verificado (mesmo parcial, com o ID do card).
+- Atualize **Status** e **Próxima sessão** em `docs/PROGRESSO.md`: o que falta, decisões pendentes, comandos para retomar.
+- Card grande (vários dias): divida em fases no `docs/planos/CAL-xxx.md` e faça **uma fase por sessão**.
+
+**Para gastar pouco:**
+- Leia trechos de arquivo (`offset`/`limit`, `grep`), não arquivos inteiros sem necessidade.
+- Rode só os testes do que mudou; a suíte E2E completa só no fechamento do card.
+- Teste E2E instável: não fique em loop. Commite o que passou e registre o problema em **Próxima sessão**.
+- Não use subagentes sem pedido explícito.

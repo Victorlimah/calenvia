@@ -4,6 +4,11 @@
 - Card em andamento: CAL-112 (planejamento)
 - Próximo card: CAL-112
 - Atualizado em: 2026-11-14 12:27
+## Próxima sessão
+- **CAL-112 (Equipe com acessos e papéis)**: plano em `docs/planos/CAL-112.md`, 6 fases, uma por sessão.
+- **Antes da fase 1**, o Victor precisa responder as 4 decisões listadas no plano (limite de membros, o que esconder, convite só por link, recepção vê clientes). Registrar as respostas no plano.
+- Depois do CAL-112: `saveMessageSettingsAction` (CAL-111) passa a aceitar o gerente.
+- Bloqueios continuam os mesmos (seção "Bloqueios"): CAL-075, CAL-066/108, CAL-022.
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
