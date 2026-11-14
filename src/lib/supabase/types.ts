@@ -424,6 +424,48 @@ export type Database = {
           },
         ];
       };
+      finance_entries: {
+        Row: {
+          amount_cents: number;
+          business_id: string;
+          category: string;
+          created_at: string;
+          description: string | null;
+          id: string;
+          kind: string;
+          occurred_on: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_cents: number;
+          business_id: string;
+          category: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          kind: string;
+          occurred_on: string;
+        };
+        Update: {
+          amount_cents?: number;
+          business_id?: string;
+          category?: string;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          kind?: string;
+          occurred_on?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "finance_entries_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       message_usage: {
         Row: {
           business_id: string;

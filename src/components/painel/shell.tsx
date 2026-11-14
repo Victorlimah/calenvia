@@ -34,7 +34,8 @@ const NAV = [
       p.startsWith("/ajustes") ||
       p.startsWith("/assinatura") ||
       p.startsWith("/relatorios") ||
-      p.startsWith("/ajuda"),
+      p.startsWith("/ajuda") ||
+      p.startsWith("/financeiro"),
   },
 ];
 

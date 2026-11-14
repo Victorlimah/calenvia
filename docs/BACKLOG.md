@@ -111,7 +111,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-100** · Relatórios de faturamento e faltas (Pro+) · P2 · 3d
 - [x] **CAL-074** · Editor de mensagens por negócio · P2 · 2d
 - [x] **CAL-101** · Suporte prioritário (Pro+) · P2 · 0,5d
-- [ ] **CAL-102** · Controle financeiro simples · P3 · 4d
+- [x] **CAL-102** · Controle financeiro simples · P3 · 4d
 - [ ] **CAL-103** · Sinal ou pagamento antecipado via Pix · P3 · 4d
 - [ ] **CAL-104** · Lista de espera · P3 · 2d
 - [ ] **CAL-105** · Pacotes de serviços · P3 · 3d
