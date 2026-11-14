@@ -127,6 +127,37 @@ describe("RLS: dono só vê o próprio negócio", () => {
     await actAs(db, OWNER_A);
     await expectDenied(`select public.increment_message_usage($1, '2030-01')`, [BIZ_A]);
   });
+
+  it("horário próprio: salva no próprio profissional, nunca no de outro negócio", async () => {
+    const days = JSON.stringify(
+      Array.from({ length: 7 }, (_, weekday) => ({
+        weekday,
+        is_open: weekday !== 0,
+        opens_at: "10:00",
+        closes_at: "16:00",
+      })),
+    );
+    const { rows: own } = await db.query(
+      `select id from public.staff_members where business_id = $1`,
+      [BIZ_A],
+    );
+    const { rows: other } = await db.query(
+      `select id from public.staff_members where business_id = $1`,
+      [BIZ_B],
+    );
+    await actAs(db, OWNER_A);
+    await db.query(`select public.save_staff_hours($1, $2::jsonb)`, [own[0].id, days]);
+    const { rows } = await db.query(
+      `select count(*)::int as n from public.staff_hours where staff_member_id = $1`,
+      [own[0].id],
+    );
+    expect(rows[0].n).toBe(7);
+    await db.query("savepoint denied");
+    await expect(
+      db.query(`select public.save_staff_hours($1, $2::jsonb)`, [other[0].id, days]),
+    ).rejects.toThrow(/not allowed/);
+    await db.query("rollback to savepoint denied");
+  });
 });
 
 describe("RLS: visitante anônimo", () => {

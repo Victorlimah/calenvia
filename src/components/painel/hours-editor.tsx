@@ -5,15 +5,26 @@ import { Alert, Button, Card } from "@/components/ui";
 import { weekHoursSchema, type DayHours } from "@/lib/validation/business";
 import { WEEKDAY_NAMES, WEEKDAY_ORDER } from "@/lib/weekdays";
 import { saveHoursAction } from "@/app/(painel)/painel/(app)/_actions/business";
+import type { ActionResult } from "@/lib/action-result";
 import { useAction } from "./use-action";
 
 type Props = {
   initial: DayHours[];
   submitLabel?: string;
   onSaved?: () => void;
+  /** Intervalos (almoço) só fazem sentido no horário do negócio. */
+  allowBreaks?: boolean;
+  /** Ação de salvar (padrão: horário do negócio). */
+  onSubmit?: (days: DayHours[]) => Promise<ActionResult>;
 };
 
-export function HoursEditor({ initial, submitLabel = "Salvar horários", onSaved }: Props) {
+export function HoursEditor({
+  initial,
+  submitLabel = "Salvar horários",
+  onSaved,
+  allowBreaks = true,
+  onSubmit,
+}: Props) {
   const [days, setDays] = useState<DayHours[]>(() =>
     [...initial].sort((a, b) => a.weekday - b.weekday),
   );
@@ -49,7 +60,10 @@ export function HoursEditor({ initial, submitLabel = "Salvar horários", onSaved
       return;
     }
     setLocalError(null);
-    run(() => saveHoursAction(parsed.data), { onSuccess: () => onSaved?.() });
+    const data = parsed.data;
+    run(() => (onSubmit ? onSubmit(data) : saveHoursAction(data)), {
+      onSuccess: () => onSaved?.(),
+    });
   }
 
   return (
@@ -96,7 +110,7 @@ export function HoursEditor({ initial, submitLabel = "Salvar horários", onSaved
                     onChange={(v) => update(weekday, { closes_at: v })}
                   />
                 </div>
-                {(d.breaks ?? []).map((b, i) => (
+                {(allowBreaks ? (d.breaks ?? []) : []).map((b, i) => (
                   <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
                     <TimeInput
                       label={`Início do intervalo ${i + 1} (${name})`}
@@ -131,17 +145,19 @@ export function HoursEditor({ initial, submitLabel = "Salvar horários", onSaved
                   </div>
                 ))}
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      update(weekday, {
-                        breaks: [...(d.breaks ?? []), { starts_at: "12:00", ends_at: "13:00" }],
-                      })
-                    }
-                  >
-                    + Intervalo (almoço)
-                  </Button>
+                  {allowBreaks ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        update(weekday, {
+                          breaks: [...(d.breaks ?? []), { starts_at: "12:00", ends_at: "13:00" }],
+                        })
+                      }
+                    >
+                      + Intervalo (almoço)
+                    </Button>
+                  ) : null}
                   <Button variant="ghost" size="sm" onClick={() => copyToAll(d)}>
                     Copiar para os dias abertos
                   </Button>

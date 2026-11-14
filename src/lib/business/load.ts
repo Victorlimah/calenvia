@@ -25,12 +25,13 @@ export async function loadServices(supabase: Client, businessId: string): Promis
 export async function loadStaff(supabase: Client, businessId: string): Promise<StaffRow[]> {
   const { data } = await supabase
     .from("staff_members")
-    .select("id, name, role, photo_url, is_active, staff_services(service_id)")
+    .select("id, name, role, photo_url, is_active, staff_services(service_id), staff_hours(id)")
     .eq("business_id", businessId)
     .order("created_at");
-  return (data ?? []).map(({ staff_services, ...s }) => ({
+  return (data ?? []).map(({ staff_services, staff_hours, ...s }) => ({
     ...s,
     service_ids: staff_services.map((x) => x.service_id),
+    own_hours: staff_hours.length > 0,
   }));
 }
 

@@ -782,6 +782,7 @@ export type Database = {
         Returns: undefined;
       };
       save_business_hours: { Args: { p_business_id: string; p_days: Json }; Returns: undefined };
+      save_staff_hours: { Args: { p_days: Json; p_staff_member_id: string }; Returns: undefined };
       set_staff_services: {
         Args: { p_service_ids: string[]; p_staff_member_id: string };
         Returns: undefined;

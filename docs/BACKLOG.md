@@ -83,7 +83,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-012** · Páginas de Termos e Privacidade · P1 · 2d — Rotas `/termos` e `/privacidade`. *(Texto jurídico: fora do código.)*
 - [x] **CAL-052** · Remarcar e cancelar pelo link · P1 · 2d — `/{slug}/gerenciar/{manage_code}`, respeitando o prazo mínimo do negócio.
 - [x] **CAL-040** · Política de remarcação e cancelamento · P1 · 0,5d — Prazo mínimo configurável.
-- [ ] **CAL-036** · Horário próprio por profissional · P1 · 1d — Opcional, sobrescreve o do negócio.
+- [x] **CAL-036** · Horário próprio por profissional · P1 · 1d — Opcional, sobrescreve o do negócio.
 - [ ] **CAL-060** · Atualização em tempo real · P1 · 1d — Supabase Realtime na agenda.
 - [ ] **CAL-061** · Resumo do dia · P1 · 0,5d — Agendamentos, horários livres e faturamento previsto.
 - [ ] **CAL-063** · Lista de clientes · P1 · 1,5d — Visitas, faltas, última visita, total gasto, busca.

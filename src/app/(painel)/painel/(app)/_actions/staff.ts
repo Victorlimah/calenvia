@@ -5,7 +5,8 @@ import { invalid, type ActionResult } from "@/lib/action-result";
 import { requireBusiness } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPgError, PG_FOREIGN_KEY_VIOLATION } from "@/lib/supabase/errors";
-import { staffSchema } from "@/lib/validation/business";
+import { z } from "zod";
+import { staffSchema, weekHoursSchema } from "@/lib/validation/business";
 
 export async function saveStaffAction(input: unknown): Promise<ActionResult<{ id: string }>> {
   const business = await requireBusiness();
@@ -81,4 +82,40 @@ export async function deleteStaffAction(id: string): Promise<ActionResult> {
   if (error) return { ok: false, error: "Não foi possível excluir o profissional." };
   revalidatePath("/painel", "layout");
   return { ok: true, message: "Profissional excluído." };
+}
+
+const staffHoursInput = z.object({
+  staffId: z.string().uuid(),
+  days: weekHoursSchema.nullable(),
+});
+
+/** Horário próprio do profissional (CAL-036). days = null → usa o horário do negócio. */
+export async function saveStaffHoursAction(input: unknown): Promise<ActionResult> {
+  const business = await requireBusiness();
+  const parsed = staffHoursInput.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+  const supabase = await createSupabaseServerClient();
+  const { data: staff } = await supabase
+    .from("staff_members")
+    .select("id")
+    .eq("id", parsed.data.staffId)
+    .eq("business_id", business.id)
+    .maybeSingle();
+  if (!staff) return { ok: false, error: "Profissional não encontrado." };
+  const days = parsed.data.days?.map(({ weekday, is_open, opens_at, closes_at }) => ({
+    weekday,
+    is_open,
+    opens_at,
+    closes_at,
+  }));
+  const { error } = await supabase.rpc("save_staff_hours", {
+    p_staff_member_id: staff.id,
+    p_days: (days ?? null) as never,
+  });
+  if (error) return { ok: false, error: "Não foi possível salvar o horário." };
+  revalidatePath("/painel", "layout");
+  return {
+    ok: true,
+    message: days ? "Horário próprio salvo." : "Agora segue o horário do negócio.",
+  };
 }

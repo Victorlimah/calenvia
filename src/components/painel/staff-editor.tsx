@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,6 +24,8 @@ export type StaffRow = {
   photo_url: string | null;
   is_active: boolean;
   service_ids: string[];
+  /** Tem horário próprio (CAL-036)? */
+  own_hours?: boolean;
 };
 
 export type ServiceOption = { id: string; name: string };
@@ -82,6 +85,7 @@ export function StaffEditor({
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold text-ink">{p.name}</p>
                     {!p.is_active ? <Badge>Desativado</Badge> : null}
+                    {p.own_hours ? <Badge tone="brand">Horário próprio</Badge> : null}
                   </div>
                   <p className="truncate text-sm text-ink-2">
                     {p.role ? `${p.role} · ` : ""}
@@ -92,6 +96,13 @@ export function StaffEditor({
                         : `${p.service_ids.length} serviço(s)`}
                   </p>
                 </div>
+                <Link
+                  href={`/ajustes/profissionais/${p.id}/horario`}
+                  className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 hover:bg-paper-2"
+                  aria-label={`Horário de ${p.name}`}
+                >
+                  Horário
+                </Link>
                 <Button variant="ghost" size="sm" onClick={() => setEditing(p.id)}>
                   Editar
                 </Button>
