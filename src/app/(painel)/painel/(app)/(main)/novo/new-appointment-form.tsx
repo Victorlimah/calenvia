@@ -98,7 +98,7 @@ export function NewAppointmentForm({ services, staff, initial }: Props) {
       });
       if (r.ok && r.data)
         router.push(
-          `/agendamento/${r.data.id}${r.data.needsManualConfirmation ? "?enviar=1" : ""}`,
+          `/agendamento/${r.data.id}?${r.data.needsManualConfirmation ? "enviar=1" : "criado=1"}`,
         );
       else if (!r.ok) setError(r.error);
     });

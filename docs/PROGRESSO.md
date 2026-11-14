@@ -1,8 +1,8 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-067
-- Card em andamento: —
-- Próximo card: CAL-068
+- Card em andamento: CAL-068
+- Próximo card: CAL-071
 - Atualizado em: 2026-11-14 02:39
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
@@ -76,4 +76,4 @@
 - CAL-067: cadastrar os 3 templates na Meta (passo a passo em docs/WHATSAPP.md) depois que a conta do CAL-066 existir.
 
 ## Plano do card atual
-—
+src/lib/whatsapp: client da Cloud API (fetch, sem SDK) com modo mock/live; sendWhatsApp(business, appointment, type) verifica plano (canSendAutomaticMessages), cota do mês (message_usage via increment_message_usage), opt-out do cliente, grava messages (queued→sent/failed) e devolve {sent|fallback wa.me}. Ligar no afterBooking/afterCancel/afterReschedule. Testes unitários com client falso + teste de banco no modo mock.

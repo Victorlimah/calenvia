@@ -22,6 +22,23 @@ Definidos em `src/lib/whatsapp/templates.ts` (fonte única dos textos):
 4. Ou pela API: `POST https://graph.facebook.com/v21.0/{WABA_ID}/message_templates` com o JSON gerado por `toMetaCreatePayload()`.
 5. Quando mudar um texto, crie uma **nova versão** (`_v2`) — templates aprovados não devem ser editados.
 
+## Envio (CAL-068)
+
+Toda mensagem automática passa por `sendWhatsApp()` (`src/lib/whatsapp/send.ts`), chamada pelos
+ganchos de `src/lib/booking/after-booking.ts`:
+
+| Quando | Mensagem |
+|---|---|
+| Cliente agenda pela página / dono cria com "Enviar confirmação" | confirmação |
+| Dono remarca | confirmação (com o novo horário) |
+| Dono cancela | cancelamento |
+
+A ordem das verificações é: agendamento cancelado → plano (`canSendAutomaticMessages`) → opt-out do
+cliente → cota do mês (`quotaState`). Se não puder enviar, ou se a Meta devolver erro, a mensagem
+**não** sai e o resultado traz o link `wa.me` com o texto pronto (plano B). Cada envio grava uma linha
+em `messages` (`queued` → `sent`/`failed`) e só os enviados contam em `message_usage`.
+Erros de envio nunca desfazem o agendamento.
+
 ## Webhook de status
 - URL: `https://calenvia.com.br/api/webhooks/whatsapp`
 - Verify token: o valor de `WHATSAPP_WEBHOOK_VERIFY_TOKEN`.

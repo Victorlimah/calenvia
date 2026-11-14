@@ -34,10 +34,10 @@ export default async function AgendamentoPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ enviar?: string }>;
+  searchParams: Promise<{ enviar?: string; criado?: string }>;
 }) {
   const { id } = await params;
-  const { enviar } = await searchParams;
+  const { enviar, criado } = await searchParams;
   const business = await requireReadyBusiness();
   const supabase = await createSupabaseServerClient();
   const { data: a } = await supabase
@@ -117,6 +117,12 @@ export default async function AgendamentoPage({
       {enviar && !confirmationSent && status === "confirmed" ? (
         <Alert tone="info" title="Agendamento criado">
           Toque em “Enviar confirmação no WhatsApp” para mandar a mensagem pronta ao cliente.
+        </Alert>
+      ) : criado ? (
+        <Alert tone="success" title="Agendamento criado">
+          {confirmationSent
+            ? "A confirmação foi enviada automaticamente para o WhatsApp do cliente."
+            : "O horário já está na sua agenda."}
         </Alert>
       ) : null}
 

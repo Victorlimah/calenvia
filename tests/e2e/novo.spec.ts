@@ -26,10 +26,14 @@ test("novo agendamento manual com cliente novo e depois com cliente existente", 
   await page.getByLabel("WhatsApp do cliente").fill("85933330001");
   await page.getByLabel("Observações (opcional)").fill("Cliente prefere máquina 2");
   await page.getByRole("button", { name: "Agendar", exact: true }).click();
-  await expect(page).toHaveURL(/\/agendamento\/.+\?enviar=1/);
+  // Barbearia do Zé é Pro: a confirmação sai automática (modo mock), sem ?enviar=1
+  await expect(page).toHaveURL(/\/agendamento\/.+\?criado=1/);
   await expect(page.getByRole("heading", { name: "Manual Teste" })).toBeVisible();
   await expect(page.getByText("Cliente prefere máquina 2")).toBeVisible();
   await expect(page.getByText("Agendamento criado")).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Mensagens" }).getByText("Confirmação · automática"),
+  ).toBeVisible();
 
   // cliente existente pela busca
   await page.goto(`/novo?data=${day}`);
