@@ -65,6 +65,7 @@
 - Motor de horários: os intervalos do negócio (almoço) valem para todos os profissionais, mesmo os com horário próprio. Dia com horário mas sem nenhum livre = status 'full' (além de closed/past/too_far/no_staff).
 - src/lib/plans.ts criado já no Sprint 4 (a página pública precisa de canSendAutomaticMessages/canManageByLink). plan_status 'pending' (sem gateway ainda) conta como ativo; 'suspended'/'canceled' fecham a agenda pública.
 - Página pública: 'Dúvidas' geradas automaticamente pelas regras do negócio (antecedência, cancelamento, confirmação conforme o plano). Seções sem conteúdo (fotos, depoimentos) não aparecem. Único link fora do CTA: 'Ver no mapa'.
+- CAL-066 (conta Meta) é fora do código: pulado. Todo o WhatsApp fica pronto no modo mock (WHATSAPP_MODE=mock) e com o cliente da Cloud API para o modo live.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
