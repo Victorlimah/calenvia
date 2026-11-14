@@ -62,7 +62,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 
 ### Sprint 6 — WhatsApp
 - [ ] **CAL-066** · Conta Meta Business e número da Calenvia · P0 · 2d **(fora do código)** — Verificação na Meta pode levar dias. O Claude Code pode guiar e usar o MCP da Meta para configurar.
-- [ ] **CAL-067** · Templates de mensagem · P0 · 1d — Confirmação, lembrete e cancelamento (categoria utilidade). Textos versionados no código.
+- [x] **CAL-067** · Templates de mensagem · P0 · 1d — Confirmação, lembrete e cancelamento (categoria utilidade). Textos versionados no código.
 - [ ] **CAL-068** · Envio da confirmação ao agendar · P0 · 2d — `sendWhatsApp()` com modo `mock` e `live`, gravação em `messages`.
 - [ ] **CAL-071** · Contador de mensagens e limites por plano · P0 · 1,5d — `message_usage` por mês, 300 no Pro, uso justo no Pro+, aviso ao dono perto do limite.
 - [ ] **CAL-069** · Lembrete automático · P0 · 2d — Vercel Cron a cada 10 min, sem duplicar, ignora cancelados.

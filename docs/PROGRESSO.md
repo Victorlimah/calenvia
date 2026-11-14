@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-059
-- Card em andamento: CAL-067
+- Último card concluído: CAL-067
+- Card em andamento: —
 - Próximo card: CAL-068
-- Atualizado em: 2026-11-14 02:23
+- Atualizado em: 2026-11-14 02:39
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -44,6 +44,7 @@
 | CAL-057 | Concluído | bac15d0 | /agendamento/[id]: dados completos, histórico de mensagens; Concluído/Faltou (com desfazer; concluído atualiza última visita do cliente), Remarcar (escolhe dia/profissional e horário livre calculado pelo motor ignorando o próprio agendamento), Cancelar com confirmação, Chamar no WhatsApp, Enviar confirmação (plano B). Lógica de remarcação em src/lib/booking/reschedule.ts (reusada no CAL-052) | npm run test:e2e (detalhe.spec.ts) |
 | CAL-058 | Concluído | 97bc0c4 | /novo: serviço, profissional (sem preferência), dia, só horários livres (motor, sem antecedência mínima), cliente existente pela busca (nome ou telefone) ou novo, observações, opção 'Enviar confirmação' (sem envio automático, abre o detalhe com o aviso para mandar pelo wa.me); pré-preenche data/hora/profissional vindos da agenda | npm run test:e2e (novo.spec.ts) |
 | CAL-059 | Concluído | 13c721b | /bloquear: profissional ou todos, período com hora ou dia inteiro (vários dias), motivo; aviso quando há agendamentos no período; lista de próximos bloqueios com remover; botão Bloquear na agenda | npm run test:e2e (bloquear.spec.ts) |
+| CAL-067 | Concluído | 24b17c6 | src/lib/whatsapp/templates.ts: confirmação, lembrete e cancelamento (UTILITY, pt_BR, exemplos, regras da Meta testadas, payload de cadastro); textos da prévia/wa.me gerados do mesmo corpo; docs/WHATSAPP.md | npm test (whatsapp/templates.test.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -75,4 +76,4 @@
 - CAL-067: cadastrar os 3 templates na Meta (passo a passo em docs/WHATSAPP.md) depois que a conta do CAL-066 existir.
 
 ## Plano do card atual
-CAL-066 é fora do código (pulado). CAL-067: textos já versionados em src/lib/messages/templates.ts; adicionar definição dos 3 templates de utilidade no formato da Meta (nome, idioma pt_BR, categoria UTILITY, corpo com {{1}}…{{n}} e exemplos) em src/lib/whatsapp/templates.ts + docs/WHATSAPP.md com o passo a passo para cadastrar; teste que garante que o corpo com variáveis substituídas é igual ao texto usado na prévia.
+—
