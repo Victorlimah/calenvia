@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { admin, cleanupCustomer, loginAsZe, ZE_BIZ } from "./helpers";
+import { admin, cleanupCustomer, loginAsZe, ZE_BIZ, seededDay } from "./helpers";
 
 // Barbearia do Zé é Pro (300 mensagens/mês), fuso de Fortaleza.
 const PERIOD = new Intl.DateTimeFormat("en-CA", {
@@ -61,7 +61,8 @@ test("cota esgotada: agendamento manual continua e a confirmação vai pelo wa.m
   await loginAsZe(page, "/");
   await expect(page.getByText("As mensagens automáticas do mês acabaram")).toBeVisible();
 
-  await page.goto("/novo");
+  // Dia com o negócio aberto (hoje pode já ter fechado, ex.: sábado à noite).
+  await page.goto(`/novo?data=${await seededDay()}`);
   await page.getByLabel("Serviço").selectOption({ label: "Pezinho · 15 min · R$ 15,00" });
   const slots = page.getByRole("list", { name: "Horários livres" }).getByRole("button");
   await expect(slots.first()).toBeVisible();

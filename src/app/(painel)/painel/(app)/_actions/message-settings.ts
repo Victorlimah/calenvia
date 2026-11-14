@@ -19,12 +19,12 @@ const settingsInput = z.object({
 
 /**
  * Salva os ajustes de mensagens automáticas (CAL-111). Só quem pode mexer nos ajustes do
- * negócio (hoje o dono; o gerente entra com o CAL-112) e só em plano com envio automático.
+ * negócio (dono ou gerente, CAL-112) e só em plano com envio automático.
  * A tabela não aceita escrita direta do navegador: este é o único caminho.
  */
 export async function saveMessageSettingsAction(raw: unknown): Promise<ActionResult> {
   const user = await requireUser();
-  const business = await requireBusinessFor("settings.manage"); // dono do negócio (RLS)
+  const business = await requireBusinessFor("settings.manage");
   if (!canSendAutomaticMessages(business)) {
     return { ok: false, error: "Mensagens automáticas estão disponíveis no plano Pro." };
   }

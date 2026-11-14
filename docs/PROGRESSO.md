@@ -1,14 +1,15 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-111
-- Card em andamento: CAL-112 (planejamento)
-- Próximo card: CAL-112
-- Atualizado em: 2026-11-14 12:27
+- Último card concluído: CAL-112
+- Card em andamento: nenhum
+- Próximo card: nenhum desbloqueado (restam CAL-075 e dependentes, CAL-066/108, CAL-022)
+- Atualizado em: 2026-11-14 19:30
 ## Próxima sessão
-- **CAL-112 (Equipe com acessos e papéis)**: plano em `docs/planos/CAL-112.md`, 6 fases, uma por sessão.
-- **Antes da fase 1**, o Victor precisa responder as 4 decisões listadas no plano (limite de membros, o que esconder, convite só por link, recepção vê clientes). Registrar as respostas no plano.
-- Depois do CAL-112: `saveMessageSettingsAction` (CAL-111) passa a aceitar o gerente.
-- Bloqueios continuam os mesmos (seção "Bloqueios"): CAL-075, CAL-066/108, CAL-022.
+- CAL-112 concluído. Todo card restante depende do Victor (seção "Bloqueios"): CAL-075 (gateway) e dependentes, CAL-066/108 (Meta), CAL-022 (deploy).
+- E2E: rode contra o build de produção (`npm run build && npx next start -p 3000`, depois `npm run test:e2e`). No modo dev há falhas de tempo de compilação. Contra o build: 80/80.
+- Papéis: matriz em `src/lib/permissions.ts`, espelhada em `public.has_perm()` (migration `20261114002300_team.sql`). Mudou uma, mude a outra; `tests/db/team.test.ts` e `src/lib/permissions.test.ts` conferem.
+- Valores: ninguém lê `appointments.price_cents` pela API; use `loadAppointmentPrices()` (só `finance.view`) e `APPOINTMENT_COLUMNS` no lugar de `select("*")`.
+
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -93,6 +94,7 @@
 | CAL-110 | Concluído | 349d83b | docs/APP-NATIVO.md: manter PWA; gatilhos para reavaliar; caminho Capacitor | — |
 | CAL-048 (correção) | Concluído | 65ece26 | Passo de horários busca por GET /api/disponibilidade (server action podia ficar pendente para sempre com a URL mudando); sem busca duplicada; grade do dia anterior desabilitada enquanto carrega | npm run test:e2e (agendar, jornada, gerenciar) |
 | CAL-111 | Concluído | 45ffa37 | business_message_settings (escrita só pelo servidor, confere papel e plano), appointments.messages_enabled, messages 'skipped' + skip_reason; decideSend (plano → negócio → agendamento → opt-out → cota) sem gastar cota; cron por antecedência (24 h/2 h); Ajustes › Mensagens automáticas; opção por agendamento; menu de Ajustes reescrito em grupos (itens faltando) com E2E | npm test (message-settings.test.ts, reminders.test.ts); npm run test:db (whatsapp, reminders, rls); npm run test:e2e (mensagens-automaticas, menu-ajustes) |
+| CAL-112 | Concluído | fa45d33 | Equipe com papéis (dono, gerente, recepção, profissional): business_members/business_invitations, RLS por has_perm, price_cents só por appointment_prices(), permissions.ts, seletor de negócio, Ajustes › Equipe, /convite/{token}, Meus horários, "Criado por" | npm run test:db (team.test.ts); npm run test:e2e (equipe.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.

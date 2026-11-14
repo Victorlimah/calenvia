@@ -243,8 +243,11 @@ grant select (id, business_id, email, role, staff_member_id, expires_at, accepte
 -- businesses: membros leem; ajustes do negócio com settings.manage (colunas já limitadas por grant).
 drop policy businesses_owner_select on public.businesses;
 drop policy businesses_owner_update on public.businesses;
+-- owner_id também, para o INSERT ... RETURNING do onboarding (o membro owner nasce no trigger
+-- AFTER INSERT, depois do RETURNING).
 create policy businesses_member_select on public.businesses
-  for select to authenticated using ((select public.is_member(id)));
+  for select to authenticated
+  using (owner_id = (select auth.uid()) or (select public.is_member(id)));
 create policy businesses_settings_update on public.businesses
   for update to authenticated
   using ((select public.has_perm(id, 'settings.manage')))
