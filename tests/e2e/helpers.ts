@@ -69,3 +69,44 @@ export async function seededDay(): Promise<string> {
     new Date(data!.starts_at),
   );
 }
+
+/** Cria um agendamento de teste (via banco) num dia livre da barbearia, daqui a ~10 dias. */
+export async function createTestAppointment(phone: string, time = "10:00") {
+  const tz = "America/Fortaleza";
+  const fmt = new Intl.DateTimeFormat("en-CA", { timeZone: tz });
+  const base = new Date(Date.now() + 10 * 86400000);
+  // quarta-feira mais próxima (aberta, sem seed)
+  while (
+    new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "short" }).format(base) !== "Wed"
+  ) {
+    base.setTime(base.getTime() + 86400000);
+  }
+  const day = fmt.format(base);
+  const start = new Date(`${day}T${time}:00-03:00`);
+  const { data: customer } = await admin
+    .from("customers")
+    .upsert(
+      { business_id: ZE_BIZ, whatsapp: phone, name: "Cliente Detalhe" },
+      { onConflict: "business_id,whatsapp" },
+    )
+    .select("id")
+    .single();
+  const { data, error } = await admin
+    .from("appointments")
+    .insert({
+      business_id: ZE_BIZ,
+      customer_id: customer!.id,
+      service_id: "0c000000-0000-4000-8000-000000000001",
+      staff_member_id: "0d000000-0000-4000-8000-000000000001",
+      starts_at: start.toISOString(),
+      ends_at: new Date(start.getTime() + 30 * 60000).toISOString(),
+      price_cents: 4000,
+      customer_name: "Cliente Detalhe",
+      customer_whatsapp: phone,
+      source: "manual",
+    })
+    .select("id, manage_code")
+    .single();
+  if (error) throw error;
+  return { id: data!.id, code: data!.manage_code, day };
+}
