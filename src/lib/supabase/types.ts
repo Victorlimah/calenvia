@@ -91,6 +91,13 @@ export type Database = {
             foreignKeyName: "appointments_customer_id_business_id_fkey";
             columns: ["customer_id", "business_id"];
             isOneToOne: false;
+            referencedRelation: "customer_summaries";
+            referencedColumns: ["id", "business_id"];
+          },
+          {
+            foreignKeyName: "appointments_customer_id_business_id_fkey";
+            columns: ["customer_id", "business_id"];
+            isOneToOne: false;
             referencedRelation: "customers";
             referencedColumns: ["id", "business_id"];
           },
@@ -763,7 +770,32 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      customer_summaries: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          id: string;
+          last_appointment_at: string | null;
+          last_visit_at: string | null;
+          name: string;
+          no_shows: number | null;
+          opted_out_at: string | null;
+          total_spent_cents: number | null;
+          upcoming: number | null;
+          visits: number | null;
+          whatsapp: string;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: "customers_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
       consume_message_quota: {

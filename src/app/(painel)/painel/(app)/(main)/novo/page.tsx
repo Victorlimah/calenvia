@@ -9,7 +9,9 @@ import { NewAppointmentForm } from "./new-appointment-form";
 
 export const metadata: Metadata = { title: "Novo agendamento — Calenvia" };
 
-type Props = { searchParams: Promise<{ data?: string; hora?: string; profissional?: string }> };
+type Props = {
+  searchParams: Promise<{ data?: string; hora?: string; profissional?: string; cliente?: string }>;
+};
 
 export default async function NovoPage({ searchParams }: Props) {
   const business = await requireReadyBusiness();
@@ -19,6 +21,15 @@ export default async function NovoPage({ searchParams }: Props) {
     loadServices(supabase, business.id),
     loadStaff(supabase, business.id),
   ]);
+  const { data: preselected } =
+    sp.cliente && /^[0-9a-f-]{36}$/i.test(sp.cliente)
+      ? await supabase
+          .from("customers")
+          .select("id, name, whatsapp")
+          .eq("id", sp.cliente)
+          .eq("business_id", business.id)
+          .maybeSingle()
+      : { data: null };
   const activeServices = services.filter((s) => s.is_active);
   const activeStaff = staff.filter((s) => s.is_active);
   const date = sp.data && isLocalDate(sp.data) ? sp.data : todayIn(business.timezone);
@@ -41,7 +52,12 @@ export default async function NovoPage({ searchParams }: Props) {
             price_cents: s.price_cents,
           }))}
           staff={activeStaff.map((s) => ({ id: s.id, name: s.name, serviceIds: s.service_ids }))}
-          initial={{ date, time: sp.hora ?? null, staffId: sp.profissional ?? null }}
+          initial={{
+            date,
+            time: sp.hora ?? null,
+            staffId: sp.profissional ?? null,
+            customer: preselected,
+          }}
         />
       )}
     </PageBody>

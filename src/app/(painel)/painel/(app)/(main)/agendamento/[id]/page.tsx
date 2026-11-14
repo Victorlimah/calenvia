@@ -4,7 +4,7 @@ import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { SendWhatsAppButton } from "@/components/painel/send-whatsapp-button";
 import { Alert, Badge, Card } from "@/components/ui";
 import { STATUS_LABELS, STATUS_TONES } from "@/lib/agenda/status";
-import { CustomerMessages } from "./customer-messages";
+import { CustomerMessages } from "@/components/painel/customer-messages";
 import { RealtimeRefresh } from "@/components/painel/agenda/realtime-refresh";
 import { requireReadyBusiness } from "@/lib/business/current";
 import { formatDate, formatDayLabel, formatDuration, formatTime, toLocalDate } from "@/lib/dates";

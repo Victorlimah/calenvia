@@ -18,7 +18,12 @@ type Props = {
   timezone: string;
   services: { id: string; name: string; duration_min: number; price_cents: number }[];
   staff: { id: string; name: string; serviceIds: string[] }[];
-  initial: { date: string; time: string | null; staffId: string | null };
+  initial: {
+    date: string;
+    time: string | null;
+    staffId: string | null;
+    customer?: CustomerHit | null;
+  };
 };
 
 export function NewAppointmentForm({ services, staff, initial }: Props) {
@@ -35,7 +40,7 @@ export function NewAppointmentForm({ services, staff, initial }: Props) {
   const [slots, setSlots] = useState<{ time: string; start: string }[] | null>(null);
   const [start, setStart] = useState<string | null>(null);
   const [wantedTime, setWantedTime] = useState<string | null>(initial.time);
-  const [customer, setCustomer] = useState<CustomerHit | null>(null);
+  const [customer, setCustomer] = useState<CustomerHit | null>(initial.customer ?? null);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<CustomerHit[]>([]);
   const [newName, setNewName] = useState("");

@@ -160,6 +160,25 @@ describe("RLS: dono só vê o próprio negócio", () => {
   });
 });
 
+describe("Lista de clientes (CAL-063)", () => {
+  it("customer_summaries só mostra os clientes do próprio negócio, com os números", async () => {
+    await db.query(
+      `update public.appointments set status = 'completed', price_cents = 5000 where business_id = $1`,
+      [BIZ_A],
+    );
+    await actAs(db, OWNER_A);
+    const { rows } = await db.query(
+      `select business_id, visits, no_shows, total_spent_cents from public.customer_summaries`,
+    );
+    expect(rows).toEqual([{ business_id: BIZ_A, visits: 1, no_shows: 0, total_spent_cents: 5000 }]);
+  });
+
+  it("visitante anônimo não lê a lista", async () => {
+    await actAs(db, null);
+    await expectDenied(`select * from public.customer_summaries`);
+  });
+});
+
 describe("RLS: visitante anônimo", () => {
   it.each(["businesses", ...TENANT_TABLES])("não lê %s", async (table) => {
     await actAs(db, null);

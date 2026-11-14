@@ -86,7 +86,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-036** · Horário próprio por profissional · P1 · 1d — Opcional, sobrescreve o do negócio.
 - [x] **CAL-060** · Atualização em tempo real · P1 · 1d — Supabase Realtime na agenda.
 - [x] **CAL-061** · Resumo do dia · P1 · 0,5d — Agendamentos, horários livres e faturamento previsto.
-- [ ] **CAL-063** · Lista de clientes · P1 · 1,5d — Visitas, faltas, última visita, total gasto, busca.
+- [x] **CAL-063** · Lista de clientes · P1 · 1,5d — Visitas, faltas, última visita, total gasto, busca.
 - [ ] **CAL-053** · Acessibilidade e performance · P1 · 1d — Lighthouse ≥ 90 no celular.
 - [ ] **CAL-029** · Monitoramento de erros · P1 · 0,5d — Sentry ou similar.
 - [ ] **CAL-085** · Métricas de uso · P1 · 1d — Visita, cadastro, primeiro serviço, primeiro agendamento, assinatura.

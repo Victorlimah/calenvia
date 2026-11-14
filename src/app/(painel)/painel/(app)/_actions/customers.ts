@@ -30,3 +30,26 @@ export async function setCustomerMessagesAction(raw: unknown): Promise<ActionRes
       : "Este cliente não vai mais receber mensagens automáticas.",
   };
 }
+
+const renameInput = z.object({
+  customerId: z.string().uuid(),
+  name: z.string().trim().min(2, "Informe o nome.").max(80),
+});
+
+export async function renameCustomerAction(raw: unknown): Promise<ActionResult> {
+  const business = await requireBusiness();
+  const parsed = renameInput.safeParse(raw);
+  if (!parsed.success)
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Nome inválido." };
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("customers")
+    .update({ name: parsed.data.name })
+    .eq("id", parsed.data.customerId)
+    .eq("business_id", business.id)
+    .select("id")
+    .maybeSingle();
+  if (error || !data) return { ok: false, error: "Não foi possível salvar." };
+  revalidatePath("/painel", "layout");
+  return { ok: true, message: "Nome salvo." };
+}
