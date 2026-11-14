@@ -1,6 +1,7 @@
 /**
  * Toda mensagem automática passa por aqui (CLAUDE.md §5): plano, cota do mês, opt-out,
- * envio pelo template aprovado, registro em `messages` e contagem em `message_usage`.
+ * envio pelo template aprovado, registro em `messages` e contagem em `message_usage`
+ * (reservada antes do envio e devolvida se falhar).
  * Sem envio automático, devolve o link wa.me com o texto pronto (plano B).
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -14,7 +15,12 @@ import {
   type MessageVars,
 } from "@/lib/messages/templates";
 import { waMeLink } from "@/lib/phone";
-import { canManageByLink, canSendAutomaticMessages, quotaState } from "@/lib/plans";
+import {
+  canManageByLink,
+  canSendAutomaticMessages,
+  monthlyMessageLimit,
+  quotaState,
+} from "@/lib/plans";
 import { isPgError, PG_UNIQUE_VIOLATION } from "@/lib/supabase/errors";
 import type { Database } from "@/lib/supabase/types";
 import { WHATSAPP_TEMPLATES, type TemplateKind } from "./templates";
@@ -134,6 +140,17 @@ export async function sendWhatsApp(
     };
   }
 
+  // Reserva atômica da cota (última barreira contra envios simultâneos).
+  const { data: reserved, error: quotaError } = await db.rpc("consume_message_quota", {
+    p_business_id: business.id,
+    p_period: period,
+    p_limit: monthlyMessageLimit(business),
+  });
+  if (quotaError) return { status: "failed", error: quotaError.message, fallbackUrl };
+  if (reserved == null) return { status: "skipped", reason: "quota", fallbackUrl };
+  const release = () =>
+    db.rpc("release_message_quota", { p_business_id: business.id, p_period: period });
+
   const { data: row, error: insertError } = await db
     .from("messages")
     .insert({
@@ -147,6 +164,7 @@ export async function sendWhatsApp(
     .select("id")
     .single();
   if (insertError || !row) {
+    await release();
     if (isPgError(insertError, PG_UNIQUE_VIOLATION))
       return { status: "skipped", reason: "duplicate", fallbackUrl };
     return { status: "failed", error: insertError?.message ?? "insert", fallbackUrl };
@@ -166,7 +184,6 @@ export async function sendWhatsApp(
         sent_at: now.toISOString(),
       })
       .eq("id", row.id);
-    await db.rpc("increment_message_usage", { p_business_id: business.id, p_period: period });
     return { status: "sent", messageId: row.id };
   } catch (e) {
     const error = e instanceof Error ? e.message : String(e);
@@ -174,6 +191,7 @@ export async function sendWhatsApp(
       .from("messages")
       .update({ status: "failed", error: error.slice(0, 500) })
       .eq("id", row.id);
+    await release();
     return { status: "failed", error, fallbackUrl };
   }
 }

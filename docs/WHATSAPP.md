@@ -39,6 +39,15 @@ cliente → cota do mês (`quotaState`). Se não puder enviar, ou se a Meta devo
 em `messages` (`queued` → `sent`/`failed`) e só os enviados contam em `message_usage`.
 Erros de envio nunca desfazem o agendamento.
 
+## Cota mensal (CAL-071)
+
+- Limites em `src/lib/plans.ts`: Pro 300/mês, Pro+ uso justo (padrão 800, ou `businesses.message_limit_override`).
+- O mês é contado no fuso do negócio (`message_usage.period` = `YYYY-MM`).
+- `consume_message_quota()` reserva 1 mensagem de forma atômica antes do envio (dois envios
+  simultâneos nunca passam do limite); `release_message_quota()` devolve se o envio falhar.
+- A partir de 80% da cota, a agenda mostra um aviso; ao esgotar, o aviso muda e a confirmação volta
+  a ser pelo `wa.me` até o 1º dia do mês seguinte. `/assinatura` mostra o uso do mês.
+
 ## Webhook de status
 - URL: `https://calenvia.com.br/api/webhooks/whatsapp`
 - Verify token: o valor de `WHATSAPP_WEBHOOK_VERIFY_TOKEN`.

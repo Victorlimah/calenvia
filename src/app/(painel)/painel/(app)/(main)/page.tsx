@@ -19,6 +19,9 @@ import { StaffChips } from "@/components/painel/agenda/staff-chips";
 import { WeekView } from "@/components/painel/agenda/week-view";
 import { formatPrice } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { QuotaAlert } from "@/components/painel/quota";
+import { canSendAutomaticMessages } from "@/lib/plans";
+import { getMonthQuota } from "@/lib/whatsapp/quota";
 
 export const metadata: Metadata = { title: "Agenda — Calenvia" };
 
@@ -58,6 +61,8 @@ export default async function AgendaPage({ searchParams }: Props) {
       ).filter((a) => !staffId || a.staffId === staffId)
     : [];
 
+  const quota = canSendAutomaticMessages(business) ? await getMonthQuota(supabase, business) : null;
+
   return (
     <main className="mx-auto w-full max-w-2xl space-y-5 px-4 pt-6 pb-10 md:pt-10">
       <header className="flex items-start justify-between gap-3">
@@ -79,6 +84,8 @@ export default async function AgendaPage({ searchParams }: Props) {
           </Link>
         </div>
       </header>
+
+      <QuotaAlert notice={quota?.notice ?? null} />
 
       <nav aria-label="Navegar entre dias" className="flex items-center gap-2">
         <Link

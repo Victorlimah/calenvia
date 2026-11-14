@@ -5,7 +5,7 @@ import { formatDayLabel, formatDuration, formatTime } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
 import { confirmationText } from "@/lib/messages/templates";
 import { canManageByLink, canSendAutomaticMessages } from "@/lib/plans";
-import { getPublicAppointment, manageLinkFor } from "@/lib/public/appointment";
+import { confirmationWasSent, getPublicAppointment, manageLinkFor } from "@/lib/public/appointment";
 import { getPublicBusiness } from "@/lib/public/business";
 import { formatPhone } from "@/lib/phone";
 
@@ -22,7 +22,8 @@ export default async function ConfirmadoPage({ params }: Props) {
 
   const tz = business.timezone;
   const when = `${formatDayLabel(appt.start, tz)} às ${formatTime(appt.start, tz)}`;
-  const automatic = canSendAutomaticMessages(business);
+  // Plano com envio automático e a mensagem realmente saiu (sem cota, cai no wa.me do dono).
+  const automatic = canSendAutomaticMessages(business) && (await confirmationWasSent(appt.id));
   const message = confirmationText({
     customerName: appt.customerName,
     businessName: business.name,

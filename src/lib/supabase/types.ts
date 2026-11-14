@@ -763,6 +763,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      consume_message_quota: {
+        Args: { p_business_id: string; p_limit: number; p_period: string };
+        Returns: number;
+      };
       gen_manage_code: { Args: Record<PropertyKey, never>; Returns: string };
       increment_message_usage: {
         Args: { p_business_id: string; p_period: string };
@@ -770,6 +774,10 @@ export type Database = {
       };
       is_business_owner: { Args: { p_business_id: string }; Returns: boolean };
       owns_media_path: { Args: { p_name: string }; Returns: boolean };
+      release_message_quota: {
+        Args: { p_business_id: string; p_period: string };
+        Returns: undefined;
+      };
       save_business_hours: { Args: { p_business_id: string; p_days: Json }; Returns: undefined };
       set_staff_services: {
         Args: { p_service_ids: string[]; p_staff_member_id: string };

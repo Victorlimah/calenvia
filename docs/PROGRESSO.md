@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-067
-- Card em andamento: CAL-068
-- Próximo card: CAL-071
-- Atualizado em: 2026-11-14 02:39
+- Último card concluído: CAL-068
+- Card em andamento: CAL-071
+- Próximo card: CAL-069
+- Atualizado em: 2026-11-14 05:40
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -45,6 +45,7 @@
 | CAL-058 | Concluído | 97bc0c4 | /novo: serviço, profissional (sem preferência), dia, só horários livres (motor, sem antecedência mínima), cliente existente pela busca (nome ou telefone) ou novo, observações, opção 'Enviar confirmação' (sem envio automático, abre o detalhe com o aviso para mandar pelo wa.me); pré-preenche data/hora/profissional vindos da agenda | npm run test:e2e (novo.spec.ts) |
 | CAL-059 | Concluído | 13c721b | /bloquear: profissional ou todos, período com hora ou dia inteiro (vários dias), motivo; aviso quando há agendamentos no período; lista de próximos bloqueios com remover; botão Bloquear na agenda | npm run test:e2e (bloquear.spec.ts) |
 | CAL-067 | Concluído | 24b17c6 | src/lib/whatsapp/templates.ts: confirmação, lembrete e cancelamento (UTILITY, pt_BR, exemplos, regras da Meta testadas, payload de cadastro); textos da prévia/wa.me gerados do mesmo corpo; docs/WHATSAPP.md | npm test (whatsapp/templates.test.ts) |
+| CAL-068 | Concluído | fca40f1 | src/lib/whatsapp: transporte mock/live (Graph API via fetch, sem SDK; sem credenciais cai no mock), sendWhatsApp (skipReason puro: cancelado → plano → opt-out → cota; grava messages queued→sent/failed; conta message_usage só quando enviado; devolve wa.me como plano B). Ganchos: confirmação ao agendar (página e manual) e ao remarcar, aviso ao cancelar. Detalhe mostra "Agendamento criado" com a confirmação automática | npm test (whatsapp/send.test.ts, transport.test.ts); npm run test:db (whatsapp.test.ts); agendar em barbearia-do-ze.localhost:3000 e ver a mensagem no log do servidor e no detalhe do painel |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -68,6 +69,8 @@
 - Página pública: 'Dúvidas' geradas automaticamente pelas regras do negócio (antecedência, cancelamento, confirmação conforme o plano). Seções sem conteúdo (fotos, depoimentos) não aparecem. Único link fora do CTA: 'Ver no mapa'.
 - CAL-066 (conta Meta) é fora do código: pulado. Todo o WhatsApp fica pronto no modo mock (WHATSAPP_MODE=mock) e com o cliente da Cloud API para o modo live.
 - Templates do WhatsApp: a Meta não aceita corpo terminando em variável, então os textos ganharam uma linha final ('Até lá!', 'Te esperamos!', 'Obrigado!'). O texto da prévia/wa.me é gerado a partir do mesmo corpo do template (fonte única).
+
+- Remarcar reenvia a confirmação (com o novo horário); cancelar pelo painel envia o template de cancelamento. Erros de envio só vão para o log, nunca desfazem o agendamento.
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.

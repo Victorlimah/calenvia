@@ -105,7 +105,7 @@ afterAll(cleanup);
 const send = (transport: Transport, b = business, type = "confirmation" as const) =>
   sendWhatsApp({ db, transport, now: NOW }, { business: b, appointmentId, type });
 
-describe("sendWhatsApp no banco (CAL-068)", () => {
+describe("sendWhatsApp no banco (CAL-068 / CAL-071)", () => {
   it("Pro: envia o template, grava em messages e conta no mês", async () => {
     const { transport, sent } = fakeTransport();
     const r = await send(transport);
@@ -184,5 +184,33 @@ describe("sendWhatsApp no banco (CAL-068)", () => {
     );
     expect(r.status).toBe("sent");
     expect(sent.map((s) => s.kind)).toEqual(["cancellation"]);
+  });
+
+  it("corrida: com 1 mensagem restante, dois envios simultâneos só deixam sair um", async () => {
+    await db.from("message_usage").insert({ business_id: BIZ, period: PERIOD, count: 299 });
+    const { transport, sent } = fakeTransport();
+    const results = await Promise.all([
+      send(transport),
+      sendWhatsApp({ db, transport, now: NOW }, { business, appointmentId, type: "reminder" }),
+    ]);
+    expect(results.map((r) => r.status).sort()).toEqual(["sent", "skipped"]);
+    expect(sent).toHaveLength(1);
+    expect(await usage()).toBe(300);
+  });
+
+  it("a reserva de cota só pode ser chamada pelo servidor", async () => {
+    const anon = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321",
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
+      { auth: { persistSession: false } },
+    );
+    const { error } = await anon.rpc("consume_message_quota", {
+      p_business_id: BIZ,
+      p_period: PERIOD,
+      p_limit: 1000,
+    });
+    expect(error).not.toBeNull();
+    expect(await usage()).toBe(0);
   });
 });

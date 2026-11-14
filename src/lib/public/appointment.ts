@@ -63,3 +63,15 @@ export function manageLinkFor(
     ? businessUrl(business.slug, `/gerenciar/${code}`)
     : businessUrl(business.slug, "/");
 }
+
+/** A confirmação automática saiu para este agendamento? (sem cota/erro → não) */
+export async function confirmationWasSent(appointmentId: string): Promise<boolean> {
+  const { count } = await createSupabaseAdminClient()
+    .from("messages")
+    .select("id", { count: "exact", head: true })
+    .eq("appointment_id", appointmentId)
+    .eq("type", "confirmation")
+    .neq("template", "wa.me")
+    .in("status", ["sent", "delivered", "read"]);
+  return (count ?? 0) > 0;
+}
