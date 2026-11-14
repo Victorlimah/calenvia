@@ -30,7 +30,8 @@ const NAV = [
     href: "/ajustes",
     label: "Ajustes",
     icon: GearIcon,
-    match: (p: string) => p.startsWith("/ajustes") || p.startsWith("/assinatura"),
+    match: (p: string) =>
+      p.startsWith("/ajustes") || p.startsWith("/assinatura") || p.startsWith("/relatorios"),
   },
 ];
 

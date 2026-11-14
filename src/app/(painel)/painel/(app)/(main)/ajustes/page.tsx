@@ -33,6 +33,11 @@ const ITEMS = [
   },
   { href: "/ajustes/aparencia", title: "Aparência da página", desc: "Logo, capa, cor e textos" },
   {
+    href: "/relatorios",
+    title: "Relatórios",
+    desc: "Faturamento, faltas e melhores clientes (Pro+)",
+  },
+  {
     href: "/ajustes/dominio",
     title: "Domínio próprio",
     desc: "Sua página no seu endereço (Pro+)",

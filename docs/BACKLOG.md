@@ -108,7 +108,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 
 ## M4 · Evolução
 - [x] **CAL-099** · Domínio próprio (Pro+) · P2 · 3d — Tabela `custom_domains`, API da Vercel, SSL, middleware.
-- [ ] **CAL-100** · Relatórios de faturamento e faltas (Pro+) · P2 · 3d
+- [x] **CAL-100** · Relatórios de faturamento e faltas (Pro+) · P2 · 3d
 - [ ] **CAL-074** · Editor de mensagens por negócio · P2 · 2d
 - [ ] **CAL-101** · Suporte prioritário (Pro+) · P2 · 0,5d
 - [ ] **CAL-102** · Controle financeiro simples · P3 · 4d
