@@ -1,0 +1,8 @@
+.next
+node_modules
+coverage
+supabase/.temp
+docs/referencias
+package-lock.json
+CLAUDE.md
+docs
