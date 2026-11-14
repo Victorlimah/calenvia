@@ -5,6 +5,8 @@ import { invalid, type ActionResult } from "@/lib/action-result";
 import { requireUser } from "@/lib/auth/session";
 import { getCurrentBusiness, requireBusiness } from "@/lib/business/current";
 import { checkSlugAvailability, type SlugCheck } from "@/lib/business/slug-availability";
+import { parsePlanParam } from "@/lib/plan-param";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPgError, PG_UNIQUE_VIOLATION } from "@/lib/supabase/errors";
 import { agendaRulesSchema, businessInfoSchema, weekHoursSchema } from "@/lib/validation/business";
@@ -27,9 +29,18 @@ export async function saveBusinessInfoAction(input: unknown): Promise<ActionResu
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = current
-    ? await supabase.from("businesses").update(parsed.data).eq("id", current.id)
-    : await supabase.from("businesses").insert({ ...parsed.data, owner_id: user.id });
+  const { data: saved, error } = current
+    ? await supabase
+        .from("businesses")
+        .update(parsed.data)
+        .eq("id", current.id)
+        .select("id")
+        .single()
+    : await supabase
+        .from("businesses")
+        .insert({ ...parsed.data, owner_id: user.id })
+        .select("id")
+        .single();
 
   if (error) {
     if (isPgError(error, PG_UNIQUE_VIOLATION)) {
@@ -38,6 +49,14 @@ export async function saveBusinessInfoAction(input: unknown): Promise<ActionResu
     }
     console.error("saveBusinessInfo", error);
     return { ok: false, error: "Não foi possível salvar. Tente de novo." };
+  }
+  if (!current && saved) {
+    // Plano escolhido no site (CAL-084). O dono não pode mudar o plano (privilégio de coluna):
+    // gravamos pelo servidor, ainda como 'pending' até o checkout existir (CAL-076).
+    const plan = parsePlanParam(user.user_metadata?.plan_intent as string | undefined);
+    if (plan && plan !== "basic") {
+      await createSupabaseAdminClient().from("businesses").update({ plan }).eq("id", saved.id);
+    }
   }
   revalidatePath("/painel", "layout");
   return { ok: true, message: "Dados salvos." };

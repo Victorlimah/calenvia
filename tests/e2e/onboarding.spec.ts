@@ -1,8 +1,9 @@
 import { expect, test } from "./fixtures";
 
-test("dono novo cria a conta e conclui o onboarding", async ({ page }) => {
+test("dono novo escolhe o Pro no site, cria a conta e conclui o onboarding", async ({ page }) => {
   const stamp = Date.now();
-  await page.goto("/cadastro");
+  await page.goto("/cadastro?plano=pro");
+  await expect(page.getByText("Plano escolhido:")).toBeVisible();
   await page.getByLabel("Seu nome").fill("Carla Souza");
   await page.getByLabel("E-mail").fill(`carla+${stamp}@calenvia.dev`);
   await page.getByLabel("Senha").fill("senhaforte123");
@@ -42,6 +43,7 @@ test("dono novo cria a conta e conclui o onboarding", async ({ page }) => {
   // Pronto
   await expect(page).toHaveURL(/\/onboarding\/pronto/);
   await expect(page.getByText(`studio-carla-${stamp}.localhost:3000`)).toBeVisible();
+  await expect(page.getByText("Seu plano:")).toContainText("Pro");
   await page.getByRole("link", { name: "Ir para a agenda" }).click();
   await expect(page.getByRole("heading", { name: "Agenda" })).toBeVisible();
 });

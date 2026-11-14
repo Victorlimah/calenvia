@@ -4,6 +4,8 @@ import { ShareLinkCard } from "@/components/painel/share-link-card";
 import { ButtonLink } from "@/components/ui";
 import { requireBusiness } from "@/lib/business/current";
 import { businessDisplayHost, businessUrl } from "@/lib/hosts";
+import { planOf } from "@/lib/plans";
+import Link from "next/link";
 
 export const metadata: Metadata = { title: "Tudo pronto — Calenvia" };
 
@@ -27,6 +29,12 @@ export default async function OnboardingProntoPage() {
         url={businessUrl(business.slug)}
         displayHost={businessDisplayHost(business.slug)}
       />
+      <p className="text-sm text-ink-2">
+        Seu plano: <strong className="text-ink">{planOf(business).name}</strong>.{" "}
+        <Link href="/assinatura" className="font-semibold text-brand underline underline-offset-2">
+          Ver assinatura
+        </Link>
+      </p>
       <ButtonLink href="/" size="lg" block variant="dark">
         Ir para a agenda
       </ButtonLink>
