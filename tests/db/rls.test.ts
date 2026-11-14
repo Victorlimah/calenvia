@@ -224,6 +224,63 @@ describe("LGPD: apagar dados do cliente (CAL-091)", () => {
   });
 });
 
+describe("Pacotes (CAL-105)", () => {
+  async function setup() {
+    const {
+      rows: [appt],
+    } = await db.query(
+      `select id, customer_id, service_id from public.appointments where business_id = $1 limit 1`,
+      [BIZ_A],
+    );
+    const {
+      rows: [pkg],
+    } = await db.query(
+      `insert into public.service_packages (business_id, service_id, name, sessions, price_cents)
+       values ($1, $2, 'Pacote 2', 2, 7000) returning id`,
+      [BIZ_A, appt.service_id],
+    );
+    const {
+      rows: [cp],
+    } = await db.query(
+      `insert into public.customer_packages
+         (business_id, customer_id, package_id, service_id, name, sessions_total, price_cents)
+       values ($1, $2, $3, $4, 'Pacote 2', 2, 7000) returning id`,
+      [BIZ_A, appt.customer_id, pkg.id, appt.service_id],
+    );
+    return { appt, cp };
+  }
+
+  it("desconta uma sessão, zera o valor do agendamento e não desconta duas vezes", async () => {
+    const { appt, cp } = await setup();
+    await actAs(db, OWNER_A);
+    const { rows } = await db.query(`select public.use_package_session($1, $2) as left`, [
+      cp.id,
+      appt.id,
+    ]);
+    expect(rows[0].left).toBe(1);
+    const { rows: a } = await db.query(
+      `select price_cents from public.appointments where id = $1`,
+      [appt.id],
+    );
+    expect(a[0].price_cents).toBe(0);
+    await db.query("savepoint denied");
+    await expect(
+      db.query(`select public.use_package_session($1, $2)`, [cp.id, appt.id]),
+    ).rejects.toThrow(/duplicate key/);
+    await db.query("rollback to savepoint denied");
+  });
+
+  it("dono de outro negócio não usa o pacote", async () => {
+    const { appt, cp } = await setup();
+    await actAs(db, OWNER_B);
+    await db.query("savepoint denied");
+    await expect(
+      db.query(`select public.use_package_session($1, $2)`, [cp.id, appt.id]),
+    ).rejects.toThrow(/not_found/);
+    await db.query("rollback to savepoint denied");
+  });
+});
+
 describe("RLS: visitante anônimo", () => {
   it.each(["businesses", ...TENANT_TABLES])("não lê %s", async (table) => {
     await actAs(db, null);

@@ -5,6 +5,8 @@ import { SendWhatsAppButton } from "@/components/painel/send-whatsapp-button";
 import { Alert, Badge, Card } from "@/components/ui";
 import { STATUS_LABELS, STATUS_TONES } from "@/lib/agenda/status";
 import { CustomerMessages } from "@/components/painel/customer-messages";
+import { UsePackageButton } from "@/components/painel/use-package-button";
+import { remainingSessions, usablePackage } from "@/lib/packages";
 import { RealtimeRefresh } from "@/components/painel/agenda/realtime-refresh";
 import { requireReadyBusiness } from "@/lib/business/current";
 import { formatDate, formatDayLabel, formatDuration, formatTime, toLocalDate } from "@/lib/dates";
@@ -82,6 +84,20 @@ export default async function AgendamentoPage({
     },
     business.message_texts,
   );
+  const [{ data: custPackages }, { data: usage }] = await Promise.all([
+    supabase
+      .from("customer_packages")
+      .select("id, name, service_id, sessions_total, sessions_used, expires_at")
+      .eq("customer_id", a.customer_id)
+      .eq("business_id", business.id),
+    supabase
+      .from("package_usages")
+      .select("customer_packages(name)")
+      .eq("appointment_id", a.id)
+      .maybeSingle(),
+  ]);
+  const usable =
+    !usage && a.status !== "canceled" ? usablePackage(custPackages ?? [], a.service_id) : null;
   const messages = [...(a.messages ?? [])].sort((x, y) => (x.created_at < y.created_at ? 1 : -1));
   const confirmationSent = messages.some((m) => m.type === "confirmation" && m.status !== "failed");
 
@@ -157,6 +173,18 @@ export default async function AgendamentoPage({
         }}
         staff={eligibleStaff}
       />
+
+      {usage ? (
+        <p className="rounded-[var(--radius-control)] bg-success-50 px-4 py-3 text-sm font-semibold text-success">
+          Pago com o pacote “{usage.customer_packages?.name}”.
+        </p>
+      ) : usable ? (
+        <UsePackageButton
+          appointmentId={a.id}
+          customerPackageId={usable.id}
+          label={`Descontar do pacote “${usable.name}” (${remainingSessions(usable)} restantes)`}
+        />
+      ) : null}
 
       {canSendAutomaticMessages(business) ? (
         <CustomerMessages

@@ -10,7 +10,12 @@ export const EXPENSE_CATEGORIES = [
   "Outros",
 ] as const;
 
-export const INCOME_CATEGORIES = ["Venda de produto", "Serviço avulso", "Outros"] as const;
+export const INCOME_CATEGORIES = [
+  "Venda de produto",
+  "Venda de pacote",
+  "Serviço avulso",
+  "Outros",
+] as const;
 
 export type FinanceEntry = {
   id: string;

@@ -13,6 +13,7 @@ import { canSendAutomaticMessages } from "@/lib/plans";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { CustomerNameForm } from "./customer-name-form";
 import { PrivacyCard } from "./privacy-card";
+import { CustomerPackages } from "@/components/painel/customer-packages";
 
 export const metadata: Metadata = { title: "Cliente — Calenvia" };
 
@@ -40,6 +41,20 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
     .order("starts_at", { ascending: false })
     .limit(50);
   const tz = business.timezone;
+  const [{ data: owned }, { data: available }] = await Promise.all([
+    supabase
+      .from("customer_packages")
+      .select("id, name, service_id, sessions_total, sessions_used, expires_at")
+      .eq("customer_id", c.id)
+      .eq("business_id", business.id)
+      .order("sold_at", { ascending: false }),
+    supabase
+      .from("service_packages")
+      .select("id, name, price_cents")
+      .eq("business_id", business.id)
+      .eq("is_active", true)
+      .order("created_at"),
+  ]);
 
   return (
     <PageBody>
@@ -85,6 +100,8 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
       {canSendAutomaticMessages(business) ? (
         <CustomerMessages customerId={c.id} optedOut={Boolean(c.opted_out_at)} />
       ) : null}
+
+      <CustomerPackages customerId={c.id} owned={owned ?? []} available={available ?? []} />
 
       <PrivacyCard customerId={c.id} erased={Boolean(raw?.erased_at)} />
 

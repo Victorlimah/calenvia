@@ -382,6 +382,78 @@ export type Database = {
           },
         ];
       };
+      customer_packages: {
+        Row: {
+          business_id: string;
+          customer_id: string;
+          expires_at: string | null;
+          id: string;
+          name: string;
+          package_id: string;
+          price_cents: number;
+          service_id: string;
+          sessions_total: number;
+          sessions_used: number;
+          sold_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          customer_id: string;
+          expires_at?: string | null;
+          id?: string;
+          name: string;
+          package_id: string;
+          price_cents: number;
+          service_id: string;
+          sessions_total: number;
+          sessions_used?: number;
+          sold_at?: string;
+        };
+        Update: {
+          business_id?: string;
+          customer_id?: string;
+          expires_at?: string | null;
+          id?: string;
+          name?: string;
+          package_id?: string;
+          price_cents?: number;
+          service_id?: string;
+          sessions_total?: number;
+          sessions_used?: number;
+          sold_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "customer_packages_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "customer_packages_customer_id_business_id_fkey";
+            columns: ["customer_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "customer_summaries";
+            referencedColumns: ["id", "business_id"];
+          },
+          {
+            foreignKeyName: "customer_packages_customer_id_business_id_fkey";
+            columns: ["customer_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "customers";
+            referencedColumns: ["id", "business_id"];
+          },
+          {
+            foreignKeyName: "customer_packages_package_id_business_id_fkey";
+            columns: ["package_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "service_packages";
+            referencedColumns: ["id", "business_id"];
+          },
+        ];
+      };
       customers: {
         Row: {
           business_id: string;
@@ -554,6 +626,53 @@ export type Database = {
           },
         ];
       };
+      package_usages: {
+        Row: {
+          appointment_id: string;
+          business_id: string;
+          customer_package_id: string;
+          id: string;
+          used_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          appointment_id: string;
+          business_id: string;
+          customer_package_id: string;
+          id?: string;
+          used_at?: string;
+        };
+        Update: {
+          appointment_id?: string;
+          business_id?: string;
+          customer_package_id?: string;
+          id?: string;
+          used_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "package_usages_appointment_id_fkey";
+            columns: ["appointment_id"];
+            isOneToOne: true;
+            referencedRelation: "appointments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "package_usages_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "package_usages_customer_package_id_fkey";
+            columns: ["customer_package_id"];
+            isOneToOne: false;
+            referencedRelation: "customer_packages";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       product_events: {
         Row: {
           business_id: string | null;
@@ -605,6 +724,58 @@ export type Database = {
           window_start?: string;
         };
         Relationships: [];
+      };
+      service_packages: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          price_cents: number;
+          service_id: string;
+          sessions: number;
+          validity_days: number | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          price_cents: number;
+          service_id: string;
+          sessions: number;
+          validity_days?: number | null;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          price_cents?: number;
+          service_id?: string;
+          sessions?: number;
+          validity_days?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "service_packages_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "service_packages_service_id_business_id_fkey";
+            columns: ["service_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id", "business_id"];
+          },
+        ];
       };
       services: {
         Row: {
@@ -1040,6 +1211,10 @@ export type Database = {
       set_staff_services: {
         Args: { p_service_ids: string[]; p_staff_member_id: string };
         Returns: undefined;
+      };
+      use_package_session: {
+        Args: { p_appointment_id: string; p_customer_package_id: string };
+        Returns: number;
       };
     };
     Enums: {
