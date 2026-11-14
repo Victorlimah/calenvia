@@ -5,6 +5,7 @@ import { SendWhatsAppButton } from "@/components/painel/send-whatsapp-button";
 import { Alert, Badge, Card } from "@/components/ui";
 import { STATUS_LABELS, STATUS_TONES } from "@/lib/agenda/status";
 import { CustomerMessages } from "./customer-messages";
+import { RealtimeRefresh } from "@/components/painel/agenda/realtime-refresh";
 import { requireReadyBusiness } from "@/lib/business/current";
 import { formatDate, formatDayLabel, formatDuration, formatTime, toLocalDate } from "@/lib/dates";
 import { businessUrl } from "@/lib/hosts";
@@ -82,6 +83,7 @@ export default async function AgendamentoPage({
 
   return (
     <PageBody>
+      <RealtimeRefresh businessId={business.id} />
       <PageHeader
         title={a.customer_name}
         back={{ href: `/?data=${toLocalDate(start, tz)}`, label: "Agenda" }}

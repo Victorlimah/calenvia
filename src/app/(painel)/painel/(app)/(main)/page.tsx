@@ -20,6 +20,7 @@ import { WeekView } from "@/components/painel/agenda/week-view";
 import { formatPrice } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { QuotaAlert } from "@/components/painel/quota";
+import { RealtimeRefresh } from "@/components/painel/agenda/realtime-refresh";
 import { canSendAutomaticMessages } from "@/lib/plans";
 import { getMonthQuota } from "@/lib/whatsapp/quota";
 
@@ -85,6 +86,7 @@ export default async function AgendaPage({ searchParams }: Props) {
         </div>
       </header>
 
+      <RealtimeRefresh businessId={business.id} />
       <QuotaAlert notice={quota?.notice ?? null} />
 
       <nav aria-label="Navegar entre dias" className="flex items-center gap-2">
