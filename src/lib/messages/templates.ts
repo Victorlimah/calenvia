@@ -1,8 +1,10 @@
 /**
- * Textos das mensagens de WhatsApp (versionados no código — CAL-067).
+ * Textos das mensagens de WhatsApp. Os corpos vêm dos templates aprovados na Meta
+ * (src/lib/whatsapp/templates.ts); aqui só montamos os parâmetros.
  * O texto de referência da confirmação está no CLAUDE.md §5.
  */
 import { formatDate, formatTime, formatWeekday } from "@/lib/dates";
+import { WHATSAPP_TEMPLATES, fillTemplate } from "@/lib/whatsapp/templates";
 
 export type MessageVars = {
   customerName: string;
@@ -33,20 +35,20 @@ function parts(v: MessageVars) {
 }
 
 export function confirmationText(v: MessageVars): string {
-  const p = parts(v);
-  return `Olá, ${p.nome}! Aqui é da *${p.negocio}*. Seu horário de *${p.servico}* com ${p.profissional} está confirmado para *${p.dia_semana}, ${p.data} às ${p.hora}*. Para remarcar ou cancelar: ${p.link}`;
+  return fillTemplate(WHATSAPP_TEMPLATES.confirmation.body, templateParams("confirmation", v));
 }
 
 export function reminderText(v: MessageVars): string {
-  const p = parts(v);
-  return `Olá, ${p.nome}! Lembrete da *${p.negocio}*: seu horário de *${p.servico}* com ${p.profissional} é *${p.dia_semana}, ${p.data} às ${p.hora}*. Se precisar remarcar ou cancelar: ${p.link}`;
+  return fillTemplate(WHATSAPP_TEMPLATES.reminder.body, templateParams("reminder", v));
 }
 
 export function cancellationText(
   v: Omit<MessageVars, "staffName"> & { staffName?: string },
 ): string {
-  const p = parts({ ...v, staffName: v.staffName ?? "" });
-  return `Olá, ${p.nome}. Seu horário de *${p.servico}* na *${p.negocio}* em *${p.dia_semana}, ${p.data} às ${p.hora}* foi cancelado. Para agendar de novo: ${p.link}`;
+  return fillTemplate(
+    WHATSAPP_TEMPLATES.cancellation.body,
+    templateParams("cancellation", { ...v, staffName: v.staffName ?? "" }),
+  );
 }
 
 /** Parâmetros na ordem dos templates aprovados na Meta (corpo {{1}}…{{8}}). */
@@ -61,7 +63,7 @@ export function templateParams(
 }
 
 export const TEMPLATE_NAMES = {
-  confirmation: "calenvia_confirmacao_v1",
-  reminder: "calenvia_lembrete_v1",
-  cancellation: "calenvia_cancelamento_v1",
+  confirmation: WHATSAPP_TEMPLATES.confirmation.name,
+  reminder: WHATSAPP_TEMPLATES.reminder.name,
+  cancellation: WHATSAPP_TEMPLATES.cancellation.name,
 } as const;

@@ -15,7 +15,7 @@ const vars = {
 describe("textos das mensagens", () => {
   it("confirmação segue o texto de referência", () => {
     expect(confirmationText(vars)).toBe(
-      "Olá, Lucas! Aqui é da *Barbearia do Zé*. Seu horário de *Corte masculino* com Zé Carlos está confirmado para *sábado, 21/11 às 14:30*. Para remarcar ou cancelar: https://barbearia-do-ze.calenvia.com.br/gerenciar/ABC234",
+      "Olá, Lucas! Aqui é da *Barbearia do Zé*. Seu horário de *Corte masculino* com Zé Carlos está confirmado para *sábado, 21/11 às 14:30*. Para remarcar ou cancelar: https://barbearia-do-ze.calenvia.com.br/gerenciar/ABC234\n\nAté lá!",
     );
   });
   it("lembrete e cancelamento", () => {

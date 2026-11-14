@@ -66,11 +66,13 @@
 - src/lib/plans.ts criado já no Sprint 4 (a página pública precisa de canSendAutomaticMessages/canManageByLink). plan_status 'pending' (sem gateway ainda) conta como ativo; 'suspended'/'canceled' fecham a agenda pública.
 - Página pública: 'Dúvidas' geradas automaticamente pelas regras do negócio (antecedência, cancelamento, confirmação conforme o plano). Seções sem conteúdo (fotos, depoimentos) não aparecem. Único link fora do CTA: 'Ver no mapa'.
 - CAL-066 (conta Meta) é fora do código: pulado. Todo o WhatsApp fica pronto no modo mock (WHATSAPP_MODE=mock) e com o cliente da Cloud API para o modo live.
+- Templates do WhatsApp: a Meta não aceita corpo terminando em variável, então os textos ganharam uma linha final ('Até lá!', 'Te esperamos!', 'Obrigado!'). O texto da prévia/wa.me é gerado a partir do mesmo corpo do template (fonte única).
 
 ## Bloqueios (precisam do Victor)
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 - CAL-026: login com Google está pronto no código, mas desligado. Para ligar: criar OAuth Client no Google Cloud (redirect: https://<projeto>.supabase.co/auth/v1/callback) e ativar o provedor Google no painel do Supabase (local: `[auth.external.google] enabled = true` + variáveis SUPABASE_AUTH_EXTERNAL_GOOGLE_*). Em produção, ligar também a confirmação de e-mail e o SMTP no Supabase.
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
+- CAL-067: cadastrar os 3 templates na Meta (passo a passo em docs/WHATSAPP.md) depois que a conta do CAL-066 existir.
 
 ## Plano do card atual
 CAL-066 é fora do código (pulado). CAL-067: textos já versionados em src/lib/messages/templates.ts; adicionar definição dos 3 templates de utilidade no formato da Meta (nome, idioma pt_BR, categoria UTILITY, corpo com {{1}}…{{n}} e exemplos) em src/lib/whatsapp/templates.ts + docs/WHATSAPP.md com o passo a passo para cadastrar; teste que garante que o corpo com variáveis substituídas é igual ao texto usado na prévia.
