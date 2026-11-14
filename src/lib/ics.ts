@@ -1,7 +1,11 @@
 /** Gera um arquivo .ics (iCalendar) para "Adicionar ao calendário". */
 
 function esc(text: string): string {
-  return text.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\;");
+  return text
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
 }
 
 function stamp(d: Date): string {
@@ -25,36 +29,69 @@ function fold(line: string): string {
   return out.join("\r\n");
 }
 
-export function buildIcs(event: {
+export type IcsEvent = {
   uid: string;
   title: string;
   description?: string;
   location?: string | null;
   start: Date;
   end: Date;
-  now?: Date;
-}): string {
+  /** Lembrete antes do evento, em minutos (null = sem lembrete). */
+  alarmMin?: number | null;
+  status?: "CONFIRMED" | "CANCELLED";
+};
+
+function vevent(e: IcsEvent, now: Date): string[] {
+  const alarm = e.alarmMin === undefined ? 60 : e.alarmMin;
+  return [
+    "BEGIN:VEVENT",
+    `UID:${e.uid}`,
+    `DTSTAMP:${stamp(now)}`,
+    `DTSTART:${stamp(e.start)}`,
+    `DTEND:${stamp(e.end)}`,
+    `SUMMARY:${esc(e.title)}`,
+    ...(e.description ? [`DESCRIPTION:${esc(e.description)}`] : []),
+    ...(e.location ? [`LOCATION:${esc(e.location)}`] : []),
+    ...(e.status ? [`STATUS:${e.status}`] : []),
+    ...(alarm !== null
+      ? [
+          "BEGIN:VALARM",
+          `TRIGGER:-PT${alarm}M`,
+          "ACTION:DISPLAY",
+          "DESCRIPTION:Lembrete",
+          "END:VALARM",
+        ]
+      : []),
+    "END:VEVENT",
+  ];
+}
+
+/** Calendário com vários eventos (feed para assinar no Google Agenda, CAL-107). */
+export function buildIcsCalendar(
+  events: IcsEvent[],
+  opts: { name?: string; now?: Date; refreshMinutes?: number } = {},
+): string {
+  const now = opts.now ?? new Date();
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Calenvia//Agendamento//PT-BR",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "BEGIN:VEVENT",
-    `UID:${event.uid}`,
-    `DTSTAMP:${stamp(event.now ?? new Date())}`,
-    `DTSTART:${stamp(event.start)}`,
-    `DTEND:${stamp(event.end)}`,
-    `SUMMARY:${esc(event.title)}`,
-    ...(event.description ? [`DESCRIPTION:${esc(event.description)}`] : []),
-    ...(event.location ? [`LOCATION:${esc(event.location)}`] : []),
-    "BEGIN:VALARM",
-    "TRIGGER:-PT1H",
-    "ACTION:DISPLAY",
-    "DESCRIPTION:Lembrete",
-    "END:VALARM",
-    "END:VEVENT",
+    ...(opts.name ? [`X-WR-CALNAME:${esc(opts.name)}`, "X-WR-TIMEZONE:America/Sao_Paulo"] : []),
+    ...(opts.refreshMinutes
+      ? [
+          `REFRESH-INTERVAL;VALUE=DURATION:PT${opts.refreshMinutes}M`,
+          `X-PUBLISHED-TTL:PT${opts.refreshMinutes}M`,
+        ]
+      : []),
+    ...events.flatMap((e) => vevent(e, now)),
     "END:VCALENDAR",
   ];
   return lines.map(fold).join("\r\n") + "\r\n";
+}
+
+/** Um evento só ("Adicionar ao calendário" da confirmação). */
+export function buildIcs(event: IcsEvent & { now?: Date }): string {
+  return buildIcsCalendar([event], { now: event.now });
 }

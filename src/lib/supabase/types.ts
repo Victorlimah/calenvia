@@ -266,6 +266,7 @@ export type Database = {
           accent_color: string;
           address: string | null;
           address_reference: string | null;
+          calendar_token: string | null;
           cancel_notice_min: number;
           cover_url: string | null;
           created_at: string;
@@ -294,6 +295,7 @@ export type Database = {
           accent_color?: string;
           address?: string | null;
           address_reference?: string | null;
+          calendar_token?: string | null;
           cancel_notice_min?: number;
           cover_url?: string | null;
           created_at?: string;
@@ -321,6 +323,7 @@ export type Database = {
           accent_color?: string;
           address?: string | null;
           address_reference?: string | null;
+          calendar_token?: string | null;
           cancel_notice_min?: number;
           cover_url?: string | null;
           created_at?: string;
