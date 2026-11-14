@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { ServicesEditor } from "@/components/painel/services-editor";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { loadServices, loadStaff } from "@/lib/business/load";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Serviços — Calenvia" };
 
 export default async function AjustesServicosPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("settings.manage");
   const supabase = await createSupabaseServerClient();
   const [services, staff] = await Promise.all([
     loadServices(supabase, business.id),

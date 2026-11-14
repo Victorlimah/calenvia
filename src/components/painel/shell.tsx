@@ -1,5 +1,6 @@
 "use client";
 
+import { BusinessSwitcher } from "./business-switcher";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -45,11 +46,14 @@ export function PainelShell({
   businessName,
   businessId,
   timezone,
+  businesses = [],
   children,
 }: {
   businessName: string;
   businessId: string;
   timezone: string;
+  /** Negócios de que a pessoa é membro (seletor, CAL-112). */
+  businesses?: { id: string; name: string; role: string }[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname().replace(/^\/painel(?=\/|$)/, "") || "/";
@@ -59,7 +63,13 @@ export function PainelShell({
       <RegisterServiceWorker />
       <aside className="hidden w-64 shrink-0 flex-col border-r border-line bg-white px-4 py-6 md:sticky md:top-0 md:flex md:h-dvh">
         <Logo />
-        <p className="mt-6 truncate px-3 text-sm font-semibold text-ink-2">{businessName}</p>
+        {businesses.length > 1 ? (
+          <div className="mt-6">
+            <BusinessSwitcher current={businessId} options={businesses} />
+          </div>
+        ) : (
+          <p className="mt-6 truncate px-3 text-sm font-semibold text-ink-2">{businessName}</p>
+        )}
         <nav aria-label="Menu principal" className="mt-3 flex flex-col gap-1">
           {NAV.map((item) => {
             const active = item.match(pathname);

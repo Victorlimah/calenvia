@@ -35,11 +35,17 @@ export async function signUpAction(
   input: unknown,
   plan?: string,
   refCode?: string,
+  /** Para onde ir depois (ex.: aceitar um convite da equipe, CAL-112). */
+  next?: string,
 ): Promise<ActionResult<{ redirectTo: string }>> {
   const parsed = signUpSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createSupabaseServerClient();
-  const nextPath = plan ? `/onboarding?plano=${encodeURIComponent(plan)}` : "/onboarding";
+  const nextPath = next
+    ? safeNextPath(next)
+    : plan
+      ? `/onboarding?plano=${encodeURIComponent(plan)}`
+      : "/onboarding";
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { MANUAL_TEMPLATE } from "@/lib/whatsapp/wa-link";
@@ -12,7 +12,7 @@ export async function markManualMessageAction(
   appointmentId: string,
   type: "confirmation" | "reminder",
 ): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   // Confere a posse pelo client do dono (RLS) antes de escrever com a service role.
   const supabase = await createSupabaseServerClient();
   const { data: appt } = await supabase

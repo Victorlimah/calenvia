@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requireReadyMember } from "@/lib/business/current";
+import { can } from "@/lib/permissions";
 import { loadWeekHours } from "@/lib/business/load";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { DayHours } from "@/lib/validation/business";
@@ -11,7 +12,10 @@ export const metadata: Metadata = { title: "Horário do profissional — Calenvi
 
 export default async function StaffHoursPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const business = await requireReadyBusiness();
+  const member = await requireReadyMember();
+  const { business } = member;
+  // Quem não cuida dos ajustes só vê o próprio horário, em "Meus horários" (CAL-112).
+  if (!can(member, "settings.manage")) redirect("/meus-horarios");
   const supabase = await createSupabaseServerClient();
   const { data: staff } = await supabase
     .from("staff_members")

@@ -6,7 +6,7 @@ import type { ActionResult } from "@/lib/action-result";
 import { getDaySlots } from "@/lib/availability";
 import { createAppointment, loadAvailabilityContext, toBookingError } from "@/lib/booking";
 import { afterBooking } from "@/lib/booking/after-booking";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { zonedDayRange } from "@/lib/dates";
 import { onlyDigits } from "@/lib/phone";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -26,7 +26,7 @@ export async function manualSlotsAction(
 ): Promise<
   ActionResult<{ slots: { time: string; start: string; staffIds: string[] }[]; status: string }>
 > {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   const parsed = slotsInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
@@ -63,7 +63,7 @@ export async function manualSlotsAction(
 export type CustomerHit = { id: string; name: string; whatsapp: string };
 
 export async function searchCustomersAction(query: string): Promise<CustomerHit[]> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   const q = query.trim();
   if (q.length < 2) return [];
   const supabase = await createSupabaseServerClient();
@@ -101,7 +101,7 @@ const createInput = z
 export async function createManualAppointmentAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string; needsManualConfirmation: boolean }>> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   const parsed = createInput.safeParse(input);
   if (!parsed.success)
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Confira os dados." };

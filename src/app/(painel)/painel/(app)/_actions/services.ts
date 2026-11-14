@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { invalid, type ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPgError, PG_FOREIGN_KEY_VIOLATION } from "@/lib/supabase/errors";
 import { serviceSchema } from "@/lib/validation/business";
@@ -12,7 +12,7 @@ import { track } from "@/lib/metrics";
 const withStaff = serviceSchema.extend({ staff_ids: z.array(z.string().uuid()).optional() });
 
 export async function saveServiceAction(input: unknown): Promise<ActionResult<{ id: string }>> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const parsed = withStaff.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const { id, price, staff_ids, ...rest } = parsed.data;
@@ -71,7 +71,7 @@ export async function saveServiceAction(input: unknown): Promise<ActionResult<{ 
 }
 
 export async function deleteServiceAction(id: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
     .from("services")
@@ -99,7 +99,7 @@ export async function moveServiceAction(
   id: string,
   direction: "up" | "down",
 ): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const supabase = await createSupabaseServerClient();
   const { data: list } = await supabase
     .from("services")

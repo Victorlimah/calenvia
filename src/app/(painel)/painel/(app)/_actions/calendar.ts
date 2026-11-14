@@ -3,12 +3,12 @@
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import type { ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /** Cria (ou troca, invalidando o anterior) o link privado do calendário (CAL-107). */
 export async function rotateCalendarTokenAction(): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const token = randomBytes(24).toString("base64url");
   const { error } = await createSupabaseAdminClient()
     .from("businesses")
@@ -25,7 +25,7 @@ export async function rotateCalendarTokenAction(): Promise<ActionResult> {
 }
 
 export async function disableCalendarAction(): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   await createSupabaseAdminClient()
     .from("businesses")
     .update({ calendar_token: null })

@@ -2,7 +2,8 @@ import { expect, test } from "./fixtures";
 import { SETTINGS_MENU } from "../../src/lib/settings-menu";
 import { loginAsZe } from "./helpers";
 
-const ALL = SETTINGS_MENU.flatMap((g) => g.items);
+// "Meus horários" só aparece para quem tem o acesso ligado a um profissional (CAL-112).
+const ALL = SETTINGS_MENU.flatMap((g) => g.items).filter((i) => !i.needsStaff);
 
 test("menu de Ajustes tem todas as telas e cada link abre", async ({ page }) => {
   test.setTimeout(300_000); // 18 telas, cada uma compila na primeira visita no modo dev

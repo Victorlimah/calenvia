@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { normalizeDomain, validateDomain } from "@/lib/domains/normalize";
 import { addDomainToVercel, checkDns, removeDomainFromVercel } from "@/lib/domains/verify";
 import { rootDomain } from "@/lib/hosts";
@@ -15,7 +15,7 @@ const NOT_PLAN = "Domínio próprio é um recurso do plano Pro+.";
 
 /** Salva o domínio (um por negócio) e já tenta verificar. */
 export async function saveDomainAction(raw: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   if (!hasFeature(business, "customDomain")) return { ok: false, error: NOT_PLAN };
   const parsed = z.object({ domain: z.string().max(260) }).safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Informe o domínio." };
@@ -49,7 +49,7 @@ export async function saveDomainAction(raw: unknown): Promise<ActionResult> {
 
 /** Confere o DNS (e cadastra na Vercel) e marca como verificado. */
 export async function verifyDomainAction(): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   if (!hasFeature(business, "customDomain")) return { ok: false, error: NOT_PLAN };
   const db = createSupabaseAdminClient();
   const { data: row } = await db
@@ -77,7 +77,7 @@ export async function verifyDomainAction(): Promise<ActionResult> {
 }
 
 export async function removeDomainAction(): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const db = createSupabaseAdminClient();
   const { data: row } = await db
     .from("custom_domains")

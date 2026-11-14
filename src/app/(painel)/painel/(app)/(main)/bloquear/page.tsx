@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requireReadyMember } from "@/lib/business/current";
+import { can } from "@/lib/permissions";
 import { formatDate, formatTime, isLocalDate, todayIn } from "@/lib/dates";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BlockForm, BlockList } from "./block-form";
@@ -12,12 +13,14 @@ export default async function BloquearPage({
 }: {
   searchParams: Promise<{ data?: string }>;
 }) {
-  const business = await requireReadyBusiness();
+  const member = await requireReadyMember();
+  const { business } = member;
+  const all = can(member, "blocks.manage_all");
   const sp = await searchParams;
   const tz = business.timezone;
   const date = sp.data && isLocalDate(sp.data) ? sp.data : todayIn(tz);
   const supabase = await createSupabaseServerClient();
-  const [{ data: staff }, { data: blocks }] = await Promise.all([
+  const [{ data: allStaff }, { data: blocks }] = await Promise.all([
     supabase
       .from("staff_members")
       .select("id, name")
@@ -32,6 +35,7 @@ export default async function BloquearPage({
       .order("starts_at")
       .limit(30),
   ]);
+  const staff = (allStaff ?? []).filter((s) => all || s.id === member.staffMemberId);
   return (
     <PageBody>
       <PageHeader
@@ -39,7 +43,7 @@ export default async function BloquearPage({
         description="Folga, compromisso ou feriado: o horário some da sua página."
         back={{ href: `/?data=${date}`, label: "Agenda" }}
       />
-      <BlockForm staff={staff ?? []} date={date} />
+      <BlockForm staff={staff} date={date} allowAll={all} />
       <BlockList
         blocks={(blocks ?? []).map((b) => {
           const s = new Date(b.starts_at);

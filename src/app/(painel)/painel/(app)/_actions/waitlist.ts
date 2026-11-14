@@ -3,14 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const id = z.string().uuid();
 
 /** Marca que o dono avisou o cliente da lista de espera (CAL-104). */
 export async function markWaitlistNotifiedAction(entryId: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   if (!id.safeParse(entryId).success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
   await supabase
@@ -23,7 +23,7 @@ export async function markWaitlistNotifiedAction(entryId: string): Promise<Actio
 }
 
 export async function removeWaitlistEntryAction(entryId: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   if (!id.safeParse(entryId).success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
   await supabase

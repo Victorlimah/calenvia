@@ -3,18 +3,34 @@ import Link from "next/link";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { SignOutButton } from "@/components/painel/shell";
 import { NotificationSettings } from "@/components/painel/notification-settings";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { getMyMemberships, requireReadyMember } from "@/lib/business/current";
+import { BusinessSwitcher } from "@/components/painel/business-switcher";
+import { ROLE_LABELS } from "@/lib/permissions";
 import { businessDisplayHost } from "@/lib/hosts";
-import { SETTINGS_MENU as GROUPS } from "@/lib/settings-menu";
+import { settingsMenuFor } from "@/lib/settings-menu";
 
 export const metadata: Metadata = { title: "Ajustes — Calenvia" };
 
 export default async function AjustesPage() {
-  const business = await requireReadyBusiness();
+  const member = await requireReadyMember();
+  const { business } = member;
+  const memberships = await getMyMemberships();
+  const groups = settingsMenuFor(member);
   return (
     <PageBody>
-      <PageHeader title="Ajustes" description={businessDisplayHost(business.slug)} />
-      {GROUPS.map((group) => (
+      <PageHeader
+        title="Ajustes"
+        description={`${businessDisplayHost(business.slug)} · ${ROLE_LABELS[member.role]}`}
+      />
+      <BusinessSwitcher
+        current={business.id}
+        options={memberships.map((m) => ({
+          id: m.business.id,
+          name: m.business.name,
+          role: ROLE_LABELS[m.role],
+        }))}
+      />
+      {groups.map((group) => (
         <section key={group.title} aria-labelledby={`grupo-${group.title}`} className="space-y-2">
           <h2 id={`grupo-${group.title}`} className="px-1 text-sm font-semibold text-ink-2">
             {group.title}

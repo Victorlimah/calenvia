@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { businessUrl } from "@/lib/hosts";
 import { cancellationText, confirmationText, reminderText } from "@/lib/messages/templates";
 import { canSendAutomaticMessages, monthlyMessageLimit, PLANS } from "@/lib/plans";
@@ -12,7 +12,7 @@ import { AutomaticMessagesForm } from "./automatic-messages-form";
 export const metadata: Metadata = { title: "Mensagens automáticas — Calenvia" };
 
 export default async function MensagensAutomaticasPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("settings.manage");
   const supabase = await createSupabaseServerClient();
   const allowed = canSendAutomaticMessages(business);
   const [settings, quota] = await Promise.all([

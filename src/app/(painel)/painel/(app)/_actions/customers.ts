@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -11,7 +11,7 @@ const input = z.object({ customerId: z.string().uuid(), enabled: z.boolean() });
 
 /** Liga/desliga as mensagens automáticas de um cliente (opt-out, CAL-073). */
 export async function setCustomerMessagesAction(raw: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   const parsed = input.safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
@@ -38,7 +38,7 @@ const renameInput = z.object({
 });
 
 export async function renameCustomerAction(raw: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   const parsed = renameInput.safeParse(raw);
   if (!parsed.success)
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Nome inválido." };
@@ -59,7 +59,7 @@ export async function renameCustomerAction(raw: unknown): Promise<ActionResult> 
 export async function eraseCustomerAction(
   raw: unknown,
 ): Promise<ActionResult<{ redirectTo: string }>> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("customers.erase");
   const parsed = z.object({ customerId: z.string().uuid() }).safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();

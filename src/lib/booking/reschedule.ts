@@ -1,3 +1,4 @@
+import { APPOINTMENT_COLUMNS } from "@/lib/appointments/columns";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getDaySlots, isSlotAvailable, pickStaffForSlot, type DaySlots } from "@/lib/availability";
 import { toLocalDate, zonedDayRange, type LocalDate } from "@/lib/dates";
@@ -68,7 +69,7 @@ export async function rescheduleAppointment(
     ignoreNotice?: boolean;
     now?: Date;
   },
-): Promise<Tables<"appointments">> {
+): Promise<Omit<Tables<"appointments">, "price_cents">> {
   try {
     const appt = await loadAppointment(db, business.id, input.appointmentId);
     if (!appt || appt.status === "canceled") throw new BookingError("unavailable");
@@ -112,7 +113,7 @@ export async function rescheduleAppointment(
       })
       .eq("id", appt.id)
       .eq("business_id", business.id)
-      .select("*")
+      .select(APPOINTMENT_COLUMNS)
       .single();
     if (error || !data) throw error ?? new BookingError("unknown");
     return data;

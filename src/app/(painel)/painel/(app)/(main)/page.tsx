@@ -4,7 +4,8 @@ import { Timeline } from "@/components/painel/agenda/timeline";
 import { buttonClasses } from "@/components/ui";
 import { loadAgendaDay, loadAppointments } from "@/lib/agenda/load";
 import { buildTimeline, daySummary } from "@/lib/agenda/timeline";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requireReadyMember } from "@/lib/business/current";
+import { can } from "@/lib/permissions";
 import {
   addLocalDays,
   formatDayLabel,
@@ -32,15 +33,25 @@ export const metadata: Metadata = { title: "Agenda — Calenvia" };
 type Props = { searchParams: Promise<{ data?: string; profissional?: string; visao?: string }> };
 
 export default async function AgendaPage({ searchParams }: Props) {
-  const business = await requireReadyBusiness();
+  const member = await requireReadyMember();
+  const { business } = member;
+  const seeAll = can(member, "appointments.view_all");
+  const finance = can(member, "finance.view");
+  const manage = can(member, "appointments.manage_all");
   const sp = await searchParams;
   const tz = business.timezone;
   const today = todayIn(tz);
   const date = sp.data && isLocalDate(sp.data) ? sp.data : today;
   const supabase = await createSupabaseServerClient();
-  const { ctx, appointments, blocks } = await loadAgendaDay(supabase, business, date);
-  const staffId =
-    sp.profissional && ctx.staff.some((s) => s.id === sp.profissional) ? sp.profissional : null;
+  const { ctx, appointments, blocks } = await loadAgendaDay(supabase, business, date, {
+    withPrices: finance,
+  });
+  // Profissional vê só a própria agenda, sem escolher outros (CAL-112).
+  const staffId = !seeAll
+    ? member.staffMemberId
+    : sp.profissional && ctx.staff.some((s) => s.id === sp.profissional)
+      ? sp.profissional
+      : null;
   const staffNames = Object.fromEntries(ctx.staff.map((s) => [s.id, s.name]));
   const { items, canceled, dayStatus } = buildTimeline({
     ctx,
@@ -52,7 +63,7 @@ export default async function AgendaPage({ searchParams }: Props) {
   const summary = daySummary(appointments.filter((a) => !staffId || a.staffId === staffId));
   const label = formatDayLabel(localDateToInstant(date, tz), tz);
   const week = sp.visao === "semana";
-  const staffQuery = staffId ? `&profissional=${staffId}` : "";
+  const staffQuery = staffId && seeAll ? `&profissional=${staffId}` : "";
   const q = (d: string, w = week) => `/?data=${d}${staffQuery}${w ? "&visao=semana" : ""}`;
   const weekStart = addLocalDays(date, -((weekdayOf(date) + 6) % 7)); // segunda-feira
   const weekDays = Array.from({ length: 7 }, (_, i) => addLocalDays(weekStart, i));
@@ -65,15 +76,17 @@ export default async function AgendaPage({ searchParams }: Props) {
       ).filter((a) => !staffId || a.staffId === staffId)
     : [];
 
-  const { data: waiting } = await supabase
-    .from("waitlist_entries")
-    .select(
-      "id, customer_name, customer_whatsapp, service_id, staff_member_id, desired_date, period, status, services(name)",
-    )
-    .eq("business_id", business.id)
-    .eq("desired_date", date)
-    .neq("status", "closed")
-    .order("created_at");
+  const { data: waiting } = !manage
+    ? { data: [] }
+    : await supabase
+        .from("waitlist_entries")
+        .select(
+          "id, customer_name, customer_whatsapp, service_id, staff_member_id, desired_date, period, status, services(name)",
+        )
+        .eq("business_id", business.id)
+        .eq("desired_date", date)
+        .neq("status", "closed")
+        .order("created_at");
   const waitlist: WaitlistItem[] = (waiting ?? []).map((w) => ({
     id: w.id,
     name: w.customer_name,
@@ -84,7 +97,10 @@ export default async function AgendaPage({ searchParams }: Props) {
     waLink: waMeLink(w.customer_whatsapp, waitlistMessage(business, w, w.services?.name ?? "")),
   }));
 
-  const quota = canSendAutomaticMessages(business) ? await getMonthQuota(supabase, business) : null;
+  const quota =
+    canSendAutomaticMessages(business) && can(member, "settings.manage")
+      ? await getMonthQuota(supabase, business)
+      : null;
 
   return (
     <main className="mx-auto w-full max-w-2xl space-y-5 px-4 pt-6 pb-10 md:pt-10">
@@ -102,9 +118,11 @@ export default async function AgendaPage({ searchParams }: Props) {
           >
             Bloquear
           </Link>
-          <Link href={`/novo?data=${date}`} className={buttonClasses({ size: "md" })}>
-            + Novo
-          </Link>
+          {manage ? (
+            <Link href={`/novo?data=${date}`} className={buttonClasses({ size: "md" })}>
+              + Novo
+            </Link>
+          ) : null}
         </div>
       </header>
 
@@ -154,13 +172,15 @@ export default async function AgendaPage({ searchParams }: Props) {
         </div>
       </nav>
 
-      <StaffChips
-        staff={ctx.staff}
-        selected={staffId}
-        hrefFor={(id) =>
-          `/?data=${date}${id ? `&profissional=${id}` : ""}${week ? "&visao=semana" : ""}`
-        }
-      />
+      {seeAll ? (
+        <StaffChips
+          staff={ctx.staff}
+          selected={staffId}
+          hrefFor={(id) =>
+            `/?data=${date}${id ? `&profissional=${id}` : ""}${week ? "&visao=semana" : ""}`
+          }
+        />
+      ) : null}
 
       {week ? (
         <WeekView
@@ -172,10 +192,15 @@ export default async function AgendaPage({ searchParams }: Props) {
         />
       ) : (
         <>
-          <section aria-label="Resumo do dia" className="grid grid-cols-3 gap-2">
+          <section
+            aria-label="Resumo do dia"
+            className={`grid gap-2 ${finance ? "grid-cols-3" : "grid-cols-2"}`}
+          >
             <Stat label="Agendamentos" value={String(summary.total)} />
             <Stat label="Livres" value={String(items.filter((i) => i.kind === "free").length)} />
-            <Stat label="Previsto" value={formatPrice(summary.expectedRevenueCents)} />
+            {finance ? (
+              <Stat label="Previsto" value={formatPrice(summary.expectedRevenueCents)} />
+            ) : null}
           </section>
 
           <Timeline
@@ -185,7 +210,7 @@ export default async function AgendaPage({ searchParams }: Props) {
             date={date}
             dayStatus={dayStatus}
             staffNames={staffNames}
-            showStaff={!staffId && ctx.staff.length > 1}
+            showStaff={seeAll && !staffId && ctx.staff.length > 1}
           />
           <WaitlistSection items={waitlist} />
         </>

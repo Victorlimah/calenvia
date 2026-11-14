@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Alert } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { canSendAutomaticMessages } from "@/lib/plans";
 import { MessagesEditor } from "./messages-editor";
 
 export const metadata: Metadata = { title: "Mensagens — Calenvia" };
 
 export default async function MensagensPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("settings.manage");
   const texts = (business.message_texts ?? {}) as Record<string, string>;
   return (
     <PageBody>

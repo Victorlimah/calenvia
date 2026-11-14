@@ -9,7 +9,10 @@ import { UsePackageButton } from "@/components/painel/use-package-button";
 import { remainingSessions, usablePackage } from "@/lib/packages";
 import { reviewLink, reviewRequestText } from "@/lib/reviews";
 import { RealtimeRefresh } from "@/components/painel/agenda/realtime-refresh";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { APPOINTMENT_COLUMNS } from "@/lib/appointments/columns";
+import { loadAppointmentPrices } from "@/lib/appointments/prices";
+import { requireReadyMember } from "@/lib/business/current";
+import { can } from "@/lib/permissions";
 import { formatDate, formatDayLabel, formatDuration, formatTime, toLocalDate } from "@/lib/dates";
 import { businessUrl } from "@/lib/hosts";
 import { formatPrice } from "@/lib/money";
@@ -50,17 +53,33 @@ export default async function AgendamentoPage({
 }) {
   const { id } = await params;
   const { enviar, criado } = await searchParams;
-  const business = await requireReadyBusiness();
+  const member = await requireReadyMember();
+  const { business } = member;
+  const manage = can(member, "appointments.manage_all");
+  const finance = can(member, "finance.view");
   const supabase = await createSupabaseServerClient();
   const { data: a } = await supabase
     .from("appointments")
     .select(
-      "*, services(name, duration_min), staff_members(name), customers(opted_out_at), messages(id, type, status, skip_reason, template, sent_at, created_at)",
+      `${APPOINTMENT_COLUMNS}, services(name, duration_min), staff_members(name), customers(opted_out_at), messages(id, type, status, skip_reason, template, sent_at, created_at)`,
     )
     .eq("id", id)
     .eq("business_id", business.id)
     .maybeSingle();
   if (!a) notFound();
+  const price = finance
+    ? ((await loadAppointmentPrices(supabase, business.id, [a.id])).get(a.id) ?? null)
+    : null;
+  const { data: creator } = a.created_by_user_id
+    ? await supabase
+        .from("business_members")
+        .select("display_name, email")
+        .eq("business_id", business.id)
+        .eq("user_id", a.created_by_user_id)
+        .maybeSingle()
+    : { data: null };
+  const createdBy =
+    creator?.display_name || creator?.email || (a.source === "link" ? "Cliente, pelo link" : null);
 
   const { data: staff } = await supabase
     .from("staff_members")
@@ -93,6 +112,7 @@ export default async function AgendamentoPage({
     business.message_texts,
   );
   const [{ data: custPackages }, { data: usage }] = await Promise.all([
+    // Pacotes são valores: só para finance.view (a RLS já devolve vazio para os outros).
     supabase
       .from("customer_packages")
       .select("id, name, service_id, sessions_total, sessions_used, expires_at")
@@ -142,10 +162,11 @@ export default async function AgendamentoPage({
               "Quando",
               `${formatDayLabel(start, tz)}, ${formatTime(start, tz)}–${formatTime(end, tz)}`,
             ],
-            ["Valor", formatPrice(a.price_cents)],
+            ...(price !== null ? [["Valor", formatPrice(price)]] : []),
             ["WhatsApp", formatPhone(a.customer_whatsapp)],
             ["Origem", a.source === "link" ? "Agendado pelo link" : "Agendamento manual"],
             ["Código", a.manage_code],
+            ...(createdBy ? [["Criado por", createdBy]] : []),
             ...(a.notes ? [["Observações", a.notes]] : []),
             ...(a.canceled_at ? [["Cancelado em", formatDate(new Date(a.canceled_at), tz)]] : []),
           ].map(([k, v]) => (
@@ -178,7 +199,7 @@ export default async function AgendamentoPage({
         >
           Chamar no WhatsApp
         </a>
-        {status === "confirmed" ? (
+        {status === "confirmed" && manage ? (
           <SendWhatsAppButton appointmentId={a.id} href={waConfirm} sent={confirmationSent} />
         ) : null}
       </div>
@@ -192,6 +213,7 @@ export default async function AgendamentoPage({
           isPast: end.getTime() < Date.now(),
         }}
         staff={eligibleStaff}
+        canManage={manage}
       />
 
       {review ? (
@@ -222,11 +244,11 @@ export default async function AgendamentoPage({
         />
       ) : null}
 
-      {canSendAutomaticMessages(business) && status === "confirmed" ? (
+      {canSendAutomaticMessages(business) && status === "confirmed" && manage ? (
         <AppointmentMessagesToggle appointmentId={a.id} enabled={a.messages_enabled} />
       ) : null}
 
-      {canSendAutomaticMessages(business) ? (
+      {canSendAutomaticMessages(business) && manage ? (
         <CustomerMessages
           customerId={a.customer_id}
           optedOut={Boolean(a.customers?.opted_out_at)}

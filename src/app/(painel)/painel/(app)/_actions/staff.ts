@@ -2,14 +2,15 @@
 
 import { revalidatePath } from "next/cache";
 import { invalid, type ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { NO_PERMISSION, requireBusinessFor, requireMember } from "@/lib/business/current";
+import { can } from "@/lib/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPgError, PG_FOREIGN_KEY_VIOLATION } from "@/lib/supabase/errors";
 import { z } from "zod";
 import { staffSchema, weekHoursSchema } from "@/lib/validation/business";
 
 export async function saveStaffAction(input: unknown): Promise<ActionResult<{ id: string }>> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const parsed = staffSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const { id, service_ids, ...row } = parsed.data;
@@ -45,7 +46,7 @@ export async function saveStaffAction(input: unknown): Promise<ActionResult<{ id
 
 /** Atalho do onboarding: "Eu mesmo atendo" (dono faz todos os serviços). */
 export async function addOwnerAsStaffAction(name: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const supabase = await createSupabaseServerClient();
   const { data: services } = await supabase
     .from("services")
@@ -60,7 +61,7 @@ export async function addOwnerAsStaffAction(name: string): Promise<ActionResult>
 }
 
 export async function deleteStaffAction(id: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
     .from("staff_members")
@@ -91,9 +92,13 @@ const staffHoursInput = z.object({
 
 /** Horário próprio do profissional (CAL-036). days = null → usa o horário do negócio. */
 export async function saveStaffHoursAction(input: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const member = await requireMember();
+  const business = member.business;
   const parsed = staffHoursInput.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
+  // Quem não cuida dos ajustes só edita o próprio horário (CAL-112).
+  if (!can(member, "settings.manage") && member.staffMemberId !== parsed.data.staffId)
+    return { ok: false, error: NO_PERMISSION };
   const supabase = await createSupabaseServerClient();
   const { data: staff } = await supabase
     .from("staff_members")

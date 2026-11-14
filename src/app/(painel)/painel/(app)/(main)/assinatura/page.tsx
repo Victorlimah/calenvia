@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { QuotaAlert, QuotaMeter } from "@/components/painel/quota";
 import { Badge, Card } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { canSendAutomaticMessages, formatPlanPrice, PLAN_ORDER, PLANS, planOf } from "@/lib/plans";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getMonthQuota, quotaResetLabel } from "@/lib/whatsapp/quota";
@@ -21,7 +21,7 @@ const STATUS: Record<
 };
 
 export default async function AssinaturaPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("billing.manage");
   const plan = planOf(business);
   const automatic = canSendAutomaticMessages(business);
   const quota = automatic

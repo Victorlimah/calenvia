@@ -28,6 +28,7 @@ export type Database = {
           business_id: string;
           canceled_at: string | null;
           created_at: string;
+          created_by_user_id: string | null;
           customer_id: string;
           customer_name: string;
           customer_whatsapp: string;
@@ -42,12 +43,14 @@ export type Database = {
           staff_member_id: string;
           starts_at: string;
           status: string;
+          updated_by_user_id: string | null;
         };
         ComputedFields: never;
         Insert: {
           business_id: string;
           canceled_at?: string | null;
           created_at?: string;
+          created_by_user_id?: string | null;
           customer_id: string;
           customer_name: string;
           customer_whatsapp: string;
@@ -62,11 +65,13 @@ export type Database = {
           staff_member_id: string;
           starts_at: string;
           status?: string;
+          updated_by_user_id?: string | null;
         };
         Update: {
           business_id?: string;
           canceled_at?: string | null;
           created_at?: string;
+          created_by_user_id?: string | null;
           customer_id?: string;
           customer_name?: string;
           customer_whatsapp?: string;
@@ -81,6 +86,7 @@ export type Database = {
           staff_member_id?: string;
           starts_at?: string;
           status?: string;
+          updated_by_user_id?: string | null;
         };
         Relationships: [
           {
@@ -186,6 +192,125 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "businesses";
             referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_invitations: {
+        Row: {
+          accepted_at: string | null;
+          accepted_by: string | null;
+          business_id: string;
+          created_at: string;
+          email: string | null;
+          expires_at: string;
+          id: string;
+          invited_by: string | null;
+          revoked_at: string | null;
+          role: string;
+          staff_member_id: string | null;
+          token_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          business_id: string;
+          created_at?: string;
+          email?: string | null;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          revoked_at?: string | null;
+          role: string;
+          staff_member_id?: string | null;
+          token_hash: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          business_id?: string;
+          created_at?: string;
+          email?: string | null;
+          expires_at?: string;
+          id?: string;
+          invited_by?: string | null;
+          revoked_at?: string | null;
+          role?: string;
+          staff_member_id?: string | null;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_invitations_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_invitations_staff_member_id_business_id_fkey";
+            columns: ["staff_member_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_members";
+            referencedColumns: ["id", "business_id"];
+          },
+        ];
+      };
+      business_members: {
+        Row: {
+          business_id: string;
+          created_at: string;
+          display_name: string | null;
+          email: string | null;
+          id: string;
+          invited_by: string | null;
+          removed_at: string | null;
+          role: string;
+          staff_member_id: string | null;
+          status: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          created_at?: string;
+          display_name?: string | null;
+          email?: string | null;
+          id?: string;
+          invited_by?: string | null;
+          removed_at?: string | null;
+          role: string;
+          staff_member_id?: string | null;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          business_id?: string;
+          created_at?: string;
+          display_name?: string | null;
+          email?: string | null;
+          id?: string;
+          invited_by?: string | null;
+          removed_at?: string | null;
+          role?: string;
+          staff_member_id?: string | null;
+          status?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_members_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_members_staff_member_id_business_id_fkey";
+            columns: ["staff_member_id", "business_id"];
+            isOneToOne: false;
+            referencedRelation: "staff_members";
+            referencedColumns: ["id", "business_id"];
           },
         ];
       };
@@ -1293,12 +1418,20 @@ export type Database = {
       };
     };
     Functions: {
+      appointment_prices: {
+        Args: { p_business_id: string; p_ids: string[] };
+        Returns: {
+          id: string;
+          price_cents: number;
+        }[];
+      };
       consume_message_quota: {
         Args: { p_business_id: string; p_limit: number; p_period: string };
         Returns: number;
       };
       erase_customer: { Args: { p_customer_id: string }; Returns: undefined };
       gen_manage_code: { Args: Record<PropertyKey, never>; Returns: string };
+      has_perm: { Args: { p_business_id: string; p_perm: string }; Returns: boolean };
       hit_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
         Returns: boolean;
@@ -1308,6 +1441,8 @@ export type Database = {
         Returns: number;
       };
       is_business_owner: { Args: { p_business_id: string }; Returns: boolean };
+      is_member: { Args: { p_business_id: string }; Returns: boolean };
+      member_role: { Args: { p_business_id: string }; Returns: string };
       metrics_funnel: {
         Args: { p_from: string; p_to: string };
         Returns: {
@@ -1323,6 +1458,7 @@ export type Database = {
           name: string;
         }[];
       };
+      my_staff_member_id: { Args: { p_business_id: string }; Returns: string };
       owns_media_path: { Args: { p_name: string }; Returns: boolean };
       release_message_quota: {
         Args: { p_business_id: string; p_period: string };
@@ -1330,6 +1466,10 @@ export type Database = {
       };
       save_business_hours: { Args: { p_business_id: string; p_days: Json }; Returns: undefined };
       save_staff_hours: { Args: { p_days: Json; p_staff_member_id: string }; Returns: undefined };
+      set_appointment_status: {
+        Args: { p_appointment_id: string; p_status: string };
+        Returns: undefined;
+      };
       set_staff_services: {
         Args: { p_service_ids: string[]; p_staff_member_id: string };
         Returns: undefined;

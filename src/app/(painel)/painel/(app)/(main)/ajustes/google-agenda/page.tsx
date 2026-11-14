@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { loadStaff } from "@/lib/business/load";
 import { siteUrl } from "@/lib/hosts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -9,7 +9,7 @@ import { CalendarFeed } from "./calendar-feed";
 export const metadata: Metadata = { title: "Google Agenda — Calenvia" };
 
 export default async function GoogleAgendaPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("settings.manage");
   const staff = (await loadStaff(await createSupabaseServerClient(), business.id)).filter(
     (s) => s.is_active,
   );

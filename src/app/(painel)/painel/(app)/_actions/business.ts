@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { invalid, type ActionResult } from "@/lib/action-result";
 import { requireUser } from "@/lib/auth/session";
-import { getCurrentBusiness, requireBusiness } from "@/lib/business/current";
+import {
+  getCurrentBusiness,
+  getCurrentMember,
+  NO_PERMISSION,
+  requireBusinessFor,
+} from "@/lib/business/current";
+import { can } from "@/lib/permissions";
 import { checkSlugAvailability, type SlugCheck } from "@/lib/business/slug-availability";
 import { parsePlanParam } from "@/lib/plan-param";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -26,7 +32,9 @@ export async function saveBusinessInfoAction(input: unknown): Promise<ActionResu
   const user = await requireUser();
   const parsed = businessInfoSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
-  const current = await getCurrentBusiness();
+  const member = await getCurrentMember();
+  if (member && !can(member, "settings.manage")) return { ok: false, error: NO_PERMISSION };
+  const current = member?.business ?? null;
   const check = await checkSlugAvailability(parsed.data.slug, { ignoreBusinessId: current?.id });
   if (!check.available) {
     return { ok: false, error: check.reason, fieldErrors: { slug: check.reason } };
@@ -84,7 +92,7 @@ export async function saveBusinessInfoAction(input: unknown): Promise<ActionResu
 }
 
 export async function saveHoursAction(input: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const parsed = weekHoursSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createSupabaseServerClient();
@@ -101,7 +109,7 @@ export async function saveHoursAction(input: unknown): Promise<ActionResult> {
 }
 
 export async function saveAgendaRulesAction(input: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const parsed = agendaRulesSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createSupabaseServerClient();
@@ -112,7 +120,7 @@ export async function saveAgendaRulesAction(input: unknown): Promise<ActionResul
 }
 
 export async function finishOnboardingAction(): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const supabase = await createSupabaseServerClient();
   const [{ count: services }, { count: staff }, { count: openDays }] = await Promise.all([
     supabase
@@ -152,7 +160,7 @@ const messageTextsInput = z.object({
 
 /** Textos das mensagens enviadas pelo WhatsApp do dono (CAL-074). null = usar o padrão. */
 export async function saveMessageTextsAction(input: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const parsed = messageTextsInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Textos inválidos." };
   const texts: Record<string, string> = {};

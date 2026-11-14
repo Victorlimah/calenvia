@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { MAX_GALLERY_PHOTOS, mediaPublicPrefix } from "@/lib/images";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -30,7 +30,7 @@ export async function setBusinessImageAction(
   kind: "logo" | "cover",
   url: string | null,
 ): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   if (url && !belongsToBusiness(url, business.id)) return { ok: false, error: "Imagem inválida." };
   const column = kind === "logo" ? "logo_url" : "cover_url";
   const previous = business[column];
@@ -49,7 +49,7 @@ export async function setStaffPhotoAction(
   staffId: string,
   url: string | null,
 ): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   if (url && !belongsToBusiness(url, business.id)) return { ok: false, error: "Imagem inválida." };
   const supabase = await createSupabaseServerClient();
   const { data: staff } = await supabase
@@ -71,7 +71,7 @@ export async function setStaffPhotoAction(
 }
 
 export async function addGalleryPhotoAction(url: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   if (!belongsToBusiness(url, business.id)) return { ok: false, error: "Imagem inválida." };
   const supabase = await createSupabaseServerClient();
   const { count } = await supabase
@@ -97,7 +97,7 @@ export async function addGalleryPhotoAction(url: string): Promise<ActionResult> 
 }
 
 export async function removeGalleryPhotoAction(id: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("business_photos")

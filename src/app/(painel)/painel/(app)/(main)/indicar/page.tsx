@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Badge, Card, EmptyState } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { formatDate } from "@/lib/dates";
 import { siteUrl } from "@/lib/hosts";
 import { waMeLink } from "@/lib/phone";
@@ -13,7 +13,7 @@ import { CopyLink } from "./copy-link";
 export const metadata: Metadata = { title: "Indique a Calenvia — Calenvia" };
 
 export default async function IndicarPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("billing.manage");
   let code = business.referral_code;
   if (!code) {
     // Negócios antigos ganham o código na primeira visita.

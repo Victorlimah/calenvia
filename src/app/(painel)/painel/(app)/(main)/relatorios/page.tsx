@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Card, EmptyState } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { periodOf, zonedDayRange } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
 import { hasFeature } from "@/lib/plans";
 import { buildMonthlyReport, monthRange, shiftMonth, type Breakdown } from "@/lib/reports/monthly";
+import { loadAppointmentPrices } from "@/lib/appointments/prices";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Relatórios — Calenvia" };
@@ -36,7 +37,7 @@ export default async function RelatoriosPage({
 }: {
   searchParams: Promise<{ mes?: string }>;
 }) {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("finance.view");
   const tz = business.timezone;
   const current = periodOf(new Date(), tz);
   const sp = await searchParams;
@@ -64,16 +65,21 @@ export default async function RelatoriosPage({
   const { data, error } = await supabase
     .from("appointments")
     .select(
-      "starts_at, status, price_cents, customer_id, customer_name, services(name), staff_members(name)",
+      "id, starts_at, status, customer_id, customer_name, services(name), staff_members(name)",
     )
     .eq("business_id", business.id)
     .gte("starts_at", zonedDayRange(from, tz).start.toISOString())
     .lt("starts_at", zonedDayRange(to, tz).start.toISOString());
+  const prices = await loadAppointmentPrices(
+    supabase,
+    business.id,
+    (data ?? []).map((a) => a.id),
+  );
   const report = buildMonthlyReport(
     (data ?? []).map((a) => ({
       starts_at: a.starts_at,
       status: a.status,
-      price_cents: a.price_cents,
+      price_cents: prices.get(a.id) ?? 0,
       customer_id: a.customer_id,
       customer_name: a.customer_name,
       service: a.services?.name ?? "—",

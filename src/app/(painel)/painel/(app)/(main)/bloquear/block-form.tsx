@@ -8,12 +8,15 @@ import { createBlockAction, deleteBlockAction } from "../../_actions/blocks";
 export function BlockForm({
   staff,
   date,
+  allowAll = true,
 }: {
   staff: { id: string; name: string }[];
   date: string;
+  /** Bloquear o negócio todo (CAL-112: o profissional só bloqueia os próprios horários). */
+  allowAll?: boolean;
 }) {
   const { run, pending, error, message } = useAction();
-  const [staffId, setStaffId] = useState("");
+  const [staffId, setStaffId] = useState(allowAll ? "" : (staff[0]?.id ?? ""));
   const [startDate, setStartDate] = useState(date);
   const [endDate, setEndDate] = useState(date);
   const [allDay, setAllDay] = useState(false);
@@ -30,7 +33,7 @@ export function BlockForm({
       <Field label="Quem">
         {({ id }) => (
           <Select id={id} value={staffId} onChange={(e) => setStaffId(e.target.value)}>
-            <option value="">Todos os profissionais</option>
+            {allowAll ? <option value="">Todos os profissionais</option> : null}
             {staff.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}

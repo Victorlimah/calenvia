@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /** Publica (ou tira) a avaliação dos depoimentos da página (CAL-106). */
@@ -11,7 +11,7 @@ export async function setReviewPublishedAction(
   id: string,
   published: boolean,
 ): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   if (!z.string().uuid().safeParse(id).success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase

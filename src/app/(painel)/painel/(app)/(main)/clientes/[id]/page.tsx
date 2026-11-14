@@ -5,7 +5,9 @@ import { CustomerMessages } from "@/components/painel/customer-messages";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Badge, Card } from "@/components/ui";
 import { STATUS_LABELS, STATUS_TONES } from "@/lib/agenda/status";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { loadAppointmentPrices } from "@/lib/appointments/prices";
+import { requireReadyMember } from "@/lib/business/current";
+import { can } from "@/lib/permissions";
 import { formatDayLabel, formatTime } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
 import { formatPhone, waMeLink } from "@/lib/phone";
@@ -19,7 +21,10 @@ export const metadata: Metadata = { title: "Cliente — Calenvia" };
 
 export default async function ClientePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const business = await requireReadyBusiness();
+  const member = await requireReadyMember();
+  const { business } = member;
+  const finance = can(member, "finance.view");
+  const manage = can(member, "appointments.manage_all");
   const supabase = await createSupabaseServerClient();
   const { data: c } = await supabase
     .from("customer_summaries")
@@ -35,11 +40,18 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
     .single();
   const { data: history } = await supabase
     .from("appointments")
-    .select("id, starts_at, status, price_cents, services(name), staff_members(name)")
+    .select("id, starts_at, status, services(name), staff_members(name)")
     .eq("customer_id", c.id)
     .eq("business_id", business.id)
     .order("starts_at", { ascending: false })
     .limit(50);
+  const prices = finance
+    ? await loadAppointmentPrices(
+        supabase,
+        business.id,
+        (history ?? []).map((a) => a.id),
+      )
+    : new Map<string, number>();
   const tz = business.timezone;
   const [{ data: owned }, { data: available }] = await Promise.all([
     supabase
@@ -68,7 +80,7 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
         {[
           ["Visitas", String(c.visits ?? 0)],
           ["Faltas", String(c.no_shows ?? 0)],
-          ["Total gasto", formatPrice(c.total_spent_cents ?? 0)],
+          ...(finance ? [["Total gasto", formatPrice(c.total_spent_cents ?? 0)]] : []),
           ["Última visita", c.last_visit_at ? formatDayLabel(new Date(c.last_visit_at), tz) : "—"],
         ].map(([k, v]) => (
           <Card key={k} className="p-3">
@@ -95,15 +107,19 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
         </Link>
       </div>
 
-      <CustomerNameForm customerId={c.id} name={c.name ?? ""} />
+      {manage ? <CustomerNameForm customerId={c.id} name={c.name ?? ""} /> : null}
 
-      {canSendAutomaticMessages(business) ? (
+      {canSendAutomaticMessages(business) && manage ? (
         <CustomerMessages customerId={c.id} optedOut={Boolean(c.opted_out_at)} />
       ) : null}
 
-      <CustomerPackages customerId={c.id} owned={owned ?? []} available={available ?? []} />
+      {finance ? (
+        <CustomerPackages customerId={c.id} owned={owned ?? []} available={available ?? []} />
+      ) : null}
 
-      <PrivacyCard customerId={c.id} erased={Boolean(raw?.erased_at)} />
+      {can(member, "customers.erase") ? (
+        <PrivacyCard customerId={c.id} erased={Boolean(raw?.erased_at)} />
+      ) : null}
 
       <section aria-labelledby="historico" className="space-y-2">
         <h2 id="historico" className="font-display text-lg font-bold">
@@ -123,8 +139,8 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
                           {formatDayLabel(start, tz)}, {formatTime(start, tz)}
                         </p>
                         <p className="truncate text-sm text-ink-2">
-                          {a.services?.name} · {a.staff_members?.name} ·{" "}
-                          {formatPrice(a.price_cents)}
+                          {a.services?.name} · {a.staff_members?.name}
+                          {prices.has(a.id) ? ` · ${formatPrice(prices.get(a.id) ?? 0)}` : ""}
                         </p>
                       </div>
                       <Badge tone={STATUS_TONES[st]}>{STATUS_LABELS[st]}</Badge>

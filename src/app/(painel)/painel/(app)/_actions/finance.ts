@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { invalid, type ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { parsePriceToCents } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -16,7 +16,7 @@ const entryInput = z.object({
 });
 
 export async function addFinanceEntryAction(raw: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("finance.view");
   const parsed = entryInput.safeParse(raw);
   if (!parsed.success) return invalid(parsed.error);
   const cents = parsePriceToCents(parsed.data.amount);
@@ -41,7 +41,7 @@ export async function addFinanceEntryAction(raw: unknown): Promise<ActionResult>
 }
 
 export async function deleteFinanceEntryAction(id: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("finance.view");
   if (!z.string().uuid().safeParse(id).success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
   await supabase.from("finance_entries").delete().eq("id", id).eq("business_id", business.id);

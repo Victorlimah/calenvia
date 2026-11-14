@@ -67,3 +67,16 @@ describe("planos", () => {
     expect(canSendAutomaticMessages(biz("gold"))).toBe(false);
   });
 });
+
+describe("limite de membros (CAL-112)", () => {
+  it("Básico 1, Pro 3, Pro+ ilimitado", async () => {
+    const { canAddMember, maxMembers } = await import("./plans");
+    expect(maxMembers({ plan: "basic" })).toBe(1);
+    expect(maxMembers({ plan: "pro" })).toBe(3);
+    expect(maxMembers({ plan: "pro_plus" })).toBeNull();
+    expect(canAddMember({ plan: "basic" }, 1)).toBe(false);
+    expect(canAddMember({ plan: "pro" }, 2)).toBe(true);
+    expect(canAddMember({ plan: "pro" }, 3)).toBe(false);
+    expect(canAddMember({ plan: "pro_plus" }, 500)).toBe(true);
+  });
+});

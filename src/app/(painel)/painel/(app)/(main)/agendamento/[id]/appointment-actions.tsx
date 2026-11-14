@@ -12,10 +12,12 @@ import {
 
 type Props = {
   appointment: { id: string; status: string; date: string; staffId: string; isPast: boolean };
+  /** Remarcar e cancelar (CAL-112: o profissional só marca concluído/faltou). */
+  canManage?: boolean;
   staff: { id: string; name: string }[];
 };
 
-export function AppointmentActions({ appointment, staff }: Props) {
+export function AppointmentActions({ appointment, staff, canManage = true }: Props) {
   const status = useAction();
   const [rescheduling, setRescheduling] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -56,12 +58,20 @@ export function AppointmentActions({ appointment, staff }: Props) {
           >
             {appointment.status === "no_show" ? "Desfazer falta" : "Faltou"}
           </Button>
-          <Button variant="outline" onClick={() => setRescheduling((v) => !v)}>
-            Remarcar
-          </Button>
-          <Button variant="outline" className="text-danger" onClick={() => setConfirmCancel(true)}>
-            Cancelar
-          </Button>
+          {canManage ? (
+            <>
+              <Button variant="outline" onClick={() => setRescheduling((v) => !v)}>
+                Remarcar
+              </Button>
+              <Button
+                variant="outline"
+                className="text-danger"
+                onClick={() => setConfirmCancel(true)}
+              >
+                Cancelar
+              </Button>
+            </>
+          ) : null}
         </div>
       ) : null}
 

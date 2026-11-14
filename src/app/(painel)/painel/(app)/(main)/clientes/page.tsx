@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Badge, Card, EmptyState } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requireReadyMember } from "@/lib/business/current";
+import { can } from "@/lib/permissions";
 import {
   CUSTOMER_SORTS,
   customerStatsLine,
@@ -20,10 +21,14 @@ const PAGE_SIZE = 50;
 type Props = { searchParams: Promise<{ q?: string; ordem?: string; pagina?: string }> };
 
 export default async function ClientesPage({ searchParams }: Props) {
-  const business = await requireReadyBusiness();
+  const member = await requireReadyMember();
+  const { business } = member;
+  const finance = can(member, "finance.view");
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().slice(0, 60);
-  const sort = parseCustomerSort(sp.ordem);
+  // "Maior gasto" é um valor: só para quem vê o faturamento (CAL-112).
+  const parsedSort = parseCustomerSort(sp.ordem);
+  const sort = !finance && parsedSort === "gasto" ? parseCustomerSort(undefined) : parsedSort;
   const page = Math.max(1, Number(sp.pagina) || 1);
   const supabase = await createSupabaseServerClient();
 
@@ -86,11 +91,13 @@ export default async function ClientesPage({ searchParams }: Props) {
           defaultValue={sort}
           className="min-h-12 rounded-[var(--radius-control)] border border-line bg-white px-3 text-base"
         >
-          {Object.entries(CUSTOMER_SORTS).map(([k, v]) => (
-            <option key={k} value={k}>
-              {v.label}
-            </option>
-          ))}
+          {Object.entries(CUSTOMER_SORTS)
+            .filter(([k]) => finance || k !== "gasto")
+            .map(([k, v]) => (
+              <option key={k} value={k}>
+                {v.label}
+              </option>
+            ))}
         </select>
         <button
           type="submit"

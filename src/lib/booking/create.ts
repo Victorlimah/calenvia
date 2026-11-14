@@ -1,3 +1,4 @@
+import { APPOINTMENT_COLUMNS } from "@/lib/appointments/columns";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isSlotAvailable, pickStaffForSlot } from "@/lib/availability";
 import { toLocalDate, zonedDayRange } from "@/lib/dates";
@@ -25,7 +26,8 @@ export type CreateAppointmentInput = {
   now?: Date;
 };
 
-export type CreatedAppointment = Tables<"appointments">;
+/** Agendamento sem o valor (só `finance.view` lê `price_cents`, CAL-112). */
+export type CreatedAppointment = Omit<Tables<"appointments">, "price_cents">;
 
 /**
  * Cria um agendamento revalidando tudo no servidor (CLAUDE.md §5, regra 9).
@@ -93,7 +95,7 @@ export async function createAppointment(
         customer_name: customer.name,
         customer_whatsapp: customer.whatsapp,
       })
-      .select("*")
+      .select(APPOINTMENT_COLUMNS)
       .single();
     if (error || !data) throw error ?? new BookingError("unknown");
     return data;

@@ -27,7 +27,11 @@ export default async function EntrarPage({
       <p className="text-center text-sm text-ink-2">
         Ainda não tem conta?{" "}
         <Link
-          href="/cadastro"
+          href={
+            next?.startsWith("/convite/")
+              ? `/cadastro?next=${encodeURIComponent(next)}`
+              : "/cadastro"
+          }
           className="font-semibold text-brand underline-offset-2 hover:underline"
         >
           Criar conta

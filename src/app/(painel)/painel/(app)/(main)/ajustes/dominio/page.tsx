@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Card } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { dnsInstructions } from "@/lib/domains/normalize";
 import { businessDisplayHost } from "@/lib/hosts";
 import { hasFeature } from "@/lib/plans";
@@ -12,7 +12,7 @@ import { DomainForm } from "./domain-form";
 export const metadata: Metadata = { title: "Domínio próprio — Calenvia" };
 
 export default async function DominioPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("settings.manage");
   const allowed = hasFeature(business, "customDomain");
   const supabase = await createSupabaseServerClient();
   const { data: row } = await supabase

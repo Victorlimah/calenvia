@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { BusinessInfoForm } from "@/components/painel/business-info-form";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 
 export const metadata: Metadata = { title: "Dados do negócio — Calenvia" };
 
 export default async function AjustesNegocioPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("settings.manage");
   return (
     <PageBody>
       <PageHeader title="Dados do negócio" back={{ href: "/ajustes", label: "Ajustes" }} />

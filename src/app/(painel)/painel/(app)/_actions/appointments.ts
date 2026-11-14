@@ -1,11 +1,12 @@
 "use server";
 
+import { APPOINTMENT_COLUMNS } from "@/lib/appointments/columns";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
 import { rescheduleAppointment, rescheduleSlots, toBookingError } from "@/lib/booking";
 import { afterCancel, afterReschedule } from "@/lib/booking/after-booking";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor, requireMember } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const id = z.string().uuid();
@@ -14,7 +15,7 @@ export async function setAppointmentStatusAction(
   appointmentId: string,
   status: "confirmed" | "completed" | "no_show",
 ): Promise<ActionResult> {
-  const business = await requireBusiness();
+  await requireMember();
   if (
     !id.safeParse(appointmentId).success ||
     !["confirmed", "completed", "no_show"].includes(status)
@@ -22,28 +23,13 @@ export async function setAppointmentStatusAction(
     return { ok: false, error: "Pedido inválido." };
   }
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("appointments")
-    .update({ status, canceled_at: null })
-    .eq("id", appointmentId)
-    .eq("business_id", business.id)
-    .neq("status", "canceled")
-    .select("customer_id, starts_at")
-    .maybeSingle();
-  if (error || !data) return { ok: false, error: "Não foi possível atualizar." };
-  if (status === "completed") {
-    const { data: customer } = await supabase
-      .from("customers")
-      .select("last_visit_at")
-      .eq("id", data.customer_id)
-      .maybeSingle();
-    if (!customer?.last_visit_at || customer.last_visit_at < data.starts_at) {
-      await supabase
-        .from("customers")
-        .update({ last_visit_at: data.starts_at })
-        .eq("id", data.customer_id);
-    }
-  }
+  // A função no banco checa o papel: quem agenda para todos, ou o profissional nos próprios
+  // atendimentos (CAL-112). Também atualiza a última visita do cliente.
+  const { error } = await supabase.rpc("set_appointment_status", {
+    p_appointment_id: appointmentId,
+    p_status: status,
+  });
+  if (error) return { ok: false, error: "Não foi possível atualizar." };
   revalidatePath("/painel", "layout");
   const messages = {
     confirmed: "Marcado como confirmado.",
@@ -54,7 +40,7 @@ export async function setAppointmentStatusAction(
 }
 
 export async function cancelAppointmentAction(appointmentId: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   if (!id.safeParse(appointmentId).success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
@@ -63,7 +49,7 @@ export async function cancelAppointmentAction(appointmentId: string): Promise<Ac
     .eq("id", appointmentId)
     .eq("business_id", business.id)
     .neq("status", "canceled")
-    .select("*")
+    .select(APPOINTMENT_COLUMNS)
     .maybeSingle();
   if (error || !data) return { ok: false, error: "Não foi possível cancelar." };
   await afterCancel(business, data, { notifyCustomer: true });
@@ -82,7 +68,7 @@ export async function rescheduleSlotsAction(
 ): Promise<
   ActionResult<{ slots: { time: string; start: string; staffIds: string[] }[]; status: string }>
 > {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   const parsed = slotsInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
@@ -109,7 +95,7 @@ const rescheduleInput = z.object({
 });
 
 export async function rescheduleAppointmentAction(input: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   const parsed = rescheduleInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();

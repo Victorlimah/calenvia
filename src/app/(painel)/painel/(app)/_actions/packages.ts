@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { invalid, type ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { todayIn } from "@/lib/dates";
 import { parsePriceToCents } from "@/lib/money";
 import { expiresAt, PACKAGE_ERRORS } from "@/lib/packages";
@@ -21,7 +21,7 @@ const packageInput = z.object({
 });
 
 export async function createPackageAction(raw: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("finance.view");
   const parsed = packageInput.safeParse(raw);
   if (!parsed.success) return invalid(parsed.error);
   const price = parsePriceToCents(parsed.data.price);
@@ -42,7 +42,7 @@ export async function createPackageAction(raw: unknown): Promise<ActionResult> {
 }
 
 export async function togglePackageAction(id: string, active: boolean): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("finance.view");
   if (!uuid.safeParse(id).success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
   await supabase
@@ -56,7 +56,7 @@ export async function togglePackageAction(id: string, active: boolean): Promise<
 
 /** Vende um pacote ao cliente e lança a receita no Financeiro. */
 export async function sellPackageAction(raw: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("finance.view");
   const parsed = z.object({ customerId: uuid, packageId: uuid }).safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Escolha o pacote." };
   const supabase = await createSupabaseServerClient();
@@ -94,7 +94,7 @@ export async function sellPackageAction(raw: unknown): Promise<ActionResult> {
 
 /** Desconta uma sessão do pacote neste agendamento. */
 export async function consumePackageSessionAction(raw: unknown): Promise<ActionResult> {
-  await requireBusiness();
+  await requireBusinessFor("finance.view");
   const parsed = z.object({ customerPackageId: uuid, appointmentId: uuid }).safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();

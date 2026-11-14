@@ -2,12 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { invalid, type ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { appearanceSchema, testimonialSchema } from "@/lib/validation/business";
 
 export async function saveAppearanceAction(input: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const parsed = appearanceSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createSupabaseServerClient();
@@ -21,7 +21,7 @@ export async function saveAppearanceAction(input: unknown): Promise<ActionResult
 }
 
 export async function addTestimonialAction(input: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const parsed = testimonialSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createSupabaseServerClient();
@@ -39,7 +39,7 @@ export async function addTestimonialAction(input: unknown): Promise<ActionResult
 }
 
 export async function removeTestimonialAction(id: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const supabase = await createSupabaseServerClient();
   await supabase.from("business_testimonials").delete().eq("id", id).eq("business_id", business.id);
   revalidatePath("/painel", "layout");

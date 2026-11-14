@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { NO_PERMISSION, requireMember } from "@/lib/business/current";
+import { canBlock } from "@/lib/permissions";
 import { localDateTimeToUtc, zonedDayRange } from "@/lib/dates";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -28,11 +29,14 @@ const blockSchema = z
 export async function createBlockAction(
   input: unknown,
 ): Promise<ActionResult<{ overlapping: number }>> {
-  const business = await requireBusiness();
+  const member = await requireMember();
+  const business = member.business;
   const parsed = blockSchema.safeParse(input);
   if (!parsed.success)
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Confira os dados." };
   const v = parsed.data;
+  // Profissional só bloqueia os próprios horários (CAL-112).
+  if (!canBlock(member, v.staffId)) return { ok: false, error: NO_PERMISSION };
   const tz = business.timezone;
   const start = v.allDay
     ? zonedDayRange(v.startDate, tz).start
@@ -84,14 +88,16 @@ export async function createBlockAction(
 }
 
 export async function deleteBlockAction(id: string): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const { business } = await requireMember();
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase
+  // A RLS só deixa apagar o que o papel pode (profissional: só os próprios).
+  const { data, error } = await supabase
     .from("time_blocks")
     .delete()
     .eq("id", id)
-    .eq("business_id", business.id);
-  if (error) return { ok: false, error: "Não foi possível remover." };
+    .eq("business_id", business.id)
+    .select("id");
+  if (error || !data?.length) return { ok: false, error: "Não foi possível remover." };
   revalidatePath("/painel", "layout");
   return { ok: true, message: "Bloqueio removido." };
 }

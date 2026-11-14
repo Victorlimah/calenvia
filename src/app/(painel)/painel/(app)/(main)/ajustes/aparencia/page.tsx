@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AppearanceEditor } from "@/components/painel/appearance-editor";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { segmentLabel } from "@/lib/business/segments";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/painel/page-header";
@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/painel/page-header";
 export const metadata: Metadata = { title: "Aparência da página — Calenvia" };
 
 export default async function AjustesAparenciaPage() {
-  const b = await requireReadyBusiness();
+  const { business: b } = await requirePermission("settings.manage");
   const supabase = await createSupabaseServerClient();
   const [{ data: photos }, { data: testimonials }] = await Promise.all([
     supabase.from("business_photos").select("id, url").eq("business_id", b.id).order("sort_order"),

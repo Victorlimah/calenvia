@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Card } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { periodOf, todayIn, zonedDayRange } from "@/lib/dates";
 import { summarizeMonth, type FinanceEntry } from "@/lib/finance/summary";
 import { formatPrice } from "@/lib/money";
 import { monthRange, shiftMonth } from "@/lib/reports/monthly";
+import { loadAppointmentPrices } from "@/lib/appointments/prices";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { EntryForm, EntryList } from "./entries";
 
@@ -32,7 +33,7 @@ export default async function FinanceiroPage({
 }: {
   searchParams: Promise<{ mes?: string }>;
 }) {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("finance.view");
   const tz = business.timezone;
   const current = periodOf(new Date(), tz);
   const sp = await searchParams;
@@ -42,7 +43,7 @@ export default async function FinanceiroPage({
   const [{ data: appts }, { data: entries }] = await Promise.all([
     supabase
       .from("appointments")
-      .select("price_cents")
+      .select("id")
       .eq("business_id", business.id)
       .eq("status", "completed")
       .gte("starts_at", zonedDayRange(from, tz).start.toISOString())
@@ -56,8 +57,14 @@ export default async function FinanceiroPage({
       .order("occurred_on", { ascending: false }),
   ]);
   const list = (entries ?? []) as FinanceEntry[];
+  // Valores só por appointment_prices() (finance.view, CAL-112).
+  const prices = await loadAppointmentPrices(
+    supabase,
+    business.id,
+    (appts ?? []).map((a) => a.id),
+  );
   const s = summarizeMonth(
-    (appts ?? []).reduce((t, a) => t + a.price_cents, 0),
+    [...prices.values()].reduce((t, v) => t + v, 0),
     list,
   );
   const [y, m] = period.split("-").map(Number);

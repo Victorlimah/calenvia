@@ -22,6 +22,8 @@ export type Plan = {
   /** Pro+: "ilimitado" com uso justo (limite configurável). */
   fairUse: boolean;
   features: PlanFeatures;
+  /** Pessoas com login no painel, contando o dono. null = ilimitado (CAL-112). */
+  maxMembers: number | null;
   highlights: string[];
 };
 
@@ -43,6 +45,7 @@ export const PLANS: Record<PlanId, Plan> = {
       reports: false,
       prioritySupport: false,
     },
+    maxMembers: 1,
     highlights: [
       "Página de agendamento própria",
       "Agenda, bloqueios e clientes",
@@ -62,6 +65,7 @@ export const PLANS: Record<PlanId, Plan> = {
       reports: false,
       prioritySupport: false,
     },
+    maxMembers: 3,
     highlights: [
       "Tudo do Básico",
       "Confirmação e lembrete automáticos (300 mensagens/mês)",
@@ -81,6 +85,7 @@ export const PLANS: Record<PlanId, Plan> = {
       reports: true,
       prioritySupport: true,
     },
+    maxMembers: null,
     highlights: [
       "Tudo do Pro",
       "Mensagens ilimitadas (uso justo)",
@@ -166,4 +171,15 @@ export function canSendWithQuota(business: BusinessPlan, used: number): boolean 
 
 export function formatPlanPrice(plan: Plan): string {
   return `R$ ${(plan.priceCents / 100).toFixed(2).replace(".", ",")}`;
+}
+
+/** Membros com login que o plano permite (null = ilimitado). Profissional sem login não conta. */
+export function maxMembers(business: Pick<BusinessPlan, "plan">): number | null {
+  return planOf(business).maxMembers;
+}
+
+/** Ainda cabe mais uma pessoa na equipe? `used` = membros ativos + convites pendentes. */
+export function canAddMember(business: Pick<BusinessPlan, "plan">, used: number): boolean {
+  const max = maxMembers(business);
+  return max === null || used < max;
 }

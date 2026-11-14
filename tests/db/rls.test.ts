@@ -197,8 +197,10 @@ describe("LGPD: apagar dados do cliente (CAL-091)", () => {
     expect(after[0]).toMatchObject({ name: "Cliente removido", erased: true });
     expect(after[0].whatsapp).toMatch(/^5500\d{9}$/);
     const { rows: appts } = await db.query(
-      `select customer_name, customer_whatsapp, notes, status, price_cents
-       from public.appointments where customer_id = $1`,
+      `select a.customer_name, a.customer_whatsapp, a.notes, a.status, p.price_cents
+       from public.appointments a
+       join public.appointment_prices(a.business_id, array[a.id]) p on p.id = a.id
+       where a.customer_id = $1`,
       [c[0].id],
     );
     expect(appts[0]).toMatchObject({
@@ -259,8 +261,8 @@ describe("Pacotes (CAL-105)", () => {
     ]);
     expect(rows[0].left).toBe(1);
     const { rows: a } = await db.query(
-      `select price_cents from public.appointments where id = $1`,
-      [appt.id],
+      `select price_cents from public.appointment_prices($1, array[$2::uuid])`,
+      [BIZ_A, appt.id],
     );
     expect(a[0].price_cents).toBe(0);
     await db.query("savepoint denied");

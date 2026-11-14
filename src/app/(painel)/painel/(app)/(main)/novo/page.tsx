@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { EmptyState, ButtonLink } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { loadServices, loadStaff } from "@/lib/business/load";
 import { isLocalDate, todayIn } from "@/lib/dates";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -15,7 +15,7 @@ type Props = {
 };
 
 export default async function NovoPage({ searchParams }: Props) {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("appointments.manage_all");
   const sp = await searchParams;
   const supabase = await createSupabaseServerClient();
   const [services, staff] = await Promise.all([

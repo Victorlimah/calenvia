@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { AgendaRulesForm } from "@/components/painel/agenda-rules-form";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 
 export const metadata: Metadata = { title: "Regras da agenda — Calenvia" };
 
 export default async function AjustesRegrasPage() {
-  const b = await requireReadyBusiness();
+  const { business: b } = await requirePermission("settings.manage");
   return (
     <PageBody>
       <PageHeader title="Regras da agenda" back={{ href: "/ajustes", label: "Ajustes" }} />

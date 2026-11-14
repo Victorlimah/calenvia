@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
 import { requireUser } from "@/lib/auth/session";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { canSendAutomaticMessages } from "@/lib/plans";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -24,7 +24,7 @@ const settingsInput = z.object({
  */
 export async function saveMessageSettingsAction(raw: unknown): Promise<ActionResult> {
   const user = await requireUser();
-  const business = await requireBusiness(); // dono do negócio (RLS)
+  const business = await requireBusinessFor("settings.manage"); // dono do negócio (RLS)
   if (!canSendAutomaticMessages(business)) {
     return { ok: false, error: "Mensagens automáticas estão disponíveis no plano Pro." };
   }
@@ -53,7 +53,7 @@ export async function saveMessageSettingsAction(raw: unknown): Promise<ActionRes
 
 /** Liga/desliga as mensagens automáticas de um agendamento (CAL-111). */
 export async function setAppointmentMessagesAction(raw: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("appointments.manage_all");
   const parsed = z
     .object({ appointmentId: z.string().uuid(), enabled: z.boolean() })
     .safeParse(raw);

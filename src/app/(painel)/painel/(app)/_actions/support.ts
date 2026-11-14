@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { invalid, type ActionResult } from "@/lib/action-result";
-import { requireBusiness } from "@/lib/business/current";
+import { requireBusinessFor } from "@/lib/business/current";
 import { businessDisplayHost } from "@/lib/hosts";
 import { hasFeature, planOf } from "@/lib/plans";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -19,7 +19,7 @@ const input = z.object({
 
 /** Registra um pedido de suporte (CAL-101) e avisa a equipe. Pro+ entra como prioritário. */
 export async function sendSupportRequestAction(raw: unknown): Promise<ActionResult> {
-  const business = await requireBusiness();
+  const business = await requireBusinessFor("settings.manage");
   const parsed = input.safeParse(raw);
   if (!parsed.success) return invalid(parsed.error);
   const priority = hasFeature(business, "prioritySupport");

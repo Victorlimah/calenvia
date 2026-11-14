@@ -47,7 +47,9 @@ describe("Revisão de segurança (CAL-090)", () => {
       where n.nspname = 'public' and c.relkind = 'v'`);
     expect(
       rows.filter((v) => !v.opts.includes("security_invoker=true")).map((v) => v.name),
-    ).toEqual([]);
+      // customer_summaries (CAL-112) soma valores que nenhum papel lê direto: o filtro de acesso
+      // fica dentro da view (testado em team.test.ts).
+    ).toEqual(["customer_summaries"]);
   });
 
   it("funções security definer fixam o search_path e não ficam abertas ao anônimo", async () => {

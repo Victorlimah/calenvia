@@ -1,5 +1,11 @@
 /** Caminhos do painel (já sem o prefixo /painel) que não exigem login. */
-export const PUBLIC_APP_PATHS = ["/entrar", "/cadastro", "/recuperar-senha", "/auth/callback"];
+export const PUBLIC_APP_PATHS = [
+  "/entrar",
+  "/cadastro",
+  "/recuperar-senha",
+  "/auth/callback",
+  "/convite", // CAL-112: mostra o convite antes do login
+];
 
 export function isPublicAppPath(pathname: string): boolean {
   return PUBLIC_APP_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

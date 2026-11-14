@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PackagesEditor } from "./packages-editor";
 
 export const metadata: Metadata = { title: "Pacotes — Calenvia" };
 
 export default async function PacotesPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("finance.view");
   const supabase = await createSupabaseServerClient();
   const [{ data: services }, { data: packages }] = await Promise.all([
     supabase

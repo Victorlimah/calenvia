@@ -16,7 +16,8 @@ export type AgendaAppointment = {
   serviceName: string;
   staffId: string;
   staffName: string;
-  priceCents: number;
+  /** null = o papel não vê valores (CAL-112). */
+  priceCents: number | null;
   confirmationSent: boolean;
 };
 
@@ -95,6 +96,6 @@ export function daySummary(appointments: AgendaAppointment[]) {
     noShow: active.filter((a) => a.status === "no_show").length,
     expectedRevenueCents: active
       .filter((a) => a.status !== "no_show")
-      .reduce((s, a) => s + a.priceCents, 0),
+      .reduce((s, a) => s + (a.priceCents ?? 0), 0),
   };
 }

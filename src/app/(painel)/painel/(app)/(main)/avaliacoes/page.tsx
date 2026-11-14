@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Card, EmptyState } from "@/components/ui";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { formatDate } from "@/lib/dates";
 import { ratingSummary } from "@/lib/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -10,7 +10,7 @@ import { PublishToggle } from "./publish-toggle";
 export const metadata: Metadata = { title: "Avaliações — Calenvia" };
 
 export default async function AvaliacoesPage() {
-  const business = await requireReadyBusiness();
+  const { business } = await requirePermission("settings.manage");
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("reviews")

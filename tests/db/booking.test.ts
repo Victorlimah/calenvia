@@ -53,7 +53,12 @@ describe("criação de agendamento com revalidação", () => {
       source: "link",
     });
     expect(a.staff_member_id).toBe(ZE);
-    expect(a.price_cents).toBe(4000);
+    const { data: priced } = await db
+      .from("appointments")
+      .select("price_cents")
+      .eq("id", a.id)
+      .single();
+    expect(priced?.price_cents).toBe(4000);
     expect(a.customer_name).toBe("Teste Um");
     expect(a.customer_whatsapp).toBe("5585977770001");
     expect(a.manage_code).toMatch(/^[A-Z2-9]{6}$/);

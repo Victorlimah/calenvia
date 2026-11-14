@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { ShareLinkCard } from "@/components/painel/share-link-card";
-import { requireReadyBusiness } from "@/lib/business/current";
+import { requirePermission } from "@/lib/business/current";
 import { businessDisplayHost, businessUrl } from "@/lib/hosts";
 import { waMeLink } from "@/lib/phone";
 
 export const metadata: Metadata = { title: "Link da página — Calenvia" };
 
 export default async function AjustesLinkPage() {
-  const b = await requireReadyBusiness();
+  const { business: b } = await requirePermission("settings.manage");
   const url = businessUrl(b.slug);
   const shareText = `Agora você pode agendar seu horário na ${b.name} pelo link: ${url}`;
   return (
