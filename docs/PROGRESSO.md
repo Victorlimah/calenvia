@@ -1,9 +1,9 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-092
-- Card em andamento: CAL-054
-- Próximo card: CAL-064
-- Atualizado em: 2026-11-14 07:48
+- Último card concluído: CAL-064
+- Card em andamento: CAL-065
+- Próximo card: CAL-086
+- Atualizado em: 2026-11-14 08:10
 ## Histórico
 | Card | Status | Commit | Resumo | Como testar |
 |---|---|---|---|---|
@@ -67,6 +67,8 @@
 | CAL-090 | Concluído | d72d76b | tests/db/security.test.ts varre o schema: RLS em toda tabela, views security_invoker, funções definer com search_path e sem acesso anônimo; para toda tabela com business_id o dono A não lê/altera/apaga/cria no B e o anônimo não lê; src/lib/security.test.ts garante que nenhum componente cliente usa service_role/segredos; docs/SEGURANCA.md | npm run test:db (security.test.ts); npm test (security.test.ts) |
 | CAL-091 | Concluído | 1041305 | Aviso de privacidade no passo de dados do agendamento; /clientes/[id]: baixar dados (JSON, rota /clientes/[id]/dados) e apagar dados (erase_customer, migration 20261114001200: anonimiza cliente, agendamentos e mensagens, cancela futuros, mantém valores) | npm run test:db (rls.test.ts › LGPD); npm run test:e2e (clientes.spec.ts) |
 | CAL-092 | Concluído | 34daf2a | scripts/backup.sh + scripts/restore-check.sh (testado: backup local criptografado → reset → carga → 18 tabelas com as mesmas contagens → login/agenda ok); workflow .github/workflows/backup.yml diário com teste de restauração; docs/BACKUP.md | BACKUP_PASSPHRASE=x scripts/backup.sh && BACKUP_PASSPHRASE=x scripts/restore-check.sh backups/<arquivo>.enc --yes |
+| CAL-054 | Concluído | aa63c63 | /og por negócio (nome, logo, cor, chamada) e opengraph-image do site via next/og; metadados completos (canônico, OG, Twitter, noindex com agenda fechada); JSON-LD LocalBusiness (horários, ofertas, ReserveAction); robots.txt e sitemap.xml por host | npm test (seo/local-business.test.ts); npm run test:e2e (seo.spec.ts) |
+| CAL-064 | Concluído (no navegador) | 0ff14ad | NewBookingNotifier no shell do painel: agendamento feito pela página → aviso na tela com link e notificação do sistema (Realtime); Ajustes › Ligar avisos neste aparelho | npm test (agenda/new-booking.test.ts); npm run test:e2e (avisos.spec.ts) |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
@@ -118,6 +120,7 @@
 - CAL-053: rodar o Lighthouse (celular) no deploy de preview para confirmar ≥ 90.
 - CAL-089: para ligar o captcha invisível, criar um widget Turnstile (modo invisível/gerenciado) na Cloudflare e definir NEXT_PUBLIC_TURNSTILE_SITE_KEY e TURNSTILE_SECRET_KEY na Vercel. Definir também RATE_LIMIT_SALT.
 - CAL-092: ligar o backup diário criando os segredos SUPABASE_DB_URL e BACKUP_PASSPHRASE no GitHub; recomendado também o plano Pro do Supabase (backup diário + PITR).
+- CAL-064: aviso com o painel fechado precisa de Web Push (dependência web-push + chaves VAPID) ou e-mail (serviço como Resend). Decidir qual e aprovar a dependência/serviço.
 
 ## Plano do card atual
 —

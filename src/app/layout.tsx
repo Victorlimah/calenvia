@@ -15,6 +15,11 @@ const bricolage = Bricolage_Grotesque({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl("/")),
   title: "Calenvia — agendamento online pelo WhatsApp",
+  icons: {
+    icon: [{ url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  appleWebApp: { capable: true, title: "Calenvia", statusBarStyle: "default" },
   description: "Sua página de agendamento com confirmação e lembrete automáticos no WhatsApp.",
 };
 

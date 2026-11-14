@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { newBookingText, shouldNotify, type BookingEvent } from "@/lib/agenda/new-booking";
+import { showSystemNotification } from "@/lib/notify";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Toast = { id: string; title: string; body: string };
@@ -44,21 +45,11 @@ export function NewBookingNotifier({
             const text = newBookingText(row, timezone);
             setToasts((list) => [...list.slice(-2), { id: row.id, ...text }]);
             setTimeout(() => setToasts((list) => list.filter((t) => t.id !== row.id)), 15_000);
-            try {
-              if ("Notification" in window && Notification.permission === "granted") {
-                const n = new Notification(text.title, {
-                  body: text.body,
-                  tag: row.id,
-                  icon: "/icons/icon-192.png",
-                });
-                n.onclick = () => {
-                  window.focus();
-                  window.location.href = `/agendamento/${row.id}`;
-                };
-              }
-            } catch {
-              // alguns navegadores (iOS fora do app instalado) não suportam
-            }
+            void showSystemNotification(text.title, {
+              body: text.body,
+              tag: row.id,
+              url: `/agendamento/${row.id}`,
+            });
           },
         )
         .subscribe();

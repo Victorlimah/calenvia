@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Alert, Button, Card } from "@/components/ui";
+import { showSystemNotification } from "@/lib/notify";
 
 type State = "unsupported" | "default" | "granted" | "denied";
 
@@ -17,7 +18,7 @@ export function NotificationSettings() {
     const result = await Notification.requestPermission();
     setState(result as State);
     if (result === "granted") {
-      new Notification("Avisos ligados", {
+      await showSystemNotification("Avisos ligados", {
         body: "Você vai ser avisado quando alguém agendar pela sua página.",
       });
     }
