@@ -74,7 +74,8 @@ describe("planos", () => {
     expect(canSendAutomaticMessages(biz("pro", "suspended"))).toBe(false);
     expect(isBookingOpen(biz("pro", "canceled"))).toBe(false);
     expect(isBookingOpen(biz("pro", "past_due"))).toBe(true);
-    expect(isBookingOpen(biz("basic", "pending"))).toBe(true);
+    // Cadastro sem pagamento não abre a agenda (CAL-076).
+    expect(isBookingOpen(biz("basic", "pending"))).toBe(false);
   });
 
   it("plano desconhecido cai no Básico", () => {

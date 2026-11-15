@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { QuotaAlert, QuotaMeter } from "@/components/painel/quota";
-import { Badge, Card } from "@/components/ui";
+import { Alert, Badge, Card } from "@/components/ui";
 import { requirePermission } from "@/lib/business/current";
 import { canSendAutomaticMessages, formatPlanPrice, PLAN_ORDER, PLANS, planOf } from "@/lib/plans";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -20,7 +20,12 @@ const STATUS: Record<
   canceled: { label: "Cancelada", tone: "danger" },
 };
 
-export default async function AssinaturaPage() {
+export default async function AssinaturaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ativado?: string }>;
+}) {
+  const { ativado } = await searchParams;
   const { business } = await requirePermission("billing.manage");
   const plan = planOf(business);
   const automatic = canSendAutomaticMessages(business);
@@ -32,6 +37,11 @@ export default async function AssinaturaPage() {
   return (
     <PageBody>
       <PageHeader title="Assinatura" back={{ href: "/ajustes", label: "Ajustes" }} />
+      {ativado ? (
+        <Alert tone="success" title="Assinatura ativada!">
+          Pagamento aprovado. Sua página já está recebendo agendamentos.
+        </Alert>
+      ) : null}
 
       <Card className="space-y-2">
         <div className="flex items-center justify-between gap-3">

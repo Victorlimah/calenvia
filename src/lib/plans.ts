@@ -120,8 +120,16 @@ export function planOf(business: Pick<BusinessPlan, "plan">): Plan {
   return PLANS[(business.plan as PlanId) in PLANS ? (business.plan as PlanId) : "basic"];
 }
 
-/** Assinatura em situação de uso (pendente conta como uso até o checkout existir). */
-export const USABLE_PLAN_STATUSES: PlanStatus[] = ["pending", "active", "past_due"];
+/**
+ * Assinatura em situação de uso. `pending` (cadastrado sem pagar) não libera recursos desde o
+ * checkout (CAL-076); `past_due` continua funcionando durante a carência.
+ */
+export const USABLE_PLAN_STATUSES: PlanStatus[] = ["active", "past_due"];
+
+/** Precisa pagar para usar o painel (cadastro novo ou assinatura cancelada). */
+export function needsCheckout(business: Pick<BusinessPlan, "plan_status">): boolean {
+  return business.plan_status === "pending" || business.plan_status === "canceled";
+}
 
 export function isPlanUsable(business: Pick<BusinessPlan, "plan_status">): boolean {
   return (USABLE_PLAN_STATUSES as string[]).includes(business.plan_status);

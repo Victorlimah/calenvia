@@ -40,12 +40,15 @@ test("dono novo escolhe o Pro no site, cria a conta e conclui o onboarding", asy
   await expect(page).toHaveURL(/\/onboarding\/horarios/);
   await page.getByRole("button", { name: "Salvar e finalizar" }).click();
 
-  // Pronto
+  // Pronto: falta ativar a assinatura (CAL-076; o pagamento está em cobranca.spec.ts)
   await expect(page).toHaveURL(/\/onboarding\/pronto/);
   await expect(page.getByText(`studio-carla-${stamp}.localhost:3000`)).toBeVisible();
   await expect(page.getByText("Seu plano:")).toContainText("Pro");
-  await page.getByRole("link", { name: "Ir para a agenda" }).click();
-  await expect(page.getByRole("heading", { name: "Agenda" })).toBeVisible();
+  await page.getByRole("link", { name: "Assinar e ativar" }).click();
+  await expect(page).toHaveURL(/\/assinatura\/checkout/);
+  // Sem pagar, a agenda leva de volta para o checkout.
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/assinatura\/checkout/);
 });
 
 test("slug já usado mostra sugestões", async ({ page }) => {
