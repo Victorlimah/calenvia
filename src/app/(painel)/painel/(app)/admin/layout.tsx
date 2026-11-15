@@ -8,7 +8,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const NAV = [{ href: "/admin", label: "Negócios" }];
+const NAV = [
+  { href: "/admin", label: "Negócios" },
+  { href: "/admin/metricas", label: "Métricas" },
+];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requirePlatformAdmin();

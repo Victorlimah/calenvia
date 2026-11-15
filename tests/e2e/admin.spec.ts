@@ -48,3 +48,15 @@ test("dono de negócio não vê a administração (404)", async ({ page }) => {
   const res = await page.goto("http://app.localhost:3000/admin");
   expect(res?.status()).toBe(404);
 });
+
+test("admin abre as métricas e vê o funil", async ({ page }) => {
+  test.setTimeout(120_000);
+  await loginAsZe(page, "/admin/metricas", "admin@calenvia.dev");
+  await page.waitForURL((u) => u.pathname === "/admin/metricas");
+  await expect(page.getByRole("heading", { name: "Métricas" })).toBeVisible();
+  await expect(page.getByText("Receita mensal estimada")).toBeVisible();
+  const funnel = page.getByRole("list", { name: "Funil dos últimos 30 dias" });
+  await expect(funnel.getByText("Visitas ao site")).toBeVisible();
+  await page.getByRole("link", { name: "7 dias" }).click();
+  await expect(page.getByRole("list", { name: "Funil dos últimos 7 dias" })).toBeVisible();
+});

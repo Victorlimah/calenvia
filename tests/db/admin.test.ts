@@ -58,4 +58,30 @@ describe("administração (CAL-114)", () => {
     );
     expect(none).toHaveLength(0);
   });
+
+  it("dono e anônimo não chamam as métricas da administração", async () => {
+    await actAs(db, OWNER_A);
+    await expectDenied(`select * from public.admin_metrics_overview()`);
+    await db.query("reset role");
+    await db.query("set local role anon");
+    await expectDenied(`select * from public.admin_metrics_overview()`);
+  });
+
+  it("as métricas somam os negócios e trazem 12 semanas", async () => {
+    await db.query("reset role");
+    const { rows: c } = await db.query(
+      `select plan, plan_status, count(*)::int as n from public.businesses group by 1, 2`,
+    );
+    const { rows } = await db.query(`select * from public.admin_metrics_overview()`);
+    const o = rows[0];
+    const total = c.reduce((s, r) => s + r.n, 0);
+    expect(Number(o.businesses_total)).toBe(total);
+    for (const r of c) expect(o.by_plan_status[r.plan][r.plan_status]).toBe(r.n);
+    expect(o.new_businesses_by_week).toHaveLength(12);
+    const weekly = o.new_businesses_by_week.reduce(
+      (s: number, w: { total: number }) => s + w.total,
+      0,
+    );
+    expect(weekly).toBeLessThanOrEqual(total);
+  });
 });

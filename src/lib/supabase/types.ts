@@ -1533,6 +1533,18 @@ export type Database = {
           total_count: number;
         }[];
       };
+      admin_metrics_overview: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          appointments_last_30d: Json;
+          businesses_total: number;
+          by_plan_status: Json;
+          messages_by_status: Json;
+          messages_this_month: number;
+          new_businesses_by_week: Json;
+          onboarding_completed_total: number;
+        }[];
+      };
       appointment_prices: {
         Args: { p_business_id: string; p_ids: string[] };
         Returns: {
