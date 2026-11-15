@@ -17,6 +17,9 @@ import { maxMembers, monthlyMessageLimit, PLANS, planOf, type PlanStatus } from 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { AdminBody, AdminTitle } from "../../ui";
 import { BusinessAdminForm } from "./business-admin-form";
+import { BillingSimulations } from "./billing-simulations";
+import { isMockBilling } from "@/lib/billing/config";
+import { formatPrice } from "@/lib/money";
 
 export const metadata: Metadata = { title: "Negócio — Administração Calenvia" };
 
@@ -31,40 +34,56 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
 
   const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const period = periodOf(new Date(), business.timezone);
-  const [owner, members, invites, usage, appts, note, audit] = await Promise.all([
-    db.auth.admin.getUserById(business.owner_id),
-    db
-      .from("business_members")
-      .select("id, role, display_name, email, status, created_at")
-      .eq("business_id", id)
-      .eq("status", "active")
-      .order("created_at"),
-    db
-      .from("business_invitations")
-      .select("id", { count: "exact", head: true })
-      .eq("business_id", id)
-      .is("accepted_at", null)
-      .is("revoked_at", null)
-      .gt("expires_at", new Date().toISOString()),
-    db
-      .from("message_usage")
-      .select("count")
-      .eq("business_id", id)
-      .eq("period", period)
-      .maybeSingle(),
-    db
-      .from("appointments")
-      .select("id", { count: "exact", head: true })
-      .eq("business_id", id)
-      .gte("created_at", since30),
-    db.from("admin_business_notes").select("notes").eq("business_id", id).maybeSingle(),
-    db
-      .from("admin_audit_log")
-      .select("id, admin_email, action, changes, created_at")
-      .eq("business_id", id)
-      .order("created_at", { ascending: false })
-      .limit(50),
-  ]);
+  const [owner, members, invites, usage, appts, note, audit, subscription, invoices] =
+    await Promise.all([
+      db.auth.admin.getUserById(business.owner_id),
+      db
+        .from("business_members")
+        .select("id, role, display_name, email, status, created_at")
+        .eq("business_id", id)
+        .eq("status", "active")
+        .order("created_at"),
+      db
+        .from("business_invitations")
+        .select("id", { count: "exact", head: true })
+        .eq("business_id", id)
+        .is("accepted_at", null)
+        .is("revoked_at", null)
+        .gt("expires_at", new Date().toISOString()),
+      db
+        .from("message_usage")
+        .select("count")
+        .eq("business_id", id)
+        .eq("period", period)
+        .maybeSingle(),
+      db
+        .from("appointments")
+        .select("id", { count: "exact", head: true })
+        .eq("business_id", id)
+        .gte("created_at", since30),
+      db.from("admin_business_notes").select("notes").eq("business_id", id).maybeSingle(),
+      db
+        .from("admin_audit_log")
+        .select("id, admin_email, action, changes, created_at")
+        .eq("business_id", id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      db
+        .from("subscriptions")
+        .select(
+          "provider, status, plan, current_period_end, cancel_at_period_end, pending_plan, past_due_since",
+        )
+        .eq("business_id", id)
+        .neq("status", "canceled")
+        .maybeSingle(),
+      db
+        .from("invoices")
+        .select("id, amount_cents, status, created_at")
+        .eq("business_id", id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
+  const sub = subscription.data;
 
   const plan = planOf(business);
   const ownerEmail = owner.data.user?.email ?? "—";
@@ -155,6 +174,54 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
         />
       </Card>
 
+      <Card className="space-y-3 text-sm" aria-labelledby="cobranca-admin">
+        <h2 id="cobranca-admin" className="font-display text-lg font-bold text-ink">
+          Cobrança
+        </h2>
+        {sub ? (
+          <>
+            <Info label="Provedor" value={PROVIDER_LABELS[sub.provider] ?? sub.provider} />
+            <Info label="Status da assinatura" value={sub.status} />
+            <Info
+              label="Ciclo atual até"
+              value={sub.current_period_end ? formatAdminDate(sub.current_period_end) : "—"}
+            />
+            {sub.pending_plan ? (
+              <Info
+                label="Troca agendada"
+                value={`para ${PLANS[sub.pending_plan as keyof typeof PLANS]?.name ?? sub.pending_plan}`}
+              />
+            ) : null}
+            {sub.cancel_at_period_end ? (
+              <Info label="Cancelamento" value="agendado para o fim do ciclo" />
+            ) : null}
+            {sub.past_due_since ? (
+              <Info label="Em atraso desde" value={formatAdminDate(sub.past_due_since)} />
+            ) : null}
+          </>
+        ) : (
+          <p className="text-muted">Sem assinatura aberta.</p>
+        )}
+        {(invoices.data ?? []).length > 0 ? (
+          <ul className="divide-y divide-line">
+            {(invoices.data ?? []).map((i) => (
+              <li key={i.id} className="flex justify-between gap-2 py-1.5">
+                <span className="text-muted">{formatAdminDate(i.created_at)}</span>
+                <span className="text-ink">
+                  {formatPrice(i.amount_cents)} · {INVOICE_LABELS[i.status] ?? i.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {isMockBilling() && sub && sub.provider !== "stripe" ? (
+          <div className="space-y-2 border-t border-line pt-3">
+            <p className="text-muted">Pagamento simulado: teste o ciclo de cobrança.</p>
+            <BillingSimulations businessId={business.id} />
+          </div>
+        ) : null}
+      </Card>
+
       <Card className="space-y-3">
         <h2 className="font-display text-lg font-bold text-ink">Equipe</h2>
         <ul className="divide-y divide-line text-sm">
@@ -210,6 +277,19 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
     </AdminBody>
   );
 }
+
+const PROVIDER_LABELS: Record<string, string> = {
+  mock: "Pagamento simulado",
+  stripe: "Stripe",
+  manual: "Manual (sem cobrança)",
+};
+
+const INVOICE_LABELS: Record<string, string> = {
+  open: "em aberto",
+  paid: "paga",
+  failed: "falhou",
+  void: "anulada",
+};
 
 function Info({ label, value }: { label: string; value: string }) {
   return (

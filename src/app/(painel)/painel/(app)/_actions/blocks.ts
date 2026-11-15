@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
-import { NO_PERMISSION, requireMember } from "@/lib/business/current";
+import { NO_PERMISSION, requireWritableMember } from "@/lib/business/current";
 import { canBlock } from "@/lib/permissions";
 import { localDateTimeToUtc, zonedDayRange } from "@/lib/dates";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -29,7 +29,7 @@ const blockSchema = z
 export async function createBlockAction(
   input: unknown,
 ): Promise<ActionResult<{ overlapping: number }>> {
-  const member = await requireMember();
+  const member = await requireWritableMember();
   const business = member.business;
   const parsed = blockSchema.safeParse(input);
   if (!parsed.success)
@@ -88,7 +88,7 @@ export async function createBlockAction(
 }
 
 export async function deleteBlockAction(id: string): Promise<ActionResult> {
-  const { business } = await requireMember();
+  const { business } = await requireWritableMember();
   const supabase = await createSupabaseServerClient();
   // A RLS só deixa apagar o que o papel pode (profissional: só os próprios).
   const { data, error } = await supabase

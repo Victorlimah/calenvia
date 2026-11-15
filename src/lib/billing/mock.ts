@@ -14,9 +14,9 @@ import type { BillingEvent, InvoiceLine, NormalizedInvoice } from "./types";
  * contas de teste. Gera os mesmos eventos normalizados que o webhook do Stripe vai gerar.
  */
 const evtId = () => `mock_evt_${randomUUID()}`;
-const base = (businessId: string | null) => ({
+const base = (businessId: string | null, provider: "mock" | "manual" = "mock") => ({
   id: evtId(),
-  provider: "mock" as const,
+  provider,
   occurredAt: new Date().toISOString(),
   businessId,
 });
@@ -34,6 +34,11 @@ function invoice(
     hostedUrl: null,
     lines,
   };
+}
+
+/** Assinatura "manual" (cortesia) usa a mesma lógica do mock, sem gerar cobrança. */
+function providerOf(sub: SubscriptionRow): "mock" | "manual" {
+  return sub.provider === "manual" ? "manual" : "mock";
 }
 
 async function applyAll(events: BillingEvent[]): Promise<ApplyResult> {
@@ -93,13 +98,13 @@ export async function simulateRenewal(sub: SubscriptionRow): Promise<ApplyResult
   const events: BillingEvent[] = [];
   if (sub.cancel_at_period_end) {
     events.push({
-      ...base(sub.business_id),
+      ...base(sub.business_id, providerOf(sub)),
       type: "subscription.canceled",
       providerSubscriptionId: sub.provider_subscription_id!,
     });
   } else {
     events.push({
-      ...base(sub.business_id),
+      ...base(sub.business_id, providerOf(sub)),
       type: "invoice.paid",
       providerSubscriptionId: sub.provider_subscription_id!,
       invoice: invoice(items, start, end),
@@ -113,7 +118,7 @@ export async function simulatePaymentFailure(sub: SubscriptionRow): Promise<Appl
   const db = createSupabaseAdminClient();
   const { items } = await loadSubscriptionItems(db, sub.business_id);
   return applyBillingEvent({
-    ...base(sub.business_id),
+    ...base(sub.business_id, providerOf(sub)),
     type: "invoice.payment_failed",
     providerSubscriptionId: sub.provider_subscription_id!,
     invoice: invoice(items, null, null),
@@ -142,7 +147,7 @@ export async function simulateInvoicePayment(sub: SubscriptionRow): Promise<Appl
       }
     : invoice((await loadSubscriptionItems(db, sub.business_id)).items, null, null);
   return applyBillingEvent({
-    ...base(sub.business_id),
+    ...base(sub.business_id, providerOf(sub)),
     type: "invoice.paid",
     providerSubscriptionId: sub.provider_subscription_id!,
     invoice: inv,
@@ -174,13 +179,29 @@ export const mockProvider: BillingProvider = {
   async changePlan(sub, target, when) {
     const db = createSupabaseAdminClient();
     const providerSubscriptionId = sub.provider_subscription_id!;
-    if (when === "period_end") {
+    if (when === "at_renewal") {
+      // Cron no fim do ciclo: troca sem cobrança proporcional (a fatura nova já vem certa).
       const r = await applyBillingEvent({
-        ...base(sub.business_id),
+        ...base(sub.business_id, providerOf(sub)),
         type: "subscription.updated",
         providerSubscriptionId,
-        pendingPlan: target.plan,
-        pendingPriceId: target.priceId,
+        plan: target.plan,
+        priceId: target.priceId,
+        pendingPlan: null,
+        pendingPriceId: null,
+      });
+      if (r.status === "error") throw new Error(r.error);
+      return;
+    }
+    if (when === "period_end") {
+      // Agendar o plano atual = desfazer o downgrade agendado.
+      const same = target.plan === sub.plan;
+      const r = await applyBillingEvent({
+        ...base(sub.business_id, providerOf(sub)),
+        type: "subscription.updated",
+        providerSubscriptionId,
+        pendingPlan: same ? null : target.plan,
+        pendingPriceId: same ? null : target.priceId,
       });
       if (r.status === "error") throw new Error(r.error);
       return;
@@ -188,7 +209,7 @@ export const mockProvider: BillingProvider = {
     const before = await loadSubscriptionItems(db, sub.business_id);
     const after = await loadSubscriptionItems(db, sub.business_id, target);
     const r = await applyBillingEvent({
-      ...base(sub.business_id),
+      ...base(sub.business_id, providerOf(sub)),
       type: "subscription.updated",
       providerSubscriptionId,
       plan: target.plan,
@@ -206,9 +227,9 @@ export const mockProvider: BillingProvider = {
             new Date(),
           )
         : 0;
-    if (amount > 0) {
+    if (amount > 0 && sub.provider !== "manual") {
       const paid = await applyBillingEvent({
-        ...base(sub.business_id),
+        ...base(sub.business_id, providerOf(sub)),
         type: "invoice.paid",
         providerSubscriptionId,
         invoice: invoice(
@@ -229,7 +250,7 @@ export const mockProvider: BillingProvider = {
 
   async cancel(sub) {
     const r = await applyBillingEvent({
-      ...base(sub.business_id),
+      ...base(sub.business_id, providerOf(sub)),
       type: "subscription.updated",
       providerSubscriptionId: sub.provider_subscription_id!,
       cancelAtPeriodEnd: true,
@@ -239,7 +260,7 @@ export const mockProvider: BillingProvider = {
 
   async resume(sub) {
     const r = await applyBillingEvent({
-      ...base(sub.business_id),
+      ...base(sub.business_id, providerOf(sub)),
       type: "subscription.updated",
       providerSubscriptionId: sub.provider_subscription_id!,
       cancelAtPeriodEnd: false,

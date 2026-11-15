@@ -9,7 +9,7 @@ import {
   CURRENT_BUSINESS_COOKIE,
   getMyMemberships,
   NO_PERMISSION,
-  requireMember,
+  requireWritableMember,
 } from "@/lib/business/current";
 import { appUrl } from "@/lib/hosts";
 import { canAddMember, maxMembers } from "@/lib/plans";
@@ -70,7 +70,7 @@ async function seatsUsed(businessId: string, now = new Date()): Promise<number> 
 export async function createInvitationAction(
   raw: unknown,
 ): Promise<ActionResult<{ link: string }>> {
-  const member = await requireMember();
+  const member = await requireWritableMember();
   if (!can(member, "team.manage")) return { ok: false, error: NO_PERMISSION };
   const parsed = inviteInput.safeParse(raw);
   if (!parsed.success)
@@ -130,7 +130,7 @@ export async function createInvitationAction(
 
 /** Gera um link novo para um convite pendente (o antigo deixa de valer). */
 export async function resendInvitationAction(id: string): Promise<ActionResult<{ link: string }>> {
-  const member = await requireMember();
+  const member = await requireWritableMember();
   if (!can(member, "team.manage") || !uuid.safeParse(id).success)
     return { ok: false, error: NO_PERMISSION };
   const token = newInviteToken();
@@ -153,7 +153,7 @@ export async function resendInvitationAction(id: string): Promise<ActionResult<{
 }
 
 export async function revokeInvitationAction(id: string): Promise<ActionResult> {
-  const member = await requireMember();
+  const member = await requireWritableMember();
   if (!can(member, "team.manage") || !uuid.safeParse(id).success)
     return { ok: false, error: NO_PERMISSION };
   const db = createSupabaseAdminClient();
@@ -188,7 +188,7 @@ const roleInput = z.object({
 });
 
 export async function changeMemberRoleAction(raw: unknown): Promise<ActionResult> {
-  const member = await requireMember();
+  const member = await requireWritableMember();
   const parsed = roleInput.safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
   const target = await loadTarget(member.business.id, parsed.data.memberId);
@@ -215,7 +215,7 @@ export async function changeMemberRoleAction(raw: unknown): Promise<ActionResult
 
 /** Liga (ou desliga) o acesso de qualquer membro, inclusive o dono, a um cadastro de profissional. */
 export async function linkMemberStaffAction(raw: unknown): Promise<ActionResult> {
-  const member = await requireMember();
+  const member = await requireWritableMember();
   const parsed = z.object({ memberId: uuid, staffMemberId: uuid.nullable() }).safeParse(raw);
   if (!parsed.success) return { ok: false, error: "Pedido inválido." };
   const target = await loadTarget(member.business.id, parsed.data.memberId);
@@ -242,7 +242,7 @@ export async function linkMemberStaffAction(raw: unknown): Promise<ActionResult>
 
 /** Remove o acesso na hora. Agendamentos e o cadastro de profissional continuam. */
 export async function removeMemberAction(id: string): Promise<ActionResult> {
-  const member = await requireMember();
+  const member = await requireWritableMember();
   if (!uuid.safeParse(id).success) return { ok: false, error: "Pedido inválido." };
   const target = await loadTarget(member.business.id, id);
   if (!target || target.status !== "active") return { ok: false, error: "Pessoa não encontrada." };

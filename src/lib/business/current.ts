@@ -95,6 +95,20 @@ export async function memberWith(perm: Permission): Promise<Membership | null> {
 }
 
 export const NO_PERMISSION = "Você não tem permissão para fazer isso.";
+export const SUSPENDED_MESSAGE =
+  "Sua assinatura está suspensa: o painel fica só para consulta até o pagamento ser regularizado em Assinatura.";
+
+/** Assinatura suspensa (CAL-077): painel só leitura, exceto a cobrança. */
+export function isReadOnly(business: Pick<Business, "plan_status">): boolean {
+  return business.plan_status === "suspended";
+}
+
+/** Para server actions que alteram dados: o membro, se o negócio não estiver suspenso. */
+export async function requireWritableMember(): Promise<Membership> {
+  const member = await requireMember();
+  if (isReadOnly(member.business)) throw new Error(SUSPENDED_MESSAGE);
+  return member;
+}
 
 /**
  * Para server actions: negócio atual, se o membro tiver a permissão. Sem ela, lança erro (a
@@ -103,5 +117,8 @@ export const NO_PERMISSION = "Você não tem permissão para fazer isso.";
 export async function requireBusinessFor(perm: Permission): Promise<Business> {
   const member = await requireMember();
   if (!can(member, perm)) throw new Error(NO_PERMISSION);
+  if (!perm.startsWith("billing.") && isReadOnly(member.business)) {
+    throw new Error(SUSPENDED_MESSAGE);
+  }
   return member.business;
 }

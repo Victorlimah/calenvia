@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
 import { requireUser } from "@/lib/auth/session";
@@ -7,7 +8,13 @@ import { isMockBilling } from "@/lib/billing/config";
 import { approveMockCheckout } from "@/lib/billing/mock";
 import { checkoutItems } from "@/lib/billing/prices";
 import { getCurrentPrices } from "@/lib/billing/prices-server";
-import { getBillingProvider } from "@/lib/billing/provider";
+import { getBillingProvider, providerForSubscription } from "@/lib/billing/provider";
+import {
+  cancelSubscription,
+  changeSubscriptionPlan,
+  currentSubscription,
+  resumeSubscription,
+} from "@/lib/billing/lifecycle";
 import { memberWith, NO_PERMISSION } from "@/lib/business/current";
 import { appUrl } from "@/lib/hosts";
 import { needsCheckout, PLAN_ORDER, type PlanId } from "@/lib/plans";
@@ -113,4 +120,57 @@ export async function approveMockPaymentAction(
   const result = await approveMockCheckout(sessionId);
   if (result.status === "error") return { ok: false, error: result.error };
   return { ok: true, data: { redirectTo: "/assinatura?ativado=1" } };
+}
+
+const planSchema = z.enum(PLAN_ORDER as [PlanId, ...PlanId[]]);
+
+/** Trocar de plano: upgrade na hora (proporcional), downgrade no fim do ciclo (CAL-078). */
+export async function changePlanAction(plan: string): Promise<ActionResult> {
+  const member = await memberWith("billing.manage");
+  if (!member) return { ok: false, error: NO_PERMISSION };
+  const parsed = planSchema.safeParse(plan);
+  if (!parsed.success) return { ok: false, error: "Escolha um plano válido." };
+  const r = await changeSubscriptionPlan(member.business.id, parsed.data);
+  if (!r.ok) return r;
+  revalidatePath("/", "layout");
+  return { ok: true, message: r.message };
+}
+
+/** Cancelar no fim do período pago. */
+export async function cancelSubscriptionAction(): Promise<ActionResult> {
+  const member = await memberWith("billing.manage");
+  if (!member) return { ok: false, error: NO_PERMISSION };
+  const r = await cancelSubscription(member.business.id);
+  if (!r.ok) return r;
+  revalidatePath("/", "layout");
+  return { ok: true, message: r.message };
+}
+
+/** Desfazer o cancelamento agendado. */
+export async function resumeSubscriptionAction(): Promise<ActionResult> {
+  const member = await memberWith("billing.manage");
+  if (!member) return { ok: false, error: NO_PERMISSION };
+  const r = await resumeSubscription(member.business.id);
+  if (!r.ok) return r;
+  revalidatePath("/", "layout");
+  return { ok: true, message: r.message };
+}
+
+/** "Atualizar cartão": abre o portal do gateway (no mock não existe). */
+export async function customerPortalAction(): Promise<ActionResult<{ url: string }>> {
+  const member = await memberWith("billing.manage");
+  if (!member) return { ok: false, error: NO_PERMISSION };
+  const sub = await currentSubscription(member.business.id);
+  if (!sub || sub.provider !== "stripe") {
+    return {
+      ok: false,
+      error: isMockBilling()
+        ? "Pagamento simulado: não há cartão para atualizar."
+        : "Sua assinatura não usa cartão. Fale com a Calenvia.",
+    };
+  }
+  const provider = await providerForSubscription(sub);
+  const url = await provider.customerPortalUrl(sub, appUrl("/assinatura"));
+  if (!url) return { ok: false, error: "Não foi possível abrir o portal. Tente de novo." };
+  return { ok: true, data: { url } };
 }

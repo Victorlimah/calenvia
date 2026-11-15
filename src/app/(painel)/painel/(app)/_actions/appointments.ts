@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
 import { rescheduleAppointment, rescheduleSlots, toBookingError } from "@/lib/booking";
 import { afterCancel, afterReschedule } from "@/lib/booking/after-booking";
-import { requireBusinessFor, requireMember } from "@/lib/business/current";
+import { requireBusinessFor, requireWritableMember } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const id = z.string().uuid();
@@ -15,7 +15,7 @@ export async function setAppointmentStatusAction(
   appointmentId: string,
   status: "confirmed" | "completed" | "no_show",
 ): Promise<ActionResult> {
-  await requireMember();
+  await requireWritableMember();
   if (
     !id.safeParse(appointmentId).success ||
     !["confirmed", "completed", "no_show"].includes(status)

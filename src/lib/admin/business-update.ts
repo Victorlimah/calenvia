@@ -101,5 +101,10 @@ export function describeAuditEntry(action: string, changes: unknown): string | n
     const page = (changes as Changes | null)?.page?.to;
     return `Viu o painel (${viewAsPageLabel(page)})`;
   }
+  // Cobrança (CAL-076): o texto pronto fica em changes.detail.to.
+  if (action.startsWith("billing.")) {
+    const detail = (changes as Changes | null)?.detail?.to;
+    return typeof detail === "string" ? detail : null;
+  }
   return null;
 }

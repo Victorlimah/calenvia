@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { invalid, type ActionResult } from "@/lib/action-result";
-import { NO_PERMISSION, requireBusinessFor, requireMember } from "@/lib/business/current";
+import { NO_PERMISSION, requireBusinessFor, requireWritableMember } from "@/lib/business/current";
 import { can } from "@/lib/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isPgError, PG_FOREIGN_KEY_VIOLATION } from "@/lib/supabase/errors";
@@ -92,7 +92,7 @@ const staffHoursInput = z.object({
 
 /** Horário próprio do profissional (CAL-036). days = null → usa o horário do negócio. */
 export async function saveStaffHoursAction(input: unknown): Promise<ActionResult> {
-  const member = await requireMember();
+  const member = await requireWritableMember();
   const business = member.business;
   const parsed = staffHoursInput.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);

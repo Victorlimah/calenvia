@@ -25,11 +25,15 @@ export interface BillingProvider {
   createCheckout(input: CheckoutInput): Promise<{ url: string; providerSessionId: string }>;
   /** Deixa os extras da assinatura iguais aos de `business_addons` (com cobrança proporcional). */
   syncItems(subscription: SubscriptionRow): Promise<void>;
-  /** Upgrade na hora (proporcional) ou downgrade no fim do ciclo. */
+  /**
+   * Upgrade na hora (`now`, proporcional), downgrade agendado (`period_end`) ou aplicação do
+   * downgrade agendado pelo cron no fim do ciclo (`at_renewal`, sem proporcional).
+   * `period_end` com o plano atual desfaz o downgrade agendado.
+   */
   changePlan(
     subscription: SubscriptionRow,
     target: { plan: DesiredItems["plan"]; priceId: string },
-    when: "now" | "period_end",
+    when: PlanChangeTiming,
   ): Promise<void>;
   /** Cancela no fim do período pago. */
   cancel(subscription: SubscriptionRow): Promise<void>;
@@ -41,7 +45,14 @@ export interface BillingProvider {
   parseWebhook(request: Request): Promise<BillingEvent[]>;
 }
 
+export type PlanChangeTiming = "now" | "period_end" | "at_renewal";
+
 export class WebhookRejected extends Error {}
+
+/** Provedor que cuida de uma assinatura existente (manual e mock usam o mock). */
+export async function providerForSubscription(sub: SubscriptionRow): Promise<BillingProvider> {
+  return getBillingProvider(sub.provider === "stripe" ? "stripe" : "mock");
+}
 
 export async function getBillingProvider(
   id: BillingProviderId = billingProviderId(),
