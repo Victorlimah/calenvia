@@ -16,8 +16,9 @@ tabela `businesses`. Quando a coluna está `null`, vale o padrão do plano.
 | `member_limit_override` | Pessoas com login no painel, contando o dono e os convites pendentes. Mínimo 1. Profissional sem login não conta. |
 | `message_limit_override` | Mensagens automáticas por mês, **em qualquer plano**. No Básico, um valor maior que 0 liga a confirmação e o lembrete automáticos. `0` desliga o automático (volta para o link `wa.me`). |
 
-O dono **não consegue** mudar essas colunas: só a Calenvia, pelo SQL Editor do Supabase
-Studio (ou com a service role). Os testes em `tests/db/rls.test.ts` conferem isso.
+O dono **não consegue** mudar essas colunas: só a Calenvia, pela administração
+(`/admin` › negócio › Plano e limites, com histórico; ver `docs/ADMIN.md`) ou pelo SQL Editor do
+Supabase. Os testes em `tests/db/rls.test.ts` conferem isso.
 
 ## Exemplos (SQL Editor do Supabase)
 

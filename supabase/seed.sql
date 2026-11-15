@@ -2,6 +2,7 @@
 -- Logins do painel (app.localhost:3000):
 --   ze@calenvia.dev  / calenvia123  → Barbearia do Zé (barbearia-do-ze.localhost:3000)
 --   ana@calenvia.dev / calenvia123  → Ana Nails (ana-nails.localhost:3000)
+--   admin@calenvia.dev / calenvia123 → administração da Calenvia (app.localhost:3000/admin)
 
 -- ---------------------------------------------------------------------------
 -- Donos (auth.users + auth.identities para login com e-mail e senha)
@@ -18,14 +19,22 @@ insert into auth.users (
   ('00000000-0000-0000-0000-000000000000', '0a000000-0000-4000-8000-000000000002',
    'authenticated', 'authenticated', 'ana@calenvia.dev',
    extensions.crypt('calenvia123', extensions.gen_salt('bf')), now(),
-   '{"provider":"email","providers":["email"]}', '{"name":"Ana"}', now(), now(), '', '', '', '');
+   '{"provider":"email","providers":["email"]}', '{"name":"Ana"}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '0a000000-0000-4000-8000-0000000000ad',
+   'authenticated', 'authenticated', 'admin@calenvia.dev',
+   extensions.crypt('calenvia123', extensions.gen_salt('bf')), now(),
+   '{"provider":"email","providers":["email"]}', '{"name":"Admin"}', now(), now(), '', '', '', '');
 
 insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 select gen_random_uuid(), u.id, u.id::text,
   jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
   'email', now(), now(), now()
 from auth.users u
-where u.email in ('ze@calenvia.dev', 'ana@calenvia.dev');
+where u.email in ('ze@calenvia.dev', 'ana@calenvia.dev', 'admin@calenvia.dev');
+
+-- Administração da Calenvia (CAL-114)
+insert into public.platform_admins (user_id, note)
+values ('0a000000-0000-4000-8000-0000000000ad', 'Admin local de desenvolvimento');
 
 -- ---------------------------------------------------------------------------
 -- Negócios

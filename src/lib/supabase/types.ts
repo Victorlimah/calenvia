@@ -23,6 +23,75 @@ export type Database = {
   };
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string;
+          admin_email: string;
+          admin_user_id: string | null;
+          business_id: string | null;
+          changes: NonNullable<Json>;
+          created_at: string;
+          id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          action: string;
+          admin_email: string;
+          admin_user_id?: string | null;
+          business_id?: string | null;
+          changes?: NonNullable<Json>;
+          created_at?: string;
+          id?: string;
+        };
+        Update: {
+          action?: string;
+          admin_email?: string;
+          admin_user_id?: string | null;
+          business_id?: string | null;
+          changes?: NonNullable<Json>;
+          created_at?: string;
+          id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "admin_audit_log_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      admin_business_notes: {
+        Row: {
+          business_id: string;
+          notes: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id: string;
+          notes?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          business_id?: string;
+          notes?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "admin_business_notes_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: true;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       appointments: {
         Row: {
           business_id: string;
@@ -866,6 +935,25 @@ export type Database = {
           },
         ];
       };
+      platform_admins: {
+        Row: {
+          created_at: string;
+          note: string | null;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          note?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          note?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       product_events: {
         Row: {
           business_id: string | null;
@@ -1421,6 +1509,30 @@ export type Database = {
       };
     };
     Functions: {
+      admin_business_list: {
+        Args: {
+          p_limit?: number;
+          p_offset?: number;
+          p_plan?: string;
+          p_search?: string;
+          p_status?: string;
+        };
+        Returns: {
+          created_at: string;
+          id: string;
+          member_limit_override: number;
+          members: number;
+          message_limit_override: number;
+          messages_this_month: number;
+          name: string;
+          onboarding_completed_at: string;
+          owner_email: string;
+          plan: string;
+          plan_status: string;
+          slug: string;
+          total_count: number;
+        }[];
+      };
       appointment_prices: {
         Args: { p_business_id: string; p_ids: string[] };
         Returns: {

@@ -1,10 +1,11 @@
 # Progresso da Calenvia
 ## Status
 - Último card concluído: CAL-113
-- Card em andamento: nenhum
-- Próximo card: nenhum desbloqueado (restam CAL-075 e dependentes, CAL-066/108, CAL-022)
-- Atualizado em: 2026-11-14 23:10
+- Card em andamento: CAL-114 (fase 1 de 4 concluída)
+- Próximo card: CAL-114 fase 2 (métricas); depois disso só restam cards bloqueados (CAL-075 e dependentes, CAL-066/108, CAL-022)
+- Atualizado em: 2026-11-15 08:40
 ## Próxima sessão
+- **CAL-114 fase 2 (métricas)**: ler `docs/planos/CAL-114.md` e `docs/ADMIN.md`. A fase 1 já tem layout `src/app/(painel)/painel/(app)/admin/layout.tsx` (adicionar o item ao `NAV`), `requirePlatformAdmin()` em `src/lib/admin/auth.ts`, `AdminBody`/`AdminTitle` em `admin/ui.tsx`. Funil: `metrics_funnel()` (docs/METRICAS.md). Login local: `admin@calenvia.dev` / `calenvia123`. Fases 3 e 4 em sessões seguintes.
 - CAL-113 concluído: limites por cliente em `businesses.member_limit_override` / `message_limit_override` (null = padrão do plano). Como ajustar: `docs/LIMITES.md`. Ainda não há tela de admin; é pelo SQL Editor do Supabase.
 - CAL-112 concluído. Todo card restante depende do Victor (seção "Bloqueios"): CAL-075 (gateway) e dependentes, CAL-066/108 (Meta), CAL-022 (deploy).
 - E2E: rode contra o build de produção (`npm run build && npx next start -p 3000`, depois `npm run test:e2e`). No modo dev há falhas de tempo de compilação. Contra o build: 80/80.
@@ -97,6 +98,7 @@
 | CAL-111 | Concluído | 45ffa37 | business_message_settings (escrita só pelo servidor, confere papel e plano), appointments.messages_enabled, messages 'skipped' + skip_reason; decideSend (plano → negócio → agendamento → opt-out → cota) sem gastar cota; cron por antecedência (24 h/2 h); Ajustes › Mensagens automáticas; opção por agendamento; menu de Ajustes reescrito em grupos (itens faltando) com E2E | npm test (message-settings.test.ts, reminders.test.ts); npm run test:db (whatsapp, reminders, rls); npm run test:e2e (mensagens-automaticas, menu-ajustes) |
 | CAL-112 | Concluído | fa45d33 | Equipe com papéis (dono, gerente, recepção, profissional): business_members/business_invitations, RLS por has_perm, price_cents só por appointment_prices(), permissions.ts, seletor de negócio, Ajustes › Equipe, /convite/{token}, Meus horários, "Criado por" | npm run test:db (team.test.ts); npm run test:e2e (equipe.spec.ts) |
 | CAL-113 | Concluído | c1c4e91 | Limite de pessoas: Básico 3, Pro 10, Pro+ ilimitado. Colunas `member_limit_override` e `message_limit_override` em `businesses` (só a Calenvia grava) sobrescrevem o plano; a cota de mensagens combinada vale em qualquer plano (Básico com cota > 0 envia no automático, inclusive lembretes do cron) | docs/LIMITES.md; npm test; npm run test:db (rls, reminders) |
+| CAL-114 (fase 1) | Em andamento | (este) | Administração em /admin: tabela platform_admins (404 para os outros), lista de negócios com busca/filtros (admin_business_list, só service role), detalhe com plano, status, limites e observação interna (admin_business_notes), histórico em admin_audit_log. Seed: admin@calenvia.dev | app.localhost:3000/admin; npm run test:db (admin); tests/e2e/admin.spec.ts |
 
 ## Decisões tomadas
 - Repositório git iniciado localmente (`git init`, branch `main`). Commits usam o `user.name`/`user.email` já configurados no git global da máquina.
