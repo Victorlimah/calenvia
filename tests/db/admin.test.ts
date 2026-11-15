@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { Client } from "pg";
-import { BIZ_A, OWNER_A, actAs, connect, seedTwoBusinesses } from "./helpers";
+import { BIZ_A, BIZ_B, OWNER_A, actAs, connect, seedTwoBusinesses } from "./helpers";
 
 // CAL-114: as tabelas da administração só são lidas e gravadas pelo servidor (service role).
 let db: Client;
@@ -83,5 +83,55 @@ describe("administração (CAL-114)", () => {
       0,
     );
     expect(weekly).toBeLessThanOrEqual(total);
+  });
+
+  it("suporte: dono lê a resposta do próprio pedido, não lê a de outro negócio e não grava", async () => {
+    await db.query("reset role");
+    const { rows } = await db.query(
+      `insert into public.support_requests (business_id, topic, message, status, admin_reply)
+       values ($1, 'agenda', 'Pedido do negócio A para teste', 'answered', 'Resposta da equipe'),
+              ($2, 'agenda', 'Pedido do negócio B para teste', 'answered', 'Resposta secreta B')
+       returning id, business_id`,
+      [BIZ_A, BIZ_B],
+    );
+    const reqB = rows.find((r) => r.business_id === BIZ_B).id;
+    await actAs(db, OWNER_A);
+    const { rows: seen } = await db.query(
+      `select business_id, admin_reply from public.support_requests`,
+    );
+    expect(seen).toEqual([{ business_id: BIZ_A, admin_reply: "Resposta da equipe" }]);
+    await expectDenied(
+      `update public.support_requests set admin_reply = 'x' where business_id = $1`,
+      [BIZ_A],
+    );
+    const { rowCount } = await db.query(`select 1 from public.support_requests where id = $1`, [
+      reqB,
+    ]);
+    expect(rowCount).toBe(0);
+  });
+
+  it("dono e anônimo não chamam o resumo de falhas", async () => {
+    await actAs(db, OWNER_A);
+    await expectDenied(`select * from public.admin_message_failures_summary(now())`);
+    await db.query("reset role");
+    await db.query("set local role anon");
+    await expectDenied(`select * from public.admin_message_failures_summary(now())`);
+  });
+
+  it("resumo de falhas agrupa os erros", async () => {
+    await db.query("reset role");
+    await db.query(
+      `insert into public.messages (business_id, type, to_number, template, status, error)
+       values ($1, 'confirmation', '5585999990001', 't', 'failed', 'Erro X de teste'),
+              ($1, 'reminder', '5585999990002', 't', 'failed', 'Erro X de teste'),
+              ($2, 'reminder', '5585999990003', 't', 'failed', 'Erro Y de teste')`,
+      [BIZ_A, BIZ_B],
+    );
+    const { rows } = await db.query(
+      `select error, total from public.admin_message_failures_summary(now() - interval '1 hour', $1)`,
+      [BIZ_A],
+    );
+    expect(rows.find((r) => r.error === "Erro X de teste")?.total).toBe("2");
+    expect(rows.find((r) => r.error === "Erro Y de teste")).toBeUndefined();
   });
 });

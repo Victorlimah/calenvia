@@ -8,10 +8,12 @@ import {
   type AdminBusinessInput,
   diffChanges,
 } from "@/lib/admin/business-update";
+import { supportUpdateSchema, type SupportUpdateInput } from "@/lib/admin/support";
 import { reportError } from "@/lib/monitoring";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const NOT_ADMIN = "Você não tem acesso à administração.";
+const UUID = /^[0-9a-f-]{36}$/i;
 
 /** Muda plano, status e limites de um negócio e grava o que mudou no histórico (CAL-114). */
 export async function updateBusinessAdminAction(
@@ -79,4 +81,67 @@ export async function updateBusinessAdminAction(
 
   revalidatePath(`/admin/negocios/${businessId}`);
   return { ok: true, message: "Alterações salvas." };
+}
+
+/** Responde/muda o status de um pedido de suporte e grava no histórico do negócio (CAL-114). */
+export async function updateSupportRequestAction(
+  requestId: string,
+  input: Record<keyof SupportUpdateInput, unknown>,
+): Promise<ActionResult> {
+  const admin = await getPlatformAdmin();
+  if (!admin) return { ok: false, error: NOT_ADMIN };
+  if (!UUID.test(requestId)) return { ok: false, error: "Pedido não encontrado." };
+  const parsed = supportUpdateSchema.safeParse(input);
+  if (!parsed.success) return invalid(parsed.error);
+
+  const db = createSupabaseAdminClient();
+  const { data: before } = await db
+    .from("support_requests")
+    .select("business_id, status, admin_reply, answered_at")
+    .eq("id", requestId)
+    .maybeSingle();
+  if (!before) return { ok: false, error: "Pedido não encontrado." };
+
+  const changes = diffChanges(
+    { status: before.status, admin_reply: before.admin_reply },
+    { status: parsed.data.status, admin_reply: parsed.data.admin_reply },
+  );
+  if (Object.keys(changes).length === 0) return { ok: true, message: "Nada mudou." };
+
+  const now = new Date().toISOString();
+  const replyChanged = "admin_reply" in changes && parsed.data.admin_reply !== null;
+  const { error } = await db
+    .from("support_requests")
+    .update({
+      ...parsed.data,
+      updated_at: now,
+      answered_at: replyChanged ? now : before.answered_at,
+    })
+    .eq("id", requestId);
+  if (error) {
+    await reportError(error, {
+      source: "action",
+      path: "admin.updateSupport",
+      extra: { requestId },
+    });
+    return { ok: false, error: "Não foi possível salvar. Tente de novo." };
+  }
+
+  const { error: auditError } = await db.from("admin_audit_log").insert({
+    admin_user_id: admin.userId,
+    admin_email: admin.email,
+    business_id: before.business_id,
+    action: "support.update",
+    changes: JSON.parse(JSON.stringify(changes)),
+  });
+  if (auditError)
+    await reportError(auditError, {
+      source: "action",
+      path: "admin.audit",
+      extra: { requestId },
+    });
+
+  revalidatePath("/admin/suporte");
+  revalidatePath(`/admin/negocios/${before.business_id}`);
+  return { ok: true, message: "Pedido atualizado." };
 }

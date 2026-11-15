@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { requirePlatformAdmin } from "@/lib/admin/auth";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const metadata: Metadata = {
   title: "Administração — Calenvia",
@@ -11,10 +12,16 @@ export const metadata: Metadata = {
 const NAV = [
   { href: "/admin", label: "Negócios" },
   { href: "/admin/metricas", label: "Métricas" },
+  { href: "/admin/suporte", label: "Suporte" },
+  { href: "/admin/mensagens", label: "Mensagens" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requirePlatformAdmin();
+  const { count: openSupport } = await createSupabaseAdminClient()
+    .from("support_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "open");
   return (
     <div className="min-h-dvh bg-paper">
       <header className="border-b border-line bg-white">
@@ -25,7 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Admin
             </span>
           </div>
-          <nav aria-label="Administração" className="flex items-center gap-1">
+          <nav aria-label="Administração" className="flex flex-wrap items-center gap-1">
             {NAV.map((n) => (
               <Link
                 key={n.href}
@@ -33,6 +40,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 hover:bg-paper-2"
               >
                 {n.label}
+                {n.href === "/admin/suporte" && openSupport ? (
+                  <span className="ml-1.5 rounded-full bg-danger px-1.5 text-xs font-bold text-white">
+                    <span className="sr-only">(</span>
+                    {openSupport}
+                    <span className="sr-only">
+                      {openSupport === 1 ? " pedido aberto)" : " pedidos abertos)"}
+                    </span>
+                  </span>
+                ) : null}
               </Link>
             ))}
           </nav>

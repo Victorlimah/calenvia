@@ -1331,6 +1331,8 @@ export type Database = {
       };
       support_requests: {
         Row: {
+          admin_reply: string | null;
+          answered_at: string | null;
           business_id: string;
           created_at: string;
           id: string;
@@ -1338,9 +1340,12 @@ export type Database = {
           priority: boolean;
           status: string;
           topic: string;
+          updated_at: string;
         };
         ComputedFields: never;
         Insert: {
+          admin_reply?: string | null;
+          answered_at?: string | null;
           business_id: string;
           created_at?: string;
           id?: string;
@@ -1348,8 +1353,11 @@ export type Database = {
           priority?: boolean;
           status?: string;
           topic: string;
+          updated_at?: string;
         };
         Update: {
+          admin_reply?: string | null;
+          answered_at?: string | null;
           business_id?: string;
           created_at?: string;
           id?: string;
@@ -1357,6 +1365,7 @@ export type Database = {
           priority?: boolean;
           status?: string;
           topic?: string;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -1531,6 +1540,13 @@ export type Database = {
           plan_status: string;
           slug: string;
           total_count: number;
+        }[];
+      };
+      admin_message_failures_summary: {
+        Args: { p_business_id?: string; p_limit?: number; p_since: string };
+        Returns: {
+          error: string;
+          total: number;
         }[];
       };
       admin_metrics_overview: {

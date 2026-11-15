@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Card } from "@/components/ui";
 import {
-  ADMIN_FIELD_LABELS,
   type AdminBusinessInput,
+  AUDIT_FIELD_LABELS,
   formatChangeValue,
   PLAN_STATUS_LABELS,
 } from "@/lib/admin/business-update";
@@ -110,6 +111,14 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
               Abrir página pública ({business.slug})
             </a>
           </p>
+          <p>
+            <Link
+              href={`/admin/mensagens?negocio=${business.id}`}
+              className="font-semibold text-brand underline"
+            >
+              Ver mensagens com falha
+            </Link>
+          </p>
         </Card>
 
         <Card className="space-y-2 text-sm">
@@ -174,9 +183,7 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
                   <ul>
                     {Object.entries((a.changes ?? {}) as AuditChanges).map(([field, c]) => (
                       <li key={field} className="text-ink">
-                        <span className="font-semibold">
-                          {ADMIN_FIELD_LABELS[field as keyof AdminBusinessInput] ?? field}:
-                        </span>{" "}
+                        <span className="font-semibold">{AUDIT_FIELD_LABELS[field] ?? field}:</span>{" "}
                         {formatChangeValue(field, c.from)} → {formatChangeValue(field, c.to)}
                       </li>
                     ))}

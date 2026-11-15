@@ -47,7 +47,7 @@ export default async function AjudaPage() {
   const supabase = await createSupabaseServerClient();
   const { data: requests } = await supabase
     .from("support_requests")
-    .select("id, topic, message, status, priority, created_at")
+    .select("id, topic, message, status, priority, admin_reply, answered_at, created_at")
     .eq("business_id", business.id)
     .order("created_at", { ascending: false })
     .limit(10);
@@ -107,10 +107,25 @@ export default async function AjudaPage() {
                     {TOPICS[r.topic]} · {formatDate(new Date(r.created_at), business.timezone)}
                   </span>
                   <Badge tone={r.status === "open" ? "warning" : "success"}>
-                    {r.status === "open" ? "Aguardando" : "Respondido"}
+                    {r.status === "open"
+                      ? "Aguardando"
+                      : r.status === "closed"
+                        ? "Encerrado"
+                        : "Respondido"}
                   </Badge>
                 </div>
                 <p className="line-clamp-2 text-sm text-ink-2">{r.message}</p>
+                {r.admin_reply ? (
+                  <div className="rounded-xl bg-brand-50 p-3 text-sm">
+                    <p className="font-semibold text-ink">
+                      Resposta da Calenvia
+                      {r.answered_at
+                        ? ` · ${formatDate(new Date(r.answered_at), business.timezone)}`
+                        : ""}
+                    </p>
+                    <p className="whitespace-pre-line text-ink-2">{r.admin_reply}</p>
+                  </div>
+                ) : null}
               </div>
             ))}
           </Card>

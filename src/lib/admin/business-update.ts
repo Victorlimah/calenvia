@@ -3,6 +3,7 @@
  * para gravar no histórico. Funções puras, testadas em business-update.test.ts.
  */
 import { z } from "zod";
+import { SUPPORT_STATUS_LABELS, type SupportStatus } from "@/lib/admin/support";
 import { PLAN_ORDER, PLANS, type PlanId, type PlanStatus } from "@/lib/plans";
 
 export const PLAN_STATUSES: PlanStatus[] = [
@@ -54,6 +55,13 @@ export const ADMIN_FIELD_LABELS: Record<keyof AdminBusinessInput, string> = {
   notes: "Observação interna",
 };
 
+/** Rótulos de todos os campos que aparecem no histórico da administração. */
+export const AUDIT_FIELD_LABELS: Record<string, string> = {
+  ...ADMIN_FIELD_LABELS,
+  status: "Pedido de suporte",
+  admin_reply: "Resposta ao suporte",
+};
+
 export type Changes = Record<string, { from: unknown; to: unknown }>;
 
 /** Só os campos que mudaram, no formato do histórico: { campo: { from, to } }. */
@@ -70,12 +78,13 @@ export function diffChanges<T extends Record<string, unknown>>(before: T, after:
 /** Valor do histórico em texto para a tela ("padrão do plano" quando null). */
 export function formatChangeValue(field: string, value: unknown): string {
   if (value === null || value === undefined || value === "") {
-    if (field === "notes") return "(vazia)";
+    if (field === "notes" || field === "admin_reply") return "(vazia)";
     return field.endsWith("_override") ? "padrão do plano" : "—";
   }
   if (field === "plan") return PLANS[value as PlanId]?.name ?? String(value);
   if (field === "plan_status") return PLAN_STATUS_LABELS[value as PlanStatus] ?? String(value);
-  if (field === "notes") {
+  if (field === "status") return SUPPORT_STATUS_LABELS[value as SupportStatus] ?? String(value);
+  if (field === "notes" || field === "admin_reply") {
     const s = String(value);
     return s.length > 80 ? `${s.slice(0, 80)}…` : s;
   }
