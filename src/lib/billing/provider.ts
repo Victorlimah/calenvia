@@ -23,8 +23,11 @@ export interface BillingProvider {
   id: BillingProviderId;
   /** Cria a sessão de pagamento e devolve para onde mandar o dono. */
   createCheckout(input: CheckoutInput): Promise<{ url: string; providerSessionId: string }>;
-  /** Deixa os extras da assinatura iguais aos de `business_addons` (com cobrança proporcional). */
-  syncItems(subscription: SubscriptionRow): Promise<void>;
+  /**
+   * Deixa os itens da assinatura iguais aos de `business_addons` (com cobrança proporcional;
+   * `prorate: false` = só a partir da próxima fatura, usado ao aplicar preço novo).
+   */
+  syncItems(subscription: SubscriptionRow, opts?: { prorate?: boolean }): Promise<void>;
   /**
    * Upgrade na hora (`now`, proporcional), downgrade agendado (`period_end`) ou aplicação do
    * downgrade agendado pelo cron no fim do ciclo (`at_renewal`, sem proporcional).

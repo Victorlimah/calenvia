@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   cancelSubscriptionAction,
@@ -27,15 +28,22 @@ export function PlanButton({
   label: string;
   variant?: ButtonVariant;
 }) {
-  const { run, pending, error, message } = useAction();
+  const { run, pending, error } = useAction();
+  const router = useRouter();
   return (
     <div className="space-y-2">
-      <Feedback error={error} message={message} />
+      <Feedback error={error} message={null} />
       <Button
         block
         variant={variant}
         loading={pending}
-        onClick={() => run(() => changePlanAction(plan))}
+        onClick={() =>
+          run(() => changePlanAction(plan), {
+            refresh: false,
+            // O botão some depois da troca: o aviso vai para a página pela URL.
+            onSuccess: (r) => router.replace(`/assinatura?troca=${r.data?.code ?? "same"}`),
+          })
+        }
       >
         {label}
       </Button>

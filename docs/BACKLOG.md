@@ -75,12 +75,12 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 
 ### Sprint 7 — Assinatura e cobrança
 - [x] **CAL-075** · Escolher o gateway de pagamento · P0 · 0,5d **(fora do código — decisão)** — Asaas, Mercado Pago ou Stripe. **Decidido (2026-11-15): Stripe.** Plano em `docs/planos/CAL-076.md`.
-- [ ] **CAL-076** · Checkout dos planos · P0 · 3d — Pix e cartão, cobrança recorrente mensal, a partir de `/cadastro?plano=...`.
-- [ ] **CAL-077** · Webhooks de pagamento · P0 · 2d — Ativar, renovar, atraso, cancelamento. Suspender recursos após X dias de atraso.
-- [ ] **CAL-078** · Recursos liberados por plano · P0 · 1,5d — `src/lib/plans.ts`, upgrade e downgrade.
-- [ ] **CAL-080** · Tela de assinatura no painel · P1 · 1,5d — Plano atual, faturas, uso de mensagens no mês, trocar e cancelar.
+- [x] **CAL-076** · Checkout dos planos · P0 · 3d — Pix e cartão, cobrança recorrente mensal, a partir de `/cadastro?plano=...`. **Feito (2026-11-15):** checkout com pagamento simulado e Stripe (cartão) prontos; falta testar com a conta Stripe do Victor (`docs/STRIPE.md`). Pix: conferir na conta.
+- [x] **CAL-077** · Webhooks de pagamento · P0 · 2d — Ativar, renovar, atraso, cancelamento. Suspender recursos após X dias de atraso.
+- [x] **CAL-078** · Recursos liberados por plano · P0 · 1,5d — `src/lib/plans.ts`, upgrade e downgrade.
+- [x] **CAL-080** · Tela de assinatura no painel · P1 · 1,5d — Plano atual, faturas, uso de mensagens no mês, trocar e cancelar.
 - [ ] **CAL-079** · Teste grátis · P1 · 0,5d **(decisão)** — Definir se terá (ex.: 14 dias sem cartão) e implementar se sim.
-- [ ] **CAL-115** · Extras pagos no plano (add-ons) · P1 · 2d — Catálogo de extras (+mensagens, +pessoas, valor livre) cobrados como itens da assinatura; preços versionados e editáveis no `/admin`. Plano em `docs/planos/CAL-076.md` (fases 1 e 5).
+- [x] **CAL-115** · Extras pagos no plano (add-ons) · P1 · 2d — Catálogo de extras (+mensagens, +pessoas, valor livre) cobrados como itens da assinatura; preços versionados e editáveis no `/admin`. Plano em `docs/planos/CAL-076.md` (fases 1 e 5).
 
 ### Sprint 8 — Pronto para o beta
 - [x] **CAL-083** · Site calenvia.com.br · P0 · 0,5d — Converter `docs/referencias/landing-calenvia.html` para a rota `(site)`.

@@ -5,7 +5,7 @@ import { QuotaAlert, QuotaMeter } from "@/components/painel/quota";
 import { Alert, Badge, Card } from "@/components/ui";
 import { isMockBilling } from "@/lib/billing/config";
 import { loadSubscriptionItems } from "@/lib/billing/items";
-import { planChangeKind } from "@/lib/billing/lifecycle";
+import { PLAN_CHANGE_MESSAGES, planChangeKind, type PlanChangeCode } from "@/lib/billing/lifecycle";
 import { getCurrentPrices } from "@/lib/billing/prices-server";
 import { graceEndsAt } from "@/lib/billing/status";
 import { requirePermission } from "@/lib/business/current";
@@ -43,9 +43,11 @@ const INVOICE_STATUS: Record<
 export default async function AssinaturaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ativado?: string }>;
+  searchParams: Promise<{ ativado?: string; troca?: string }>;
 }) {
-  const { ativado } = await searchParams;
+  const { ativado, troca } = await searchParams;
+  const changeMessage =
+    troca && troca in PLAN_CHANGE_MESSAGES ? PLAN_CHANGE_MESSAGES[troca as PlanChangeCode] : null;
   const member = await requirePermission("billing.view");
   const { business } = member;
   const manage = can(member, "billing.manage");
@@ -89,6 +91,8 @@ export default async function AssinaturaPage({
           Pagamento aprovado. Sua página já está recebendo agendamentos.
         </Alert>
       ) : null}
+
+      {changeMessage ? <Alert tone="success">{changeMessage}</Alert> : null}
 
       <Card className="space-y-3">
         <div className="flex items-center justify-between gap-3">

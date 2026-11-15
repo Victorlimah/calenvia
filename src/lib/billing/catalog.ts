@@ -28,10 +28,10 @@ async function afterCatalogChange() {
 }
 
 /** Sincroniza os itens da assinatura do negócio no gateway (cobrança proporcional). */
-export async function syncBusinessSubscription(db: Db, businessId: string) {
+export async function syncBusinessSubscription(db: Db, businessId: string, prorate = true) {
   const sub = await openSubscription(db, businessId);
   if (!sub || sub.provider === "manual") return;
-  await (await providerForSubscription(sub)).syncItems(sub);
+  await (await providerForSubscription(sub)).syncItems(sub, { prorate });
 }
 
 export async function changePrice(
@@ -107,9 +107,10 @@ export async function changePrice(
   };
 }
 
+/** Preço novo aplicado a quem já assina: vale a partir do próximo ciclo, sem proporcional. */
 async function syncQuietly(db: Db, businessId: string) {
   try {
-    await syncBusinessSubscription(db, businessId);
+    await syncBusinessSubscription(db, businessId, false);
   } catch (e) {
     console.error("[billing] sincronizar assinatura", businessId, e);
   }

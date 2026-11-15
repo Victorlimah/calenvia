@@ -37,7 +37,17 @@ export function planChangeKind(from: PlanId, to: PlanId): PlanChangeKind {
   return b > a ? "upgrade" : b < a ? "downgrade" : "same";
 }
 
-export type LifecycleResult = { ok: true; message: string } | { ok: false; error: string };
+export type PlanChangeCode = "upgraded" | "scheduled" | "undone" | "same";
+export type LifecycleResult =
+  { ok: true; message: string; code?: PlanChangeCode } | { ok: false; error: string };
+
+/** Texto do aviso depois de trocar de plano (a tela mostra pelo `?troca=`). */
+export const PLAN_CHANGE_MESSAGES: Record<PlanChangeCode, string> = {
+  upgraded: "Plano atualizado! A diferença deste mês foi cobrada de forma proporcional.",
+  scheduled: "Troca agendada: o plano novo começa na próxima cobrança.",
+  undone: "Troca de plano desfeita. Você continua no plano atual.",
+  same: "Você já está neste plano.",
+};
 
 /** Upgrade na hora (proporcional); downgrade no fim do ciclo; mesmo plano desfaz o agendado. */
 export async function changeSubscriptionPlan(
@@ -52,10 +62,10 @@ export async function changeSubscriptionPlan(
   const provider = await providerForSubscription(sub);
   const kind = planChangeKind(sub.plan as PlanId, target);
   if (kind === "same") {
-    if (!sub.pending_plan) return { ok: true, message: "Você já está neste plano." };
+    if (!sub.pending_plan) return { ok: true, message: PLAN_CHANGE_MESSAGES.same, code: "same" };
     // Agendar o próprio plano = desfazer o downgrade agendado.
     await provider.changePlan(sub, { plan: target, priceId: sub.price_id! }, "period_end");
-    return { ok: true, message: "Troca de plano desfeita." };
+    return { ok: true, message: PLAN_CHANGE_MESSAGES.undone, code: "undone" };
   }
   const prices = await getCurrentPrices({ fresh: true });
   const priceId = prices.plans[target].priceId;
@@ -70,13 +80,8 @@ export async function changeSubscriptionPlan(
     console.error("[billing] trocar plano", e);
     return { ok: false, error: "Não foi possível trocar o plano. Tente de novo." };
   }
-  return {
-    ok: true,
-    message:
-      kind === "upgrade"
-        ? "Plano atualizado! A diferença deste mês foi cobrada de forma proporcional."
-        : "Troca agendada: o plano novo começa na próxima cobrança.",
-  };
+  const code = kind === "upgrade" ? "upgraded" : "scheduled";
+  return { ok: true, message: PLAN_CHANGE_MESSAGES[code], code };
 }
 
 export async function cancelSubscription(businessId: string): Promise<LifecycleResult> {

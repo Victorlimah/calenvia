@@ -125,7 +125,7 @@ export async function approveMockPaymentAction(
 const planSchema = z.enum(PLAN_ORDER as [PlanId, ...PlanId[]]);
 
 /** Trocar de plano: upgrade na hora (proporcional), downgrade no fim do ciclo (CAL-078). */
-export async function changePlanAction(plan: string): Promise<ActionResult> {
+export async function changePlanAction(plan: string): Promise<ActionResult<{ code: string }>> {
   const member = await memberWith("billing.manage");
   if (!member) return { ok: false, error: NO_PERMISSION };
   const parsed = planSchema.safeParse(plan);
@@ -133,7 +133,7 @@ export async function changePlanAction(plan: string): Promise<ActionResult> {
   const r = await changeSubscriptionPlan(member.business.id, parsed.data);
   if (!r.ok) return r;
   revalidatePath("/", "layout");
-  return { ok: true, message: r.message };
+  return { ok: true, message: r.message, data: { code: r.code ?? "same" } };
 }
 
 /** Cancelar no fim do período pago. */
