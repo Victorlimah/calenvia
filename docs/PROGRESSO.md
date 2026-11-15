@@ -5,7 +5,7 @@
 - Próximo card: CAL-114 fase 2 (métricas); depois disso só restam cards bloqueados (CAL-075 e dependentes, CAL-066/108, CAL-022)
 - Atualizado em: 2026-11-15 08:40
 ## Próxima sessão
-- **CAL-114 fase 2 (métricas)**: ler `docs/planos/CAL-114.md` e `docs/ADMIN.md`. A fase 1 já tem layout `src/app/(painel)/painel/(app)/admin/layout.tsx` (adicionar o item ao `NAV`), `requirePlatformAdmin()` em `src/lib/admin/auth.ts`, `AdminBody`/`AdminTitle` em `admin/ui.tsx`. Funil: `metrics_funnel()` (docs/METRICAS.md). Login local: `admin@calenvia.dev` / `calenvia123`. Fases 3 e 4 em sessões seguintes.
+- **CAL-114: próxima é a fase 2 (métricas), depois a 3 e a 4, uma por sessão.** Tudo o que cada fase precisa (banco, telas, testes, decisões) está em `docs/planos/CAL-114.md`; o que já existe da fase 1 também está lá. Login local: `admin@calenvia.dev` / `calenvia123`. Ao terminar cada fase: marcar `[x]` no plano, atualizar este bloco e commitar.
 - CAL-113 concluído: limites por cliente em `businesses.member_limit_override` / `message_limit_override` (null = padrão do plano). Como ajustar: `docs/LIMITES.md`. Ainda não há tela de admin; é pelo SQL Editor do Supabase.
 - CAL-112 concluído. Todo card restante depende do Victor (seção "Bloqueios"): CAL-075 (gateway) e dependentes, CAL-066/108 (Meta), CAL-022 (deploy).
 - E2E: rode contra o build de produção (`npm run build && npx next start -p 3000`, depois `npm run test:e2e`). No modo dev há falhas de tempo de compilação. Contra o build: 80/80.
