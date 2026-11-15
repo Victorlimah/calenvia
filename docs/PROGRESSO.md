@@ -2,9 +2,10 @@
 ## Status
 - Último card concluído: CAL-114
 - Card em andamento: nenhum
-- Próximo card: só restam cards bloqueados pelo Victor (CAL-075 e dependentes, CAL-066/108, CAL-022)
-- Atualizado em: 2026-11-15 10:50
+- Próximo card: **CAL-076 fase 1** (cobrança: banco, catálogo e limites). Plano completo em `docs/planos/CAL-076.md`
+- Atualizado em: 2026-11-15 11:30
 ## Próxima sessão
+- **Cobrança decidida (2026-11-15): gateway Stripe (CAL-075 fechado).** Leia `docs/planos/CAL-076.md` (decisões + 6 fases, uma por sessão). Fases 1–5 rodam com o provedor **mock** (pagamento simulado que sempre aprova, para criar contas de teste); a fase 6 (Stripe real) espera a conta do Victor. Extras pagos (CAL-115) são itens da assinatura, com preços versionados no banco e editáveis no `/admin`. Pendente com o Victor: teste grátis (CAL-079, padrão sem teste).
 - **CAL-114 concluído** (fases 1–4): `/admin` com negócios, métricas, suporte, mensagens com falha e "ver painel do cliente" só leitura. Como usar: `docs/ADMIN.md`. Login local: `admin@calenvia.dev` / `calenvia123`.
 - **Teste E2E quebrado (já existia antes do CAL-114):** `acessibilidade.spec.ts › site, termos e privacidade` falha por contraste no mockup de celular da landing (`.phone-top`, `.phone-title`, `.phone-url`: texto claro sobre fundo #d3d2cf). Falha também no build da fase 1; investigar se é animação/opacidade no momento da checagem ou cor errada. Resto: 86/87 contra o build.
 - **Servidor antigo na porta 3000:** um `next-server` (iniciado 08:33, build da fase 1) ficou rodando; pare-o antes de rodar o E2E (`ss -ltnp | grep 3000`). Nesta sessão o E2E rodou numa cópia do repo na porta 3001.
@@ -146,7 +147,7 @@
 - CAL-021: projeto Supabase de PRODUÇÃO na nuvem não foi criado (precisa da sua conta). Crie o projeto em supabase.com, rode `npx supabase link --project-ref <ref>` e `npx supabase db push`, e preencha NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY na Vercel.
 - CAL-026: login com Google está pronto no código, mas desligado. Para ligar: criar OAuth Client no Google Cloud (redirect: https://<projeto>.supabase.co/auth/v1/callback) e ativar o provedor Google no painel do Supabase (local: `[auth.external.google] enabled = true` + variáveis SUPABASE_AUTH_EXTERNAL_GOOGLE_*). Em produção, ligar também a confirmação de e-mail e o SMTP no Supabase.
 - CAL-022: deploy na Vercel NÃO foi feito (proibido no modo autônomo e precisa da sua conta). Está tudo preparado: `vercel.json` (região gru1 + cron dos lembretes a cada 10 min) e o passo a passo em `docs/DEPLOY.md` (domínio curinga, variáveis, Supabase de produção). O cron a cada 10 min exige o plano Pro da Vercel.
-- CAL-075 (decisão): escolher o gateway de pagamento (Asaas, Mercado Pago ou Stripe). Bloqueia CAL-076, CAL-077, CAL-078 (upgrade/downgrade), CAL-080 (faturas, trocar/cancelar). CAL-079 (teste grátis) também é decisão sua.
+- CAL-075: **decidido Stripe** (2026-11-15). Falta só criar a conta Stripe para a fase 6 do `docs/planos/CAL-076.md`; até lá roda no mock. CAL-079 (teste grátis) ainda é decisão sua.
 - CAL-070: no painel da Meta, cadastrar o webhook (URL e verify token em docs/WHATSAPP.md) e colocar o App secret em WHATSAPP_APP_SECRET na Vercel.
 - CAL-067: cadastrar os 3 templates na Meta (passo a passo em docs/WHATSAPP.md) depois que a conta do CAL-066 existir.
 - CAL-012: o texto de /termos e /privacidade é um rascunho técnico; precisa de revisão jurídica (e da regra de cancelamento/fidelidade do CAL-010). Criar os e-mails contato@ e privacidade@calenvia.com.br ou trocar em src/lib/company.ts.
@@ -161,6 +162,7 @@
 - CAL-101: definir o canal oficial de suporte (CAL-096), o prazo de resposta em src/lib/company.ts e SUPPORT_WEBHOOK_URL para receber os pedidos.
 - CAL-107: sincronização bidirecional com o Google Agenda (OAuth) precisa de um projeto no Google Cloud; o link ICS cobre a visualização.
 - CAL-109: definir a recompensa da indicação (ex.: 1 mês grátis) — depende da cobrança (CAL-075/076).
+- Cobrança (2026-11-15): Stripe; tudo atrás de `src/lib/billing` com provedor mock que sempre aprova; preços versionados em `billing_prices` (quem já assina mantém o preço, salvo opção do admin); extras como itens da assinatura; limite = (override ?? plano) + extras; `pending` deixa de liberar recursos; carência de 7 dias no atraso; upgrade na hora, downgrade e cancelamento no fim do ciclo. Detalhes em `docs/planos/CAL-076.md`.
 
 ## Plano do card atual
 —
