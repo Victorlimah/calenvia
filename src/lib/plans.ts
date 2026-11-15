@@ -111,6 +111,9 @@ type BusinessPlan = {
   plan_status: string;
   message_limit_override?: number | null;
   member_limit_override?: number | null;
+  /** Somados pelos extras pagos ativos (CAL-115); calculados no banco. */
+  addon_messages?: number | null;
+  addon_members?: number | null;
 };
 
 export function planOf(business: Pick<BusinessPlan, "plan">): Plan {
@@ -138,23 +141,30 @@ export function hasFeature(business: BusinessPlan, feature: keyof PlanFeatures):
   return isPlanUsable(business) && planOf(business).features[feature];
 }
 
-/** Envia mensagens automáticas: pelo plano ou por uma cota combinada (ex.: Básico com 200/mês). */
+/**
+ * Envia mensagens automáticas: pelo plano, por uma cota combinada (ex.: Básico com 200/mês) ou
+ * por extras pagos de mensagens.
+ */
 export function canSendAutomaticMessages(business: BusinessPlan): boolean {
   if (!isPlanUsable(business)) return false;
-  if (business.message_limit_override != null) return business.message_limit_override > 0;
-  return planOf(business).features.automaticMessages;
+  return monthlyMessageLimit(business) > 0;
 }
 
 export function canManageByLink(business: BusinessPlan): boolean {
   return hasFeature(business, "manageByLink");
 }
 
-/** Cota mensal de mensagens do negócio: a combinada, se houver; senão a do plano (0 = não envia). */
+/**
+ * Cota mensal de mensagens do negócio (0 = não envia):
+ * `(combinada ?? padrão do plano) + extras`.
+ */
 export function monthlyMessageLimit(business: BusinessPlan): number {
-  if (business.message_limit_override != null) return business.message_limit_override;
+  const extra = Math.max(0, business.addon_messages ?? 0);
+  if (business.message_limit_override != null) return business.message_limit_override + extra;
   const plan = planOf(business);
-  if (!plan.features.automaticMessages || plan.monthlyMessages === null) return 0;
-  return plan.monthlyMessages;
+  const base =
+    !plan.features.automaticMessages || plan.monthlyMessages === null ? 0 : plan.monthlyMessages;
+  return base + extra;
 }
 
 /** A cota do negócio foi combinada à parte (não é a do plano)? */
@@ -191,15 +201,16 @@ export function formatPlanPrice(plan: Plan): string {
   return `R$ ${(plan.priceCents / 100).toFixed(2).replace(".", ",")}`;
 }
 
-type MemberLimitBusiness = Pick<BusinessPlan, "plan" | "member_limit_override">;
+type MemberLimitBusiness = Pick<BusinessPlan, "plan" | "member_limit_override" | "addon_members">;
 
 /**
- * Pessoas com login que o negócio pode ter (null = ilimitado): o limite combinado, se houver;
- * senão o do plano. Profissional sem login não conta.
+ * Pessoas com login que o negócio pode ter (null = ilimitado):
+ * `(combinado ?? padrão do plano) + extras`. Profissional sem login não conta.
  */
 export function maxMembers(business: MemberLimitBusiness): number | null {
-  if (business.member_limit_override != null) return business.member_limit_override;
-  return planOf(business).maxMembers;
+  const base = business.member_limit_override ?? planOf(business).maxMembers;
+  if (base === null) return null;
+  return base + Math.max(0, business.addon_members ?? 0);
 }
 
 /** Ainda cabe mais uma pessoa na equipe? `used` = membros ativos + convites pendentes. */

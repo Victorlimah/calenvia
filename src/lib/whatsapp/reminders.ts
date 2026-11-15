@@ -80,15 +80,18 @@ export async function runReminders(deps: {
   const { data: rows, error } = await db
     .from("appointments")
     .select(
-      "id, business_id, starts_at, created_at, businesses!inner(id, slug, name, timezone, plan, plan_status, message_limit_override)",
+      "id, business_id, starts_at, created_at, businesses!inner(id, slug, name, timezone, plan, plan_status, message_limit_override, addon_messages)",
     )
     .eq("status", "confirmed")
     .gt("starts_at", new Date(now.getTime() + MIN_BEFORE_START_MS).toISOString())
     .lte("starts_at", new Date(now.getTime() + MAX_OFFSET_MS).toISOString())
     // Plano com envio automático ou cota combinada à parte (CAL-113).
-    .or(`plan.in.(${plansWithAutomaticMessages().join(",")}),message_limit_override.gt.0`, {
-      referencedTable: "businesses",
-    })
+    .or(
+      `plan.in.(${plansWithAutomaticMessages().join(",")}),message_limit_override.gt.0,addon_messages.gt.0`,
+      {
+        referencedTable: "businesses",
+      },
+    )
     .in("businesses.plan_status", USABLE_PLAN_STATUSES)
     .order("starts_at")
     .limit(BATCH_LIMIT);

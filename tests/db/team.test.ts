@@ -321,13 +321,16 @@ describe("ajustes por papel", () => {
     expect((await db.query(`select id from public.staff_members`)).rows.length).toBe(2);
   });
 
-  it("assinatura só para o dono; gerente não vê", async () => {
+  it("assinatura: dono e gerente veem (CAL-076); recepção não", async () => {
     await db.query(
-      `insert into public.subscriptions (business_id, plan, status, provider) values ($1, 'pro', 'active', 'teste')`,
+      `insert into public.subscriptions (business_id, plan, status, provider) values ($1, 'pro', 'active', 'manual')`,
       [BIZ_A],
     );
-    await actAs(db, MANAGER);
+    await actAs(db, RECEPTION);
     expect((await db.query(`select id from public.subscriptions`)).rows).toEqual([]);
+    await db.query("reset role");
+    await actAs(db, MANAGER);
+    expect((await db.query(`select id from public.subscriptions`)).rows).toHaveLength(1);
     await db.query("reset role");
     await actAs(db, OWNER_A);
     expect((await db.query(`select id from public.subscriptions`)).rows).toHaveLength(1);

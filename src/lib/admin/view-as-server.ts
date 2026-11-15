@@ -15,7 +15,7 @@ export const loadViewAsBusiness = cache(async (id: string) => {
   const { data } = await createSupabaseAdminClient()
     .from("businesses")
     .select(
-      "id, name, slug, timezone, plan, plan_status, accent_color, logo_url, cover_url, headline, subheadline, slot_interval_min, min_notice_min, max_days_ahead, cancel_notice_min, message_limit_override, member_limit_override, whatsapp, address",
+      "id, name, slug, timezone, plan, plan_status, accent_color, logo_url, cover_url, headline, subheadline, slot_interval_min, min_notice_min, max_days_ahead, cancel_notice_min, message_limit_override, member_limit_override, addon_messages, addon_members, whatsapp, address",
     )
     .eq("id", id)
     .maybeSingle();

@@ -195,6 +195,213 @@ export type Database = {
           },
         ];
       };
+      billing_addons: {
+        Row: {
+          code: string;
+          created_at: string;
+          description: string;
+          id: string;
+          is_active: boolean;
+          kind: string;
+          name: string;
+          plans: string[];
+          sort_order: number;
+          unit_amount: number | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          created_at?: string;
+          description?: string;
+          id?: string;
+          is_active?: boolean;
+          kind: string;
+          name: string;
+          plans?: string[];
+          sort_order?: number;
+          unit_amount?: number | null;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          description?: string;
+          id?: string;
+          is_active?: boolean;
+          kind?: string;
+          name?: string;
+          plans?: string[];
+          sort_order?: number;
+          unit_amount?: number | null;
+        };
+        Relationships: [];
+      };
+      billing_events: {
+        Row: {
+          business_id: string | null;
+          error: string | null;
+          id: string;
+          payload: NonNullable<Json>;
+          processed_at: string | null;
+          provider: string;
+          provider_event_id: string;
+          received_at: string;
+          type: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_id?: string | null;
+          error?: string | null;
+          id?: string;
+          payload?: NonNullable<Json>;
+          processed_at?: string | null;
+          provider: string;
+          provider_event_id: string;
+          received_at?: string;
+          type: string;
+        };
+        Update: {
+          business_id?: string | null;
+          error?: string | null;
+          id?: string;
+          payload?: NonNullable<Json>;
+          processed_at?: string | null;
+          provider?: string;
+          provider_event_id?: string;
+          received_at?: string;
+          type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      billing_prices: {
+        Row: {
+          addon_id: string | null;
+          amount_cents: number;
+          created_at: string;
+          created_by: string | null;
+          currency: string;
+          id: string;
+          interval: string;
+          is_current: boolean;
+          plan: string | null;
+          product: string;
+          provider_price_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          addon_id?: string | null;
+          amount_cents: number;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string;
+          id?: string;
+          interval?: string;
+          is_current?: boolean;
+          plan?: string | null;
+          product: string;
+          provider_price_id?: string | null;
+        };
+        Update: {
+          addon_id?: string | null;
+          amount_cents?: number;
+          created_at?: string;
+          created_by?: string | null;
+          currency?: string;
+          id?: string;
+          interval?: string;
+          is_current?: boolean;
+          plan?: string | null;
+          product?: string;
+          provider_price_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "billing_prices_addon_id_fkey";
+            columns: ["addon_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_addons";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      business_addons: {
+        Row: {
+          addon_id: string;
+          business_id: string;
+          created_at: string;
+          created_by: string | null;
+          custom_amount_cents: number | null;
+          custom_label: string | null;
+          id: string;
+          is_custom: boolean;
+          note: string | null;
+          price_id: string | null;
+          provider_item_id: string | null;
+          quantity: number;
+          removed_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          addon_id: string;
+          business_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          custom_amount_cents?: number | null;
+          custom_label?: string | null;
+          id?: string;
+          is_custom?: boolean;
+          note?: string | null;
+          price_id?: string | null;
+          provider_item_id?: string | null;
+          quantity?: number;
+          removed_at?: string | null;
+        };
+        Update: {
+          addon_id?: string;
+          business_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          custom_amount_cents?: number | null;
+          custom_label?: string | null;
+          id?: string;
+          is_custom?: boolean;
+          note?: string | null;
+          price_id?: string | null;
+          provider_item_id?: string | null;
+          quantity?: number;
+          removed_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "business_addons_addon_id_fkey";
+            columns: ["addon_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_addons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_addons_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "business_addons_price_id_fkey";
+            columns: ["price_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_prices";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       business_breaks: {
         Row: {
           business_id: string;
@@ -500,6 +707,8 @@ export type Database = {
       businesses: {
         Row: {
           accent_color: string;
+          addon_members: number;
+          addon_messages: number;
           address: string | null;
           address_reference: string | null;
           calendar_token: string | null;
@@ -532,6 +741,8 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           accent_color?: string;
+          addon_members?: number;
+          addon_messages?: number;
           address?: string | null;
           address_reference?: string | null;
           calendar_token?: string | null;
@@ -563,6 +774,8 @@ export type Database = {
         };
         Update: {
           accent_color?: string;
+          addon_members?: number;
+          addon_messages?: number;
           address?: string | null;
           address_reference?: string | null;
           calendar_token?: string | null;
@@ -598,6 +811,67 @@ export type Database = {
             columns: ["referred_by"];
             isOneToOne: false;
             referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      checkout_sessions: {
+        Row: {
+          addons: NonNullable<Json>;
+          amount_cents: number;
+          business_id: string;
+          completed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          plan: string;
+          price_id: string;
+          provider: string;
+          provider_session_id: string | null;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          addons?: NonNullable<Json>;
+          amount_cents: number;
+          business_id: string;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          plan: string;
+          price_id: string;
+          provider: string;
+          provider_session_id?: string | null;
+          status?: string;
+        };
+        Update: {
+          addons?: NonNullable<Json>;
+          amount_cents?: number;
+          business_id?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          plan?: string;
+          price_id?: string;
+          provider?: string;
+          provider_session_id?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "checkout_sessions_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "checkout_sessions_price_id_fkey";
+            columns: ["price_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_prices";
             referencedColumns: ["id"];
           },
         ];
@@ -787,6 +1061,60 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "finance_entries_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      invoices: {
+        Row: {
+          amount_cents: number;
+          business_id: string;
+          created_at: string;
+          hosted_url: string | null;
+          id: string;
+          lines: NonNullable<Json>;
+          paid_at: string | null;
+          period_end: string | null;
+          period_start: string | null;
+          provider: string;
+          provider_invoice_id: string;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_cents: number;
+          business_id: string;
+          created_at?: string;
+          hosted_url?: string | null;
+          id?: string;
+          lines?: NonNullable<Json>;
+          paid_at?: string | null;
+          period_end?: string | null;
+          period_start?: string | null;
+          provider: string;
+          provider_invoice_id: string;
+          status: string;
+        };
+        Update: {
+          amount_cents?: number;
+          business_id?: string;
+          created_at?: string;
+          hosted_url?: string | null;
+          id?: string;
+          lines?: NonNullable<Json>;
+          paid_at?: string | null;
+          period_end?: string | null;
+          period_start?: string | null;
+          provider?: string;
+          provider_invoice_id?: string;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invoices_business_id_fkey";
             columns: ["business_id"];
             isOneToOne: false;
             referencedRelation: "businesses";
@@ -1284,39 +1612,66 @@ export type Database = {
       subscriptions: {
         Row: {
           business_id: string;
+          cancel_at_period_end: boolean;
+          canceled_at: string | null;
           created_at: string;
           current_period_end: string | null;
+          current_period_start: string | null;
           id: string;
+          past_due_since: string | null;
+          pending_plan: string | null;
+          pending_price_id: string | null;
           plan: string;
+          price_id: string | null;
           provider: string;
           provider_customer_id: string | null;
+          provider_item_id: string | null;
           provider_subscription_id: string | null;
           status: string;
+          trial_end: string | null;
           updated_at: string;
         };
         ComputedFields: never;
         Insert: {
           business_id: string;
+          cancel_at_period_end?: boolean;
+          canceled_at?: string | null;
           created_at?: string;
           current_period_end?: string | null;
+          current_period_start?: string | null;
           id?: string;
+          past_due_since?: string | null;
+          pending_plan?: string | null;
+          pending_price_id?: string | null;
           plan: string;
+          price_id?: string | null;
           provider: string;
           provider_customer_id?: string | null;
+          provider_item_id?: string | null;
           provider_subscription_id?: string | null;
           status: string;
+          trial_end?: string | null;
           updated_at?: string;
         };
         Update: {
           business_id?: string;
+          cancel_at_period_end?: boolean;
+          canceled_at?: string | null;
           created_at?: string;
           current_period_end?: string | null;
+          current_period_start?: string | null;
           id?: string;
+          past_due_since?: string | null;
+          pending_plan?: string | null;
+          pending_price_id?: string | null;
           plan?: string;
+          price_id?: string | null;
           provider?: string;
           provider_customer_id?: string | null;
+          provider_item_id?: string | null;
           provider_subscription_id?: string | null;
           status?: string;
+          trial_end?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1325,6 +1680,20 @@ export type Database = {
             columns: ["business_id"];
             isOneToOne: false;
             referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriptions_pending_price_id_fkey";
+            columns: ["pending_price_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_prices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriptions_price_id_fkey";
+            columns: ["price_id"];
+            isOneToOne: false;
+            referencedRelation: "billing_prices";
             referencedColumns: ["id"];
           },
         ];
@@ -1572,6 +1941,24 @@ export type Database = {
         Args: { p_business_id: string; p_limit: number; p_period: string };
         Returns: number;
       };
+      current_prices: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          addon_code: string;
+          addon_description: string;
+          addon_id: string;
+          addon_kind: string;
+          addon_name: string;
+          addon_plans: string[];
+          addon_sort_order: number;
+          addon_unit_amount: number;
+          amount_cents: number;
+          plan: string;
+          price_id: string;
+          product: string;
+          provider_price_id: string;
+        }[];
+      };
       erase_customer: { Args: { p_customer_id: string }; Returns: undefined };
       gen_manage_code: { Args: Record<PropertyKey, never>; Returns: string };
       has_perm: { Args: { p_business_id: string; p_perm: string }; Returns: boolean };
@@ -1603,6 +1990,7 @@ export type Database = {
       };
       my_staff_member_id: { Args: { p_business_id: string }; Returns: string };
       owns_media_path: { Args: { p_name: string }; Returns: boolean };
+      recompute_business_addons: { Args: { p_business_id: string }; Returns: undefined };
       release_message_quota: {
         Args: { p_business_id: string; p_period: string };
         Returns: undefined;

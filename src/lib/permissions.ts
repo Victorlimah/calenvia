@@ -27,6 +27,8 @@ export const INVITABLE_ROLES: Exclude<Role, "owner">[] = ["manager", "reception"
 export type Permission =
   /** Plano, pagamento, indicação e excluir o negócio. */
   | "billing.manage"
+  /** Ver a assinatura, extras e faturas (sem mudar nada). */
+  | "billing.view"
   /** Convidar, remover e mudar o papel da equipe (o dono nunca é alterado). */
   | "team.manage"
   /** Serviços, profissionais, horários do negócio, aparência, mensagens, domínio, pacotes. */
@@ -50,6 +52,7 @@ export type Permission =
 
 const MATRIX: Record<Permission, Role[]> = {
   "billing.manage": ["owner"],
+  "billing.view": ["owner", "manager"],
   "team.manage": ["owner", "manager"],
   "settings.manage": ["owner", "manager"],
   "appointments.view_all": ["owner", "manager", "reception"],

@@ -22,6 +22,7 @@ type BusinessPlan = {
   plan: string;
   plan_status: string;
   message_limit_override: number | null;
+  addon_messages?: number | null;
 };
 
 const MONTHS = [
@@ -68,7 +69,10 @@ export type QuotaNotice = {
 
 /** Aviso ao dono quando a cota está perto do fim ou acabou. null = nada a avisar. */
 export function quotaNotice(
-  business: Pick<BusinessPlan, "plan" | "plan_status" | "message_limit_override">,
+  business: Pick<
+    BusinessPlan,
+    "plan" | "plan_status" | "message_limit_override" | "addon_messages"
+  >,
   state: QuotaState,
   period: string,
 ): QuotaNotice | null {

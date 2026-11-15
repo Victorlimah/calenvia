@@ -175,3 +175,10 @@ select '0b000000-0000-4000-8000-000000000001', '0d000000-0000-4000-8000-00000000
 
 insert into public.message_usage (business_id, period, count)
 values ('0b000000-0000-4000-8000-000000000001', to_char(now() at time zone 'America/Fortaleza', 'YYYY-MM'), 12);
+
+-- Cobrança (CAL-076): os negócios do seed estão ativos com assinatura "manual" (sem gateway).
+insert into public.subscriptions (business_id, plan, status, provider, price_id, current_period_start, current_period_end)
+select b.id, b.plan, 'active', 'manual', p.id, now(), now() + interval '1 month'
+from public.businesses b
+join public.billing_prices p on p.product = 'plan' and p.plan = b.plan and p.is_current
+where b.id in ('0b000000-0000-4000-8000-000000000001', '0b000000-0000-4000-8000-000000000002');

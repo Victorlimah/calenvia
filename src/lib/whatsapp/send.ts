@@ -39,6 +39,7 @@ export type SendBusiness = {
   plan: string;
   plan_status: string;
   message_limit_override: number | null;
+  addon_messages?: number | null;
 };
 
 export type SendResult =

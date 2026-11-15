@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   PLANS,
+  canAddMember as canAddMemberFn,
+  maxMembers as maxMembersFn,
   canManageByLink,
   canSendAutomaticMessages,
   canSendWithQuota,
@@ -102,5 +104,32 @@ describe("limite de membros (CAL-112/113)", () => {
     // Também limita o Pro+, que por padrão é ilimitado.
     expect(maxMembers({ plan: "pro_plus", member_limit_override: 20 })).toBe(20);
     expect(maxMembers({ plan: "pro", member_limit_override: null })).toBe(10);
+  });
+});
+
+describe("extras pagos somam no limite (CAL-115)", () => {
+  it("mensagens: padrão do plano + extras", () => {
+    expect(monthlyMessageLimit({ ...biz("pro"), addon_messages: 200 })).toBe(500);
+    expect(monthlyMessageLimit({ ...biz("pro_plus"), addon_messages: 100 })).toBe(900);
+  });
+
+  it("mensagens: override substitui o padrão, extras continuam somando", () => {
+    expect(monthlyMessageLimit({ ...biz("pro", "active", 400), addon_messages: 100 })).toBe(500);
+    expect(monthlyMessageLimit({ ...biz("pro", "active", 0), addon_messages: 100 })).toBe(100);
+  });
+
+  it("Básico com extra de mensagens passa a enviar", () => {
+    const b = { ...biz("basic"), addon_messages: 100 };
+    expect(monthlyMessageLimit(b)).toBe(100);
+    expect(canSendAutomaticMessages(b)).toBe(true);
+    expect(canSendAutomaticMessages({ ...biz("basic"), addon_messages: 0 })).toBe(false);
+  });
+
+  it("pessoas: padrão ou override + extras; ilimitado continua ilimitado", () => {
+    expect(maxMembersFn({ plan: "basic", addon_members: 2 })).toBe(5);
+    expect(maxMembersFn({ plan: "basic", member_limit_override: 4, addon_members: 1 })).toBe(5);
+    expect(maxMembersFn({ plan: "pro_plus", addon_members: 3 })).toBeNull();
+    expect(canAddMemberFn({ plan: "basic", addon_members: 1 }, 3)).toBe(true);
+    expect(canAddMemberFn({ plan: "basic", addon_members: 1 }, 4)).toBe(false);
   });
 });

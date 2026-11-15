@@ -56,7 +56,12 @@ export type SendDecision =
  * plano → configuração do negócio → mensagens do agendamento → opt-out → cota.
  */
 export function decideSend(input: {
-  business: { plan: string; plan_status: string; message_limit_override?: number | null };
+  business: {
+    plan: string;
+    plan_status: string;
+    message_limit_override?: number | null;
+    addon_messages?: number | null;
+  };
   settings: MessageSettings;
   type: TemplateKind;
   appointmentStatus: string;

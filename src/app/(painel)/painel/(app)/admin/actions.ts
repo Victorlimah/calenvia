@@ -30,7 +30,9 @@ export async function updateBusinessAdminAction(
   const [{ data: before }, { data: noteRow }] = await Promise.all([
     db
       .from("businesses")
-      .select("plan, plan_status, member_limit_override, message_limit_override")
+      .select(
+        "plan, plan_status, member_limit_override, message_limit_override, addon_messages, addon_members",
+      )
       .eq("id", businessId)
       .maybeSingle(),
     db.from("admin_business_notes").select("notes").eq("business_id", businessId).maybeSingle(),

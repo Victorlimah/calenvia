@@ -5,7 +5,7 @@ import { ratingSummary } from "@/lib/reviews";
 
 /** Colunas do negócio que podem aparecer na página pública. */
 const PUBLIC_BUSINESS_COLUMNS =
-  "id, slug, name, segment, address, address_reference, whatsapp, instagram, timezone, accent_color, logo_url, cover_url, headline, subheadline, slot_interval_min, min_notice_min, max_days_ahead, cancel_notice_min, plan, plan_status, message_limit_override, onboarding_completed_at";
+  "id, slug, name, segment, address, address_reference, whatsapp, instagram, timezone, accent_color, logo_url, cover_url, headline, subheadline, slot_interval_min, min_notice_min, max_days_ahead, cancel_notice_min, plan, plan_status, message_limit_override, addon_messages, onboarding_completed_at";
 
 export type PublicBusiness = {
   id: string;
@@ -29,6 +29,7 @@ export type PublicBusiness = {
   plan: string;
   plan_status: string;
   message_limit_override: number | null;
+  addon_messages?: number | null;
   onboarding_completed_at: string | null;
 };
 

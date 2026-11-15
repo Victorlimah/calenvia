@@ -13,6 +13,7 @@ import {
 // Matriz do card CAL-112: cada célula conferida.
 const EXPECTED: Record<Permission, Role[]> = {
   "billing.manage": ["owner"],
+  "billing.view": ["owner", "manager"],
   "team.manage": ["owner", "manager"],
   "settings.manage": ["owner", "manager"],
   "appointments.view_all": ["owner", "manager", "reception"],
