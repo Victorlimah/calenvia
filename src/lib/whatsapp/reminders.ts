@@ -85,7 +85,10 @@ export async function runReminders(deps: {
     .eq("status", "confirmed")
     .gt("starts_at", new Date(now.getTime() + MIN_BEFORE_START_MS).toISOString())
     .lte("starts_at", new Date(now.getTime() + MAX_OFFSET_MS).toISOString())
-    .in("businesses.plan", plansWithAutomaticMessages())
+    // Plano com envio automático ou cota combinada à parte (CAL-113).
+    .or(`plan.in.(${plansWithAutomaticMessages().join(",")}),message_limit_override.gt.0`, {
+      referencedTable: "businesses",
+    })
     .in("businesses.plan_status", USABLE_PLAN_STATUSES)
     .order("starts_at")
     .limit(BATCH_LIMIT);

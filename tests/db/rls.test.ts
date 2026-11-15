@@ -102,6 +102,16 @@ describe("RLS: dono só vê o próprio negócio", () => {
     ]);
   });
 
+  it("não consegue aumentar os próprios limites combinados (CAL-113)", async () => {
+    await actAs(db, OWNER_A);
+    await expectDenied(`update public.businesses set message_limit_override = 5000 where id = $1`, [
+      BIZ_A,
+    ]);
+    await expectDenied(`update public.businesses set member_limit_override = 99 where id = $1`, [
+      BIZ_A,
+    ]);
+  });
+
   it("pode editar dados do próprio negócio", async () => {
     await actAs(db, OWNER_A);
     const { rowCount } = await db.query(

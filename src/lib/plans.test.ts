@@ -41,7 +41,19 @@ describe("planos", () => {
   it("Pro+ usa o limite de uso justo, configurável", () => {
     expect(monthlyMessageLimit(biz("pro_plus"))).toBe(800);
     expect(monthlyMessageLimit(biz("pro_plus", "active", 1500))).toBe(1500);
-    expect(monthlyMessageLimit(biz("pro", "active", 1500))).toBe(300); // override só no Pro+
+  });
+
+  it("cota combinada por negócio vale em qualquer plano (CAL-113)", () => {
+    expect(monthlyMessageLimit(biz("pro", "active", 400))).toBe(400);
+    expect(canSendAutomaticMessages(biz("pro", "active", 400))).toBe(true);
+    // Básico com cota combinada passa a enviar no automático.
+    expect(monthlyMessageLimit(biz("basic", "active", 200))).toBe(200);
+    expect(canSendAutomaticMessages(biz("basic", "active", 200))).toBe(true);
+    // 0 desliga o automático, mesmo no Pro.
+    expect(canSendAutomaticMessages(biz("pro", "active", 0))).toBe(false);
+    expect(monthlyMessageLimit(biz("pro", "active", 0))).toBe(0);
+    // Assinatura parada não envia, nem com cota combinada.
+    expect(canSendAutomaticMessages(biz("basic", "suspended", 200))).toBe(false);
   });
 
   it("cota: aviso perto do limite e esgotada", () => {
@@ -68,15 +80,27 @@ describe("planos", () => {
   });
 });
 
-describe("limite de membros (CAL-112)", () => {
-  it("Básico 1, Pro 3, Pro+ ilimitado", async () => {
+describe("limite de membros (CAL-112/113)", () => {
+  it("Básico 3, Pro 10, Pro+ ilimitado", async () => {
     const { canAddMember, maxMembers } = await import("./plans");
-    expect(maxMembers({ plan: "basic" })).toBe(1);
-    expect(maxMembers({ plan: "pro" })).toBe(3);
+    expect(maxMembers({ plan: "basic" })).toBe(3);
+    expect(maxMembers({ plan: "pro" })).toBe(10);
     expect(maxMembers({ plan: "pro_plus" })).toBeNull();
-    expect(canAddMember({ plan: "basic" }, 1)).toBe(false);
-    expect(canAddMember({ plan: "pro" }, 2)).toBe(true);
-    expect(canAddMember({ plan: "pro" }, 3)).toBe(false);
+    expect(canAddMember({ plan: "basic" }, 2)).toBe(true);
+    expect(canAddMember({ plan: "basic" }, 3)).toBe(false);
+    expect(canAddMember({ plan: "pro" }, 9)).toBe(true);
+    expect(canAddMember({ plan: "pro" }, 10)).toBe(false);
     expect(canAddMember({ plan: "pro_plus" }, 500)).toBe(true);
+  });
+
+  it("limite combinado por negócio sobrescreve o do plano", async () => {
+    const { canAddMember, maxMembers } = await import("./plans");
+    const basic4 = { plan: "basic", member_limit_override: 4 };
+    expect(maxMembers(basic4)).toBe(4);
+    expect(canAddMember(basic4, 3)).toBe(true);
+    expect(canAddMember(basic4, 4)).toBe(false);
+    // Também limita o Pro+, que por padrão é ilimitado.
+    expect(maxMembers({ plan: "pro_plus", member_limit_override: 20 })).toBe(20);
+    expect(maxMembers({ plan: "pro", member_limit_override: null })).toBe(10);
   });
 });

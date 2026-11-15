@@ -81,7 +81,7 @@ export async function createInvitationAction(
     const max = maxMembers(business);
     return {
       ok: false,
-      error: `Seu plano permite ${max} ${max === 1 ? "pessoa" : "pessoas"} com acesso. Faça upgrade para convidar mais.`,
+      error: `Seu negócio permite ${max} ${max === 1 ? "pessoa" : "pessoas"} com acesso. Faça upgrade ou fale com o suporte para convidar mais.`,
     };
   }
   const db = createSupabaseAdminClient();

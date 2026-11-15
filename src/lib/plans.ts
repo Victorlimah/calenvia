@@ -17,12 +17,18 @@ export type Plan = {
   id: PlanId;
   name: string;
   priceCents: number;
-  /** Mensagens automáticas por mês. null = sem envio automático. */
+  /**
+   * Mensagens automáticas por mês. null = sem envio automático.
+   * Padrão do plano: `businesses.message_limit_override` muda para um negócio (CAL-113).
+   */
   monthlyMessages: number | null;
   /** Pro+: "ilimitado" com uso justo (limite configurável). */
   fairUse: boolean;
   features: PlanFeatures;
-  /** Pessoas com login no painel, contando o dono. null = ilimitado (CAL-112). */
+  /**
+   * Pessoas com login no painel, contando o dono. null = ilimitado (CAL-112).
+   * Padrão do plano: `businesses.member_limit_override` muda para um negócio (CAL-113).
+   */
   maxMembers: number | null;
   highlights: string[];
 };
@@ -45,7 +51,7 @@ export const PLANS: Record<PlanId, Plan> = {
       reports: false,
       prioritySupport: false,
     },
-    maxMembers: 1,
+    maxMembers: 3,
     highlights: [
       "Página de agendamento própria",
       "Agenda, bloqueios e clientes",
@@ -65,7 +71,7 @@ export const PLANS: Record<PlanId, Plan> = {
       reports: false,
       prioritySupport: false,
     },
-    maxMembers: 3,
+    maxMembers: 10,
     highlights: [
       "Tudo do Básico",
       "Confirmação e lembrete automáticos (300 mensagens/mês)",
@@ -96,10 +102,15 @@ export const PLANS: Record<PlanId, Plan> = {
 
 export const PLAN_ORDER: PlanId[] = ["basic", "pro", "pro_plus"];
 
+/**
+ * Campos do negócio que os helpers usam. Os `*_override` são limites combinados por fora com a
+ * Calenvia e gravados no banco (CAL-113); null ou ausente = padrão do plano.
+ */
 type BusinessPlan = {
   plan: string;
   plan_status: string;
   message_limit_override?: number | null;
+  member_limit_override?: number | null;
 };
 
 export function planOf(business: Pick<BusinessPlan, "plan">): Plan {
@@ -127,21 +138,28 @@ export function hasFeature(business: BusinessPlan, feature: keyof PlanFeatures):
   return isPlanUsable(business) && planOf(business).features[feature];
 }
 
+/** Envia mensagens automáticas: pelo plano ou por uma cota combinada (ex.: Básico com 200/mês). */
 export function canSendAutomaticMessages(business: BusinessPlan): boolean {
-  return hasFeature(business, "automaticMessages");
+  if (!isPlanUsable(business)) return false;
+  if (business.message_limit_override != null) return business.message_limit_override > 0;
+  return planOf(business).features.automaticMessages;
 }
 
 export function canManageByLink(business: BusinessPlan): boolean {
   return hasFeature(business, "manageByLink");
 }
 
-/** Cota mensal de mensagens do negócio (0 se o plano não envia). */
+/** Cota mensal de mensagens do negócio: a combinada, se houver; senão a do plano (0 = não envia). */
 export function monthlyMessageLimit(business: BusinessPlan): number {
+  if (business.message_limit_override != null) return business.message_limit_override;
   const plan = planOf(business);
   if (!plan.features.automaticMessages || plan.monthlyMessages === null) return 0;
-  if (plan.fairUse && business.message_limit_override != null)
-    return business.message_limit_override;
   return plan.monthlyMessages;
+}
+
+/** A cota do negócio foi combinada à parte (não é a do plano)? */
+export function hasCustomMessageLimit(business: BusinessPlan): boolean {
+  return business.message_limit_override != null;
 }
 
 export type QuotaState = {
@@ -173,13 +191,19 @@ export function formatPlanPrice(plan: Plan): string {
   return `R$ ${(plan.priceCents / 100).toFixed(2).replace(".", ",")}`;
 }
 
-/** Membros com login que o plano permite (null = ilimitado). Profissional sem login não conta. */
-export function maxMembers(business: Pick<BusinessPlan, "plan">): number | null {
+type MemberLimitBusiness = Pick<BusinessPlan, "plan" | "member_limit_override">;
+
+/**
+ * Pessoas com login que o negócio pode ter (null = ilimitado): o limite combinado, se houver;
+ * senão o do plano. Profissional sem login não conta.
+ */
+export function maxMembers(business: MemberLimitBusiness): number | null {
+  if (business.member_limit_override != null) return business.member_limit_override;
   return planOf(business).maxMembers;
 }
 
 /** Ainda cabe mais uma pessoa na equipe? `used` = membros ativos + convites pendentes. */
-export function canAddMember(business: Pick<BusinessPlan, "plan">, used: number): boolean {
+export function canAddMember(business: MemberLimitBusiness, used: number): boolean {
   const max = maxMembers(business);
   return max === null || used < max;
 }

@@ -132,6 +132,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await settings({});
+  await db.from("businesses").update({ message_limit_override: null }).eq("id", ANA);
   await cleanup();
 });
 
@@ -173,6 +174,19 @@ describe("cron de lembretes (CAL-069 / CAL-111)", () => {
     expect(sent).toHaveLength(1);
     expect(await reminders(main)).toHaveLength(1);
     expect(await reminders(optedOut)).toHaveLength(1);
+  });
+
+  it("Básico com cota combinada no banco recebe o lembrete (CAL-113)", async () => {
+    await db
+      .from("business_message_settings")
+      .update({ reminder_enabled: true, reminder_offsets_min: [120] })
+      .eq("business_id", ANA);
+    await db.from("businesses").update({ message_limit_override: 50 }).eq("id", ANA);
+    sent.length = 0;
+    const r = await run(2);
+    expect(sent.map((s) => s.to)).toEqual([PHONES[3]]);
+    expect(r.sent).toBe(1);
+    await db.from("businesses").update({ message_limit_override: null }).eq("id", ANA);
   });
 
   it("24 h + 2 h: dois lembretes, cada um uma vez só", async () => {

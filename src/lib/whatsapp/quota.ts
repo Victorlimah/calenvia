@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { periodOf } from "@/lib/dates";
 import {
   canSendAutomaticMessages,
+  hasCustomMessageLimit,
   PLAN_ORDER,
   PLANS,
   planOf,
@@ -44,11 +45,15 @@ export function quotaResetLabel(period: string): string {
   return `1º de ${MONTHS[month % 12]}`;
 }
 
-export function nextPlanWithMoreMessages(plan: Plan): Plan | null {
+/** Próximo plano com mais mensagens que `limit` (padrão: a cota do próprio plano). */
+export function nextPlanWithMoreMessages(
+  plan: Plan,
+  limit: number = plan.monthlyMessages ?? 0,
+): Plan | null {
   const idx = PLAN_ORDER.indexOf(plan.id);
   for (const id of PLAN_ORDER.slice(idx + 1)) {
     const p = PLANS[id];
-    if ((p.monthlyMessages ?? 0) > (plan.monthlyMessages ?? 0)) return p;
+    if ((p.monthlyMessages ?? 0) > limit) return p;
   }
   return null;
 }
@@ -69,11 +74,13 @@ export function quotaNotice(
 ): QuotaNotice | null {
   if (!canSendAutomaticMessages(business) || state.limit === 0) return null;
   const plan = planOf(business);
-  const upgradeTo = nextPlanWithMoreMessages(plan);
+  const upgradeTo = nextPlanWithMoreMessages(plan, state.limit);
   const reset = quotaResetLabel(period);
-  const limitLabel = plan.fairUse
-    ? `o limite de uso justo (${state.limit} mensagens)`
-    : `as ${state.limit} mensagens do plano ${plan.name}`;
+  const limitLabel = hasCustomMessageLimit(business)
+    ? `as ${state.limit} mensagens combinadas para o seu negócio`
+    : plan.fairUse
+      ? `o limite de uso justo (${state.limit} mensagens)`
+      : `as ${state.limit} mensagens do plano ${plan.name}`;
   const next = upgradeTo
     ? ` Mude para o ${upgradeTo.name} para continuar no automático.`
     : " Fale com o suporte se precisar de mais.";

@@ -72,12 +72,13 @@ export default async function EquipePage() {
       <p className="text-sm text-ink-2">
         {max === null
           ? `${used} ${used === 1 ? "pessoa" : "pessoas"} com acesso (sem limite no seu plano).`
-          : `${used} de ${max} ${max === 1 ? "pessoa" : "pessoas"} com acesso no seu plano.`}{" "}
+          : `${used} de ${max} ${max === 1 ? "pessoa" : "pessoas"} com acesso.`}{" "}
         Profissionais sem login não contam.
       </p>
       {!canAddMember(business, used) ? (
-        <Alert tone="info" title="Limite do plano">
-          Para convidar mais pessoas, faça upgrade do plano.{" "}
+        <Alert tone="info" title="Limite de acessos">
+          Para convidar mais pessoas, faça upgrade do plano ou fale com o suporte para aumentar o
+          limite.{" "}
           <Link href="/assinatura" className="font-semibold underline">
             Ver planos
           </Link>

@@ -62,6 +62,17 @@ describe("cota de mensagens e aviso ao dono (CAL-071)", () => {
     expect(notice(biz("pro_plus", 2000), 2000)?.tone).toBe("warning");
   });
 
+  it("cota combinada no Pro e no Básico (CAL-113)", () => {
+    const pro400 = notice(biz("pro", 400), 400)!;
+    expect(pro400.text).toContain("as 400 mensagens combinadas para o seu negócio");
+    expect(pro400.upgradeTo?.id).toBe("pro_plus");
+    const basic200 = notice(biz("basic", 200), 200)!;
+    expect(basic200.tone).toBe("warning");
+    expect(basic200.upgradeTo?.id).toBe("pro");
+    // Cota combinada acima do Pro+: sugere o suporte, não um plano com menos mensagens.
+    expect(notice(biz("pro", 900), 900)?.upgradeTo).toBeNull();
+  });
+
   it("assinatura suspensa não mostra aviso de cota", () => {
     expect(notice(biz("pro", null, "suspended"), 300)).toBeNull();
   });

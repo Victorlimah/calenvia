@@ -68,6 +68,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-069** · Lembrete automático · P0 · 2d — Vercel Cron a cada 10 min, sem duplicar, ignora cancelados.
 - [x] **CAL-070** · Webhook de status das mensagens · P1 · 1,5d — Entregue, lida, falhou. Verificação do token da Meta.
 - [x] **CAL-112** · Equipe com acessos e papéis · P0 · 4–5d — Dono, gerente, recepção e profissional com login; convites; RLS por papel. Plano em `docs/planos/CAL-112.md`.
+- [x] **CAL-113** · Limites por cliente no banco · P1 · 0,5d — Padrão Básico 3 / Pro 10 / Pro+ ilimitado pessoas; `member_limit_override` e `message_limit_override` em `businesses` sobrescrevem o plano para um negócio (mensagens em qualquer plano). Como usar: `docs/LIMITES.md`.
 - [x] **CAL-111** · Ajustes de mensagens automáticas · P0 · 1d — Ligar/desligar confirmação, lembrete (24 h e/ou 2 h) e cancelamento por negócio; desligar mensagens de um agendamento; envios bloqueados ficam como `skipped`.
 - [x] **CAL-073** · Opt-out do cliente · P1 · 0,5d — Respeitar quem pede para não receber mensagens.
 

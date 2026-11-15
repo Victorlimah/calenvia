@@ -442,6 +442,7 @@ export type Database = {
           instagram: string | null;
           logo_url: string | null;
           max_days_ahead: number;
+          member_limit_override: number | null;
           message_limit_override: number | null;
           message_texts: NonNullable<Json>;
           min_notice_min: number;
@@ -473,6 +474,7 @@ export type Database = {
           instagram?: string | null;
           logo_url?: string | null;
           max_days_ahead?: number;
+          member_limit_override?: number | null;
           message_limit_override?: number | null;
           message_texts?: NonNullable<Json>;
           min_notice_min?: number;
@@ -503,6 +505,7 @@ export type Database = {
           instagram?: string | null;
           logo_url?: string | null;
           max_days_ahead?: number;
+          member_limit_override?: number | null;
           message_limit_override?: number | null;
           message_texts?: NonNullable<Json>;
           min_notice_min?: number;
