@@ -144,7 +144,7 @@ export const SETTINGS_MENU: { title: string; items: Item[] }[] = [
     items: [
       {
         href: "/assinatura",
-        perm: "billing.manage",
+        perm: "billing.view",
         title: "Assinatura",
         desc: "Plano, faturas e mensagens do mês",
       },
