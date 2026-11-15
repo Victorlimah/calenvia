@@ -4,6 +4,8 @@ import { LandingHeader } from "@/components/site/landing-header";
 import { PhoneDemo } from "@/components/site/phone-demo";
 import { RevealOnScroll } from "@/components/site/reveal";
 import { appUrl, businessUrl, rootDomain, siteUrl } from "@/lib/hosts";
+import { getCurrentPrices } from "@/lib/billing/prices-server";
+import type { CurrentPrices } from "@/lib/billing/prices";
 import { DEFAULT_FAIR_USE_LIMIT, PLANS, type PlanId } from "@/lib/plans";
 import "./landing.css";
 import { VisitBeacon } from "@/components/site/visit-beacon";
@@ -26,15 +28,21 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-function price(id: PlanId) {
-  return (PLANS[id].priceCents / 100).toFixed(2).replace(".", ",");
+/** Preços vêm do banco (CAL-115) e a página se atualiza a cada 5 minutos. */
+export const revalidate = 300;
+
+function formatPlan(prices: CurrentPrices, id: PlanId) {
+  const cents = prices.plans[id].amountCents;
+  return (cents / 100).toFixed(2).replace(".", ",");
 }
 
 function signup(id: PlanId) {
   return appUrl(`/cadastro?plano=${id}`);
 }
 
-export default function SiteHome() {
+export default async function SiteHome() {
+  const prices = await getCurrentPrices();
+  const price = (id: PlanId) => formatPlan(prices, id);
   const root = rootDomain().replace(/:\d+$/, "") === "localhost" ? "calenvia.com.br" : rootDomain();
   return (
     <div className="lp" id="landing">

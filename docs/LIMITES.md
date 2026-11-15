@@ -20,6 +20,24 @@ O dono **não consegue** mudar essas colunas: só a Calenvia, pela administraç�
 (`/admin` › negócio › Plano e limites, com histórico; ver `docs/ADMIN.md`) ou pelo SQL Editor do
 Supabase. Os testes em `tests/db/rls.test.ts` conferem isso.
 
+## Extras pagos (CAL-115)
+
+Além do ajuste manual, o limite cresce com **extras cobrados na assinatura**
+(`business_addons`, catálogo em `billing_addons`, preço em `billing_prices`):
+
+```
+limite = (override ?? padrão do plano) + extras
+```
+
+- Os extras ativos são somados em `businesses.addon_messages` e `businesses.addon_members` por
+  `recompute_business_addons()`. Só o servidor grava; ninguém edita essas colunas à mão.
+- Extras iniciais: **+100 mensagens/mês** (R$ 10,00, Pro e Pro+) e **+1 pessoa na equipe**
+  (R$ 5,00, Básico e Pro). O tipo "combinado" tem valor e descrição livres e não muda limite.
+- Pro+ tem equipe ilimitada: extra de pessoa não soma nada lá (nem aparece no catálogo).
+- Adicionar/remover: `/admin` › negócio › **Extras** (ver `docs/ADMIN.md`). O dono também escolhe
+  extras no checkout.
+- Use o override para cortesia/caso especial (sem cobrança) e o extra para o que é cobrado.
+
 ## Exemplos (SQL Editor do Supabase)
 
 ```sql

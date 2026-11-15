@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { admin, loginAsZe, seededDay, ZE_BIZ } from "./helpers";
+import { admin, ANA_BIZ, loginAsZe, seededDay, ZE_BIZ } from "./helpers";
 
 // CAL-114: administração da Calenvia (só quem está em platform_admins).
 const E2E_ERROR = "E2E: número sem WhatsApp (131026)";
@@ -191,4 +191,42 @@ test("dono não abre a visão do painel pela administração (404)", async ({ pa
   await loginAsZe(page, "/");
   const res = await page.goto(`http://app.localhost:3000/admin/negocios/${ZE_BIZ}/visao`);
   expect(res?.status()).toBe(404);
+});
+
+test("cobrança no admin: preços e extras de um negócio (CAL-115)", async ({ page }) => {
+  await admin
+    .from("business_addons")
+    .update({ removed_at: new Date().toISOString() })
+    .eq("business_id", ANA_BIZ)
+    .is("removed_at", null);
+  await admin.rpc("recompute_business_addons", { p_business_id: ANA_BIZ });
+  await loginAsZe(page, "/admin/precos", "admin@calenvia.dev");
+  await expect(page.getByRole("heading", { name: "Preços e extras" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "+100 mensagens/mês" })).toBeVisible();
+
+  await page.goto(`/admin/negocios/${ANA_BIZ}`);
+  await expect(page.getByRole("heading", { name: "Cobrança" })).toBeVisible();
+  await expect(page.getByText("Manual (sem cobrança)")).toBeVisible();
+  await page
+    .getByLabel("Extra", { exact: true })
+    .selectOption({ label: "+1 pessoa na equipe · R$ 5,00/mês" });
+  await page.getByRole("button", { name: "Adicionar extra" }).click();
+  await expect(
+    page.getByRole("status").filter({ hasText: /\+1 pessoa na equipe × 1 adicionado/ }),
+  ).toBeVisible();
+  const { data } = await admin
+    .from("businesses")
+    .select("addon_members")
+    .eq("id", ANA_BIZ)
+    .single();
+  expect(data!.addon_members).toBe(1);
+
+  await page.getByRole("button", { name: "Remover" }).click();
+  await expect(page.getByText("Nenhum extra.")).toBeVisible();
+  const { data: after } = await admin
+    .from("businesses")
+    .select("addon_members")
+    .eq("id", ANA_BIZ)
+    .single();
+  expect(after!.addon_members).toBe(0);
 });

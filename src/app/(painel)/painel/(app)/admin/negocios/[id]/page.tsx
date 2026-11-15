@@ -18,6 +18,10 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { AdminBody, AdminTitle } from "../../ui";
 import { BusinessAdminForm } from "./business-admin-form";
 import { BillingSimulations } from "./billing-simulations";
+import { BusinessAddons, CourtesyButton } from "./business-addons";
+import { loadSubscriptionItems } from "@/lib/billing/items";
+import { addonsForPlan } from "@/lib/billing/prices";
+import { getCurrentPrices } from "@/lib/billing/prices-server";
 import { isMockBilling } from "@/lib/billing/config";
 import { formatPrice } from "@/lib/money";
 
@@ -84,6 +88,21 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
         .limit(5),
     ]);
   const sub = subscription.data;
+  const [{ items, totalCents }, prices, { data: addonRows }] = await Promise.all([
+    loadSubscriptionItems(db, id),
+    getCurrentPrices({ fresh: true }),
+    db.from("business_addons").select("id, note").eq("business_id", id).is("removed_at", null),
+  ]);
+  const activeAddons = items
+    .filter((i) => i.kind !== "plan")
+    .map((i) => ({
+      id: i.id!,
+      label: i.description,
+      quantity: i.quantity,
+      amountCents: i.amount_cents,
+      custom: i.kind === "custom",
+      note: addonRows?.find((r) => r.id === i.id)?.note ?? null,
+    }));
 
   const plan = planOf(business);
   const ownerEmail = owner.data.user?.email ?? "—";
@@ -214,12 +233,37 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
             ))}
           </ul>
         ) : null}
+        <Info label="Total por mês" value={formatPrice(totalCents)} />
+        {!sub || sub.provider === "manual" ? (
+          business.plan_status === "active" && sub ? null : (
+            <div className="border-t border-line pt-3">
+              <CourtesyButton businessId={business.id} />
+            </div>
+          )
+        ) : null}
         {isMockBilling() && sub && sub.provider !== "stripe" ? (
           <div className="space-y-2 border-t border-line pt-3">
             <p className="text-muted">Pagamento simulado: teste o ciclo de cobrança.</p>
             <BillingSimulations businessId={business.id} />
           </div>
         ) : null}
+      </Card>
+
+      <Card className="space-y-3 text-sm">
+        <h2 className="font-display text-lg font-bold text-ink">Extras</h2>
+        <p className="text-muted">
+          Itens cobrados na assinatura. Mensagens e pessoas extras somam no limite (além do ajuste
+          manual acima). Mudanças entram na fatura com cobrança proporcional.
+        </p>
+        <BusinessAddons
+          businessId={business.id}
+          active={activeAddons}
+          catalog={addonsForPlan(prices.addons, plan.id).map((a) => ({
+            addonId: a.addonId,
+            name: a.name,
+            amountCents: a.amountCents,
+          }))}
+        />
       </Card>
 
       <Card className="space-y-3">

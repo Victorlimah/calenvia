@@ -14,6 +14,7 @@ const NAV = [
   { href: "/admin/metricas", label: "Métricas" },
   { href: "/admin/suporte", label: "Suporte" },
   { href: "/admin/mensagens", label: "Mensagens" },
+  { href: "/admin/precos", label: "Preços" },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
