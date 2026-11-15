@@ -141,7 +141,7 @@ export async function updateSupportRequestAction(
       extra: { requestId },
     });
 
-  revalidatePath("/admin/suporte");
-  revalidatePath(`/admin/negocios/${before.business_id}`);
-  return { ok: true, message: "Pedido atualizado." };
+  // Sem revalidatePath: as telas da administração são dinâmicas, e revalidar aqui recarregaria a
+  // lista na hora, tirando o pedido (e a confirmação) da tela quando ele sai de "Abertos".
+  return { ok: true, message: "Pedido atualizado. Ele sai desta lista quando você recarregar." };
 }

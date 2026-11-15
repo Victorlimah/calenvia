@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, Card } from "@/components/ui";
+import { Badge, ButtonLink, Card } from "@/components/ui";
 import {
   type AdminBusinessInput,
   AUDIT_FIELD_LABELS,
+  describeAuditEntry,
   formatChangeValue,
   PLAN_STATUS_LABELS,
 } from "@/lib/admin/business-update";
@@ -84,6 +85,9 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
   return (
     <AdminBody>
       <AdminTitle title={business.name} back={{ href: "/admin", label: "Negócios" }} />
+      <ButtonLink href={`/admin/negocios/${business.id}/visao`} variant="secondary">
+        Ver painel do cliente
+      </ButtonLink>
 
       <div className="flex flex-wrap gap-1.5">
         <Badge tone="brand">{plan.name}</Badge>
@@ -174,23 +178,32 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
           <p className="text-sm text-muted">Nenhuma alteração feita pela administração ainda.</p>
         ) : (
           <ol className="space-y-2">
-            {(audit.data ?? []).map((a) => (
-              <li key={a.id}>
-                <Card className="space-y-1 text-sm">
-                  <p className="text-muted">
-                    {formatAdminDateTime(a.created_at)} · {a.admin_email}
-                  </p>
-                  <ul>
-                    {Object.entries((a.changes ?? {}) as AuditChanges).map(([field, c]) => (
-                      <li key={field} className="text-ink">
-                        <span className="font-semibold">{AUDIT_FIELD_LABELS[field] ?? field}:</span>{" "}
-                        {formatChangeValue(field, c.from)} → {formatChangeValue(field, c.to)}
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
-              </li>
-            ))}
+            {(audit.data ?? []).map((a) => {
+              const summary = describeAuditEntry(a.action, a.changes);
+              return (
+                <li key={a.id}>
+                  <Card className="space-y-1 text-sm">
+                    <p className="text-muted">
+                      {formatAdminDateTime(a.created_at)} · {a.admin_email}
+                    </p>
+                    {summary ? (
+                      <p className="text-ink">{summary}</p>
+                    ) : (
+                      <ul>
+                        {Object.entries((a.changes ?? {}) as AuditChanges).map(([field, c]) => (
+                          <li key={field} className="text-ink">
+                            <span className="font-semibold">
+                              {AUDIT_FIELD_LABELS[field] ?? field}:
+                            </span>{" "}
+                            {formatChangeValue(field, c.from)} → {formatChangeValue(field, c.to)}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </Card>
+                </li>
+              );
+            })}
           </ol>
         )}
       </section>

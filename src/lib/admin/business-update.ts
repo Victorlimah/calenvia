@@ -4,6 +4,7 @@
  */
 import { z } from "zod";
 import { SUPPORT_STATUS_LABELS, type SupportStatus } from "@/lib/admin/support";
+import { viewAsPageLabel } from "@/lib/admin/view-as";
 import { PLAN_ORDER, PLANS, type PlanId, type PlanStatus } from "@/lib/plans";
 
 export const PLAN_STATUSES: PlanStatus[] = [
@@ -89,4 +90,16 @@ export function formatChangeValue(field: string, value: unknown): string {
     return s.length > 80 ? `${s.slice(0, 80)}…` : s;
   }
   return String(value);
+}
+
+/**
+ * Registros do histórico que não são "campo: antes → depois" ganham um texto próprio.
+ * null = mostrar a lista de campos alterados.
+ */
+export function describeAuditEntry(action: string, changes: unknown): string | null {
+  if (action === "view_as") {
+    const page = (changes as Changes | null)?.page?.to;
+    return `Viu o painel (${viewAsPageLabel(page)})`;
+  }
+  return null;
 }

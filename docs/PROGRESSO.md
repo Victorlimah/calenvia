@@ -1,11 +1,13 @@
 # Progresso da Calenvia
 ## Status
-- Último card concluído: CAL-113
-- Card em andamento: CAL-114 (fase 1 de 4 concluída)
-- Próximo card: CAL-114 fase 2 (métricas); depois disso só restam cards bloqueados (CAL-075 e dependentes, CAL-066/108, CAL-022)
-- Atualizado em: 2026-11-15 08:40
+- Último card concluído: CAL-114
+- Card em andamento: nenhum
+- Próximo card: só restam cards bloqueados pelo Victor (CAL-075 e dependentes, CAL-066/108, CAL-022)
+- Atualizado em: 2026-11-15 10:50
 ## Próxima sessão
-- **CAL-114: próxima é a fase 2 (métricas), depois a 3 e a 4, uma por sessão.** Tudo o que cada fase precisa (banco, telas, testes, decisões) está em `docs/planos/CAL-114.md`; o que já existe da fase 1 também está lá. Login local: `admin@calenvia.dev` / `calenvia123`. Ao terminar cada fase: marcar `[x]` no plano, atualizar este bloco e commitar.
+- **CAL-114 concluído** (fases 1–4): `/admin` com negócios, métricas, suporte, mensagens com falha e "ver painel do cliente" só leitura. Como usar: `docs/ADMIN.md`. Login local: `admin@calenvia.dev` / `calenvia123`.
+- **Teste E2E quebrado (já existia antes do CAL-114):** `acessibilidade.spec.ts › site, termos e privacidade` falha por contraste no mockup de celular da landing (`.phone-top`, `.phone-title`, `.phone-url`: texto claro sobre fundo #d3d2cf). Falha também no build da fase 1; investigar se é animação/opacidade no momento da checagem ou cor errada. Resto: 86/87 contra o build.
+- **Servidor antigo na porta 3000:** um `next-server` (iniciado 08:33, build da fase 1) ficou rodando; pare-o antes de rodar o E2E (`ss -ltnp | grep 3000`). Nesta sessão o E2E rodou numa cópia do repo na porta 3001.
 - CAL-113 concluído: limites por cliente em `businesses.member_limit_override` / `message_limit_override` (null = padrão do plano). Como ajustar: `docs/LIMITES.md`. Ainda não há tela de admin; é pelo SQL Editor do Supabase.
 - CAL-112 concluído. Todo card restante depende do Victor (seção "Bloqueios"): CAL-075 (gateway) e dependentes, CAL-066/108 (Meta), CAL-022 (deploy).
 - E2E: rode contra o build de produção (`npm run build && npx next start -p 3000`, depois `npm run test:e2e`). No modo dev há falhas de tempo de compilação. Contra o build: 80/80.
@@ -98,6 +100,7 @@
 | CAL-111 | Concluído | 45ffa37 | business_message_settings (escrita só pelo servidor, confere papel e plano), appointments.messages_enabled, messages 'skipped' + skip_reason; decideSend (plano → negócio → agendamento → opt-out → cota) sem gastar cota; cron por antecedência (24 h/2 h); Ajustes › Mensagens automáticas; opção por agendamento; menu de Ajustes reescrito em grupos (itens faltando) com E2E | npm test (message-settings.test.ts, reminders.test.ts); npm run test:db (whatsapp, reminders, rls); npm run test:e2e (mensagens-automaticas, menu-ajustes) |
 | CAL-112 | Concluído | fa45d33 | Equipe com papéis (dono, gerente, recepção, profissional): business_members/business_invitations, RLS por has_perm, price_cents só por appointment_prices(), permissions.ts, seletor de negócio, Ajustes › Equipe, /convite/{token}, Meus horários, "Criado por" | npm run test:db (team.test.ts); npm run test:e2e (equipe.spec.ts) |
 | CAL-113 | Concluído | c1c4e91 | Limite de pessoas: Básico 3, Pro 10, Pro+ ilimitado. Colunas `member_limit_override` e `message_limit_override` em `businesses` (só a Calenvia grava) sobrescrevem o plano; a cota de mensagens combinada vale em qualquer plano (Básico com cota > 0 envia no automático, inclusive lembretes do cron) | docs/LIMITES.md; npm test; npm run test:db (rls, reminders) |
+| CAL-114 | Concluído | (este) | Administração `/admin` (só `platform_admins`, 404 para os outros): negócios, plano e limites com histórico; métricas (receita estimada, funil, planos × status, novos por semana); suporte com resposta visível ao dono em /ajuda; mensagens com falha (número mascarado, erros mais comuns); ver painel do cliente só leitura com registro no histórico (1 a cada 10 min por aba) | npm test (src/lib/admin); npm run test:db (admin.test.ts); npm run test:e2e (admin.spec.ts) |
 | CAL-114 (fase 1) | Em andamento | b749275 | Administração em /admin: tabela platform_admins (404 para os outros), lista de negócios com busca/filtros (admin_business_list, só service role), detalhe com plano, status, limites e observação interna (admin_business_notes), histórico em admin_audit_log. Seed: admin@calenvia.dev | app.localhost:3000/admin; npm run test:db (admin); tests/e2e/admin.spec.ts |
 
 ## Decisões tomadas

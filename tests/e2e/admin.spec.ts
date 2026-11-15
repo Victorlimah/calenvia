@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { admin, loginAsZe, ZE_BIZ } from "./helpers";
+import { admin, loginAsZe, seededDay, ZE_BIZ } from "./helpers";
 
 // CAL-114: administração da Calenvia (só quem está em platform_admins).
 const E2E_ERROR = "E2E: número sem WhatsApp (131026)";
@@ -86,7 +86,7 @@ test("admin responde um pedido de suporte e o dono vê a resposta", async ({ pag
   await card.getByLabel("Resposta").fill("Já ajustamos sua agenda. Qualquer coisa, chame!");
   await card.getByLabel("Status").selectOption("answered");
   await card.getByRole("button", { name: "Salvar pedido" }).click();
-  await expect(card.getByText("Pedido atualizado.")).toBeVisible();
+  await expect(card.getByText(/Pedido atualizado/)).toBeVisible();
 
   const { data } = await admin
     .from("support_requests")
@@ -125,4 +125,70 @@ test("admin vê as mensagens com falha com o número mascarado", async ({ page }
   await expect(list.getByText(E2E_ERROR)).toBeVisible();
   await expect(list.getByText("Para 55 85 9••••-7777").first()).toBeVisible();
   await expect(page.getByText("5585999997777")).toHaveCount(0);
+});
+
+test("admin vê o painel do cliente só para leitura e o acesso vai para o histórico", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const day = await seededDay();
+  const { data: appt } = await admin
+    .from("appointments")
+    .select("customer_name")
+    .eq("business_id", ZE_BIZ)
+    .eq("status", "confirmed")
+    .gt("starts_at", new Date().toISOString())
+    .order("starts_at")
+    .limit(1)
+    .single();
+
+  await loginAsZe(page, `/admin/negocios/${ZE_BIZ}`, "admin@calenvia.dev");
+  await page.waitForURL((u) => u.pathname.startsWith("/admin/negocios"));
+  await page.getByRole("link", { name: "Ver painel do cliente" }).click();
+  await expect(page.getByText(/Você está vendo o painel de\s+Barbearia do Zé/)).toBeVisible();
+
+  await page.goto(`/admin/negocios/${ZE_BIZ}/visao?data=${day}`);
+  const list = page.getByRole("list", { name: "Agendamentos do dia" });
+  await expect(list.getByText(appt!.customer_name).first()).toBeVisible();
+  for (const name of [/salvar/i, /cancelar/i, /remarcar/i, /excluir/i]) {
+    await expect(page.getByRole("button", { name })).toHaveCount(0);
+  }
+
+  for (const tab of [
+    "Clientes",
+    "Serviços e profissionais",
+    "Horários",
+    "Equipe e convites",
+    "Mensagens",
+    "Ajustes",
+  ]) {
+    await page
+      .getByRole("navigation", { name: "Telas do painel do cliente" })
+      .getByRole("link", { name: tab })
+      .click();
+    await expect(page.getByRole("heading", { level: 1, name: tab })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /salvar|cancelar|remarcar|excluir/i }),
+    ).toHaveCount(0);
+  }
+
+  // Recarregar não duplica o registro (um a cada 10 minutos por página).
+  await page.goto(`/admin/negocios/${ZE_BIZ}/visao`);
+  const { count } = await admin
+    .from("admin_audit_log")
+    .select("id", { count: "exact", head: true })
+    .eq("business_id", ZE_BIZ)
+    .eq("action", "view_as")
+    .eq("changes->page->>to", "agenda");
+  expect(count).toBe(1);
+
+  await page.goto(`/admin/negocios/${ZE_BIZ}`);
+  const history = page.getByRole("region", { name: "Histórico da administração" });
+  await expect(history.getByText("Viu o painel (agenda)")).toBeVisible();
+});
+
+test("dono não abre a visão do painel pela administração (404)", async ({ page }) => {
+  await loginAsZe(page, "/");
+  const res = await page.goto(`http://app.localhost:3000/admin/negocios/${ZE_BIZ}/visao`);
+  expect(res?.status()).toBe(404);
 });

@@ -12,7 +12,7 @@ export function SupportReplyForm({ requestId, defaults }: { requestId: string; d
   const { run, pending, error, message, fieldErrors } = useAction();
   const form = useForm<Values>({ defaultValues: defaults });
   const onSubmit = form.handleSubmit((values) =>
-    run(() => updateSupportRequestAction(requestId, values)),
+    run(() => updateSupportRequestAction(requestId, values), { refresh: false }),
   );
 
   return (
