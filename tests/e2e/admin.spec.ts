@@ -21,7 +21,7 @@ test("admin muda o limite de um negócio e a mudança vai para o histórico", as
   test.setTimeout(120_000);
   await loginAsZe(page, "/", "admin@calenvia.dev");
   await page.waitForURL((u) => u.pathname === "/admin");
-  await expect(page.getByRole("heading", { name: "Negócios" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Negócios", exact: true })).toBeVisible();
 
   await page.getByLabel("Buscar").fill("barbearia");
   await page.getByRole("button", { name: "Filtrar" }).click();
@@ -79,7 +79,10 @@ test("admin responde um pedido de suporte e o dono vê a resposta", async ({ pag
 
   await loginAsZe(page, "/admin/suporte", "admin@calenvia.dev");
   await page.waitForURL((u) => u.pathname === "/admin/suporte");
+  // No celular o menu do admin fica recolhido (CAL-129): abre antes de conferir o contador.
+  await page.locator("summary").filter({ hasText: "Menu" }).click();
   await expect(page.getByRole("link", { name: /Suporte.*pedidos? abertos?/ })).toBeVisible();
+  await page.locator("summary").filter({ hasText: "Menu" }).click();
   const card = page
     .getByRole("listitem")
     .filter({ hasText: "Pedido de teste E2E da administração" });
@@ -229,4 +232,52 @@ test("cobrança no admin: preços e extras de um negócio (CAL-115)", async ({ p
     .eq("id", ANA_BIZ)
     .single();
   expect(after!.addon_members).toBe(0);
+});
+
+// CAL-129/130: menu organizado, Sair e lista completa de negócios.
+test("admin sai pelo menu e volta para o login", async ({ page }) => {
+  await loginAsZe(page, "/admin", "admin@calenvia.dev");
+  await page.waitForURL((u) => u.pathname === "/admin");
+  await page.locator("summary").filter({ hasText: "Menu" }).click();
+  const nav = page.getByRole("navigation", { name: "Administração (celular)" });
+  for (const label of ["Negócios", "Suporte", "Assinaturas", "Preços", "Métricas", "Mensagens"]) {
+    await expect(nav.getByRole("link", { name: new RegExp(`^${label}`) })).toBeVisible();
+  }
+  await nav.getByRole("button", { name: "Sair" }).click();
+  await page.waitForURL((u) => u.pathname.startsWith("/entrar"));
+  // sessão limpa: o admin não abre mais
+  const res = await page.goto("http://app.localhost:3000/admin");
+  await page.waitForURL((u) => u.pathname.startsWith("/entrar"));
+  expect(res?.ok()).toBe(true);
+});
+
+test("lista de negócios: todos aparecem, com busca por e-mail e WhatsApp", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await admin.from("businesses").update({ plan_status: "suspended" }).eq("id", ANA_BIZ);
+  try {
+    await loginAsZe(page, "/admin", "admin@calenvia.dev");
+    await page.waitForURL((u) => u.pathname === "/admin");
+    await expect(page.getByRole("heading", { name: "O que fazer agora" })).toBeVisible();
+    const table = page.getByRole("table", { name: "Negócios da Calenvia" });
+    await expect(table.getByRole("link", { name: "Barbearia do Zé" })).toBeVisible();
+    // suspensa continua na lista, com rótulo
+    const ana = table.getByRole("row").filter({ hasText: "Ana Nails" });
+    await expect(ana).toContainText("Suspensa");
+    await page.getByLabel("Buscar").fill("ana@calenvia.dev");
+    await page.getByRole("button", { name: "Filtrar" }).click();
+    await expect(table.getByRole("row")).toHaveCount(2); // cabeçalho + 1
+    const { data: biz } = await admin
+      .from("businesses")
+      .select("whatsapp")
+      .eq("id", ANA_BIZ)
+      .single();
+    await page.getByLabel("Buscar").fill(biz!.whatsapp.slice(-8));
+    await page.getByRole("button", { name: "Filtrar" }).click();
+    await expect(table.getByRole("link", { name: "Ana Nails" })).toBeVisible();
+    await page.getByLabel("Ordenar por").selectOption("valor");
+    await page.getByRole("button", { name: "Filtrar" }).click();
+    await expect(page).toHaveURL(/ordem=valor/);
+  } finally {
+    await admin.from("businesses").update({ plan_status: "active" }).eq("id", ANA_BIZ);
+  }
 });

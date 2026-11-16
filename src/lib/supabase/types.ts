@@ -1890,6 +1890,40 @@ export type Database = {
       };
     };
     Functions: {
+      admin_business_directory: {
+        Args: {
+          p_city?: string;
+          p_limit?: number;
+          p_offset?: number;
+          p_plan?: string;
+          p_search?: string;
+          p_segment?: string;
+          p_sort?: string;
+          p_status?: string;
+        };
+        Returns: {
+          address: string;
+          appointments_this_month: number;
+          created_at: string;
+          id: string;
+          is_courtesy: boolean;
+          member_limit_override: number;
+          members: number;
+          message_limit_override: number;
+          messages_this_month: number;
+          monthly_cents: number;
+          name: string;
+          onboarding_completed_at: string;
+          owner_email: string;
+          owner_last_sign_in_at: string;
+          plan: string;
+          plan_status: string;
+          segment: string;
+          slug: string;
+          total_count: number;
+          whatsapp: string;
+        }[];
+      };
       admin_business_list: {
         Args: {
           p_limit?: number;
@@ -1914,6 +1948,7 @@ export type Database = {
           total_count: number;
         }[];
       };
+      admin_business_monthly_cents: { Args: { p_business_id: string }; Returns: number };
       admin_message_failures_summary: {
         Args: { p_business_id?: string; p_limit?: number; p_since: string };
         Returns: {
@@ -1931,6 +1966,16 @@ export type Database = {
           messages_this_month: number;
           new_businesses_by_week: Json;
           onboarding_completed_total: number;
+        }[];
+      };
+      admin_pending_counts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          failed_messages_7d: number;
+          past_due: number;
+          pending_activation: number;
+          support_open: number;
+          suspended: number;
         }[];
       };
       appointment_prices: {
