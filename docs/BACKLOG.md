@@ -159,13 +159,13 @@ Pedido do Victor (2026-11-16): a interface do painel do dono e do `/admin` está
   - Primeiro: reproduzir e escrever o teste que falha (E2E em `tests/e2e/agenda.spec.ts`), depois corrigir. Suspeita: `q()` e os links "Dia anterior/Próximo dia" em `(main)/page.tsx` e `week-view.tsx`.
   - Regras: em **Semana**, anterior/próximo = ±7 dias e o título mostra o intervalo ("10 a 16 de nov"); em **Dia**, ±1 dia; filtros e visão persistem ao navegar; "Hoje" volta para o dia atual mantendo a visão.
   - Aceite: testes de navegação (dia, semana, mês, filtro de profissional) passando.
-- [ ] **CAL-121** · Calendário mensal estilo Google Agenda · P1 · 3d — Nova visão **Mês**: grade com todos os dias do mês, agendamentos como chips ("14:00 Fulano · Corte"), "+3 mais" quando não cabe, hoje destacado, dias fechados/bloqueados esmaecidos.
+- [x] **CAL-121** · Calendário mensal estilo Google Agenda · P1 · 3d — Nova visão **Mês**: grade com todos os dias do mês, agendamentos como chips ("14:00 Fulano · Corte"), "+3 mais" quando não cabe, hoje destacado, dias fechados/bloqueados esmaecidos.
   - Seletor de visão: **Lista (como hoje) · Dia · Semana · Mês**, lembrando a última escolhida (preferência por usuário). **No computador, abre em Mês/Semana por padrão; no celular, em Lista.**
   - Clicar num dia abre o dia; clicar num agendamento abre o detalhe; botão "+" em cada dia leva ao "Novo" com a data preenchida. Filtro por profissional vale em todas as visões; respeita `appointments.view_all`.
   - Celular: grade compacta com pontos/contagem por dia e a lista do dia selecionado embaixo.
   - Navegação por teclado e leitor de tela (grade com `aria-label` por dia). Carregar só o intervalo visível do mês.
   - Aceite: E2E nas visões Dia, Semana e Mês; função pura que monta a grade do mês (semanas começando no domingo ou segunda, a definir) com testes.
-- [ ] **CAL-122** · Visão Semana no computador (colunas por hora) · P2 · 2d — Grade de 7 colunas com eixo de horas e blocos proporcionais à duração, linha do "agora", arrastar não é necessário nesta versão.
+- [x] **CAL-122** · Visão Semana no computador (colunas por hora) · P2 · 2d — Grade de 7 colunas com eixo de horas e blocos proporcionais à duração, linha do "agora", arrastar não é necessário nesta versão.
   - Aceite: usável de 1024 px para cima; no celular continua a lista da semana atual.
 
 ### Sprint 11 — Início (dashboard), métricas e financeiro

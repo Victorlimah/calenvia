@@ -110,3 +110,62 @@ test("na Lista, anterior/próximo andam 1 dia", async ({ page }) => {
   await page.getByRole("link", { name: "Próximo dia" }).click();
   await expect(page).toHaveURL(/data=2030-01-10&visao=lista/);
 });
+
+// CAL-121/122: visões Dia, Semana e Mês.
+test("visão Mês no computador: chips, abrir o dia e + com a data", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const day = await seededDay();
+  await loginAsZe(page, `/agenda?data=${day}&visao=mes`);
+  const cal = page.getByRole("table", { name: /^Calendário de / });
+  await expect(cal).toBeVisible();
+  await expect(cal.getByRole("link", { name: /Lucas Andrade/ }).first()).toBeVisible();
+  const plus = cal.getByRole("link", { name: /^Novo agendamento em / }).first();
+  await expect(plus).toHaveAttribute("href", /^\/novo\?data=\d{4}-\d\d-\d\d$/);
+  await cal
+    .getByRole("link", { name: /\d+ agendamentos?$/ })
+    .first()
+    .click();
+  await expect(page).toHaveURL(/visao=lista/);
+  await expect(page.getByRole("list", { name: "Linha do tempo do dia" })).toBeVisible();
+});
+
+test("visão Mês no celular: grade compacta e lista do dia escolhido", async ({ page }) => {
+  const day = await seededDay();
+  await loginAsZe(page, `/agenda?data=${day}&visao=mes`);
+  const compact = page.getByRole("table", { name: /compacto/ });
+  await expect(compact).toBeVisible();
+  const list = page.getByRole("region", { name: "Agendamentos do dia escolhido" });
+  await expect(list.getByText("Pedro Henrique")).toBeVisible();
+  await page.getByRole("link", { name: "Próximo mês" }).click();
+  await expect(page).toHaveURL(/visao=mes/);
+});
+
+test("visão Semana no computador: grade por hora", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const day = await seededDay();
+  await loginAsZe(page, `/agenda?data=${day}&visao=semana`);
+  const grid = page.getByRole("region", { name: /^Semana de / });
+  await expect(grid).toBeVisible();
+  await expect(grid.getByRole("link", { name: /Pedro Henrique/ })).toBeVisible();
+});
+
+test("visão Dia: uma coluna por profissional", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const day = await seededDay();
+  await loginAsZe(page, `/agenda?data=${day}&visao=dia`);
+  const grid = page.getByRole("region", { name: "Dia por profissional" });
+  await expect(grid.getByRole("list", { name: /Agendamentos: Zé/ })).toBeVisible();
+  await expect(grid.getByRole("list", { name: /Agendamentos: Rafael/ })).toBeVisible();
+  await expect(grid.getByRole("link", { name: /Mateus Rocha/ })).toBeVisible();
+});
+
+test("lembra a última visão escolhida", async ({ page }) => {
+  await loginAsZe(page, "/agenda");
+  await page.getByRole("group", { name: "Visão" }).getByRole("link", { name: "Mês" }).click();
+  await expect(page).toHaveURL(/visao=mes/);
+  await page.goto("/agenda");
+  await expect(page.getByRole("table", { name: /compacto/ })).toBeVisible();
+  // volta para a lista (não deixa a preferência para os outros testes)
+  await page.getByRole("group", { name: "Visão" }).getByRole("link", { name: "Lista" }).click();
+  await expect(page).toHaveURL(/visao=lista/);
+});
