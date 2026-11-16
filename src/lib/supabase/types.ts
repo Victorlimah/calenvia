@@ -106,6 +106,7 @@ export type Database = {
           manage_code: string;
           messages_enabled: boolean;
           notes: string | null;
+          payment_method: string | null;
           price_cents: number;
           service_id: string;
           source: string;
@@ -128,6 +129,7 @@ export type Database = {
           manage_code?: string;
           messages_enabled?: boolean;
           notes?: string | null;
+          payment_method?: string | null;
           price_cents?: number;
           service_id: string;
           source?: string;
@@ -149,6 +151,7 @@ export type Database = {
           manage_code?: string;
           messages_enabled?: boolean;
           notes?: string | null;
+          payment_method?: string | null;
           price_cents?: number;
           service_id?: string;
           source?: string;
@@ -1937,6 +1940,20 @@ export type Database = {
           price_cents: number;
         }[];
       };
+      appointment_stats: {
+        Args: { p_business_id: string; p_from: string; p_to: string };
+        Returns: {
+          appointments: number;
+          day: string;
+          minutes: number;
+          payment_method: string;
+          revenue_cents: number;
+          service_id: string;
+          source: string;
+          staff_member_id: string;
+          status: string;
+        }[];
+      };
       consume_message_quota: {
         Args: { p_business_id: string; p_limit: number; p_period: string };
         Returns: number;
@@ -1959,7 +1976,27 @@ export type Database = {
           provider_price_id: string;
         }[];
       };
+      customer_visit_stats: {
+        Args: { p_business_id: string };
+        Returns: {
+          customer_id: string;
+          name: string;
+          opted_out: boolean;
+          visit_cents: number[];
+          visit_days: string[];
+          whatsapp: string;
+        }[];
+      };
       erase_customer: { Args: { p_customer_id: string }; Returns: undefined };
+      finance_entry_stats: {
+        Args: { p_business_id: string; p_from: string; p_to: string };
+        Returns: {
+          amount_cents: number;
+          category: string;
+          day: string;
+          kind: string;
+        }[];
+      };
       gen_manage_code: { Args: Record<PropertyKey, never>; Returns: string };
       has_perm: { Args: { p_business_id: string; p_perm: string }; Returns: boolean };
       hit_rate_limit: {
@@ -1997,6 +2034,10 @@ export type Database = {
       };
       save_business_hours: { Args: { p_business_id: string; p_days: Json }; Returns: undefined };
       save_staff_hours: { Args: { p_days: Json; p_staff_member_id: string }; Returns: undefined };
+      set_appointment_payment: {
+        Args: { p_appointment_id: string; p_method: string };
+        Returns: undefined;
+      };
       set_appointment_status: {
         Args: { p_appointment_id: string; p_status: string };
         Returns: undefined;
