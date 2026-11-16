@@ -1,22 +1,35 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { Timeline } from "@/components/painel/agenda/timeline";
 import { buttonClasses } from "@/components/ui";
 import { loadAgendaDay, loadAppointments } from "@/lib/agenda/load";
 import { buildTimeline, daySummary } from "@/lib/agenda/timeline";
+import {
+  AGENDA_VIEW_COOKIE,
+  AGENDA_VIEWS,
+  agendaHref,
+  monthLabel,
+  parseView,
+  shiftDate,
+  visibleRange,
+  weekDaysOf,
+  weekLabel,
+  type AgendaState,
+  type AgendaView,
+} from "@/lib/agenda/view";
 import { requireReadyMember } from "@/lib/business/current";
 import { can } from "@/lib/permissions";
 import {
-  addLocalDays,
   formatDayLabel,
   isLocalDate,
   localDateToInstant,
   todayIn,
-  weekdayOf,
   zonedDayRange,
 } from "@/lib/dates";
 import { DatePicker } from "@/components/painel/agenda/date-picker";
 import { StaffChips } from "@/components/painel/agenda/staff-chips";
+import { DesktopDefaultView, ViewSwitcher } from "@/components/painel/agenda/view-switcher";
 import { WeekView } from "@/components/painel/agenda/week-view";
 import { formatPrice } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -32,6 +45,16 @@ export const metadata: Metadata = { title: "Agenda — Calenvia" };
 
 type Props = { searchParams: Promise<{ data?: string; profissional?: string; visao?: string }> };
 
+/** Visões disponíveis nesta versão da agenda. */
+const ENABLED_VIEWS: AgendaView[] = ["lista", "semana"];
+
+const PREV_LABEL: Record<AgendaView, [string, string]> = {
+  lista: ["Dia anterior", "Próximo dia"],
+  dia: ["Dia anterior", "Próximo dia"],
+  semana: ["Semana anterior", "Próxima semana"],
+  mes: ["Mês anterior", "Próximo mês"],
+};
+
 export default async function AgendaPage({ searchParams }: Props) {
   const member = await requireReadyMember();
   const { business } = member;
@@ -42,6 +65,11 @@ export default async function AgendaPage({ searchParams }: Props) {
   const tz = business.timezone;
   const today = todayIn(tz);
   const date = sp.data && isLocalDate(sp.data) ? sp.data : today;
+  const chosenView = parseView(sp.visao);
+  const savedView = parseView((await cookies()).get(AGENDA_VIEW_COOKIE)?.value);
+  const pick = (v: AgendaView | null) => (v && ENABLED_VIEWS.includes(v) ? v : null);
+  const view: AgendaView = pick(chosenView) ?? pick(savedView) ?? "lista";
+
   const supabase = await createSupabaseServerClient();
   const { ctx, appointments, blocks } = await loadAgendaDay(supabase, business, date, {
     withPrices: finance,
@@ -52,66 +80,36 @@ export default async function AgendaPage({ searchParams }: Props) {
     : sp.profissional && ctx.staff.some((s) => s.id === sp.profissional)
       ? sp.profissional
       : null;
-  const staffNames = Object.fromEntries(ctx.staff.map((s) => [s.id, s.name]));
-  const { items, canceled, dayStatus } = buildTimeline({
-    ctx,
-    date,
-    staffId,
-    appointments,
-    blocks,
-  });
-  const summary = daySummary(appointments.filter((a) => !staffId || a.staffId === staffId));
-  const label = formatDayLabel(localDateToInstant(date, tz), tz);
-  const week = sp.visao === "semana";
-  const staffQuery = staffId && seeAll ? `&profissional=${staffId}` : "";
-  const q = (d: string, w = week) => `/?data=${d}${staffQuery}${w ? "&visao=semana" : ""}`;
-  const weekStart = addLocalDays(date, -((weekdayOf(date) + 6) % 7)); // segunda-feira
-  const weekDays = Array.from({ length: 7 }, (_, i) => addLocalDays(weekStart, i));
-  const weekAppointments = week
-    ? (
-        await loadAppointments(supabase, business.id, {
-          from: zonedDayRange(weekDays[0], tz).start,
-          to: zonedDayRange(weekDays[6], tz).end,
-        })
-      ).filter((a) => !staffId || a.staffId === staffId)
-    : [];
+  const state: AgendaState = { date, view, staffId: seeAll ? staffId : null };
+  const range = visibleRange(date, view);
+  const staffQuery = state.staffId ? `&profissional=${state.staffId}` : "";
+  const viewQuery = `&visao=${view}${staffQuery}`;
 
-  const { data: waiting } = !manage
-    ? { data: [] }
-    : await supabase
-        .from("waitlist_entries")
-        .select(
-          "id, customer_name, customer_whatsapp, service_id, staff_member_id, desired_date, period, status, services(name)",
-        )
-        .eq("business_id", business.id)
-        .eq("desired_date", date)
-        .neq("status", "closed")
-        .order("created_at");
-  const waitlist: WaitlistItem[] = (waiting ?? []).map((w) => ({
-    id: w.id,
-    name: w.customer_name,
-    whatsapp: w.customer_whatsapp,
-    service: w.services?.name ?? "",
-    period: periodLabel(w.period),
-    status: w.status,
-    waLink: waMeLink(w.customer_whatsapp, waitlistMessage(business, w, w.services?.name ?? "")),
-  }));
-
-  const quota =
-    canSendAutomaticMessages(business) && can(member, "settings.manage")
-      ? await getMonthQuota(supabase, business)
-      : null;
+  const title =
+    view === "semana"
+      ? weekLabel(date)
+      : view === "mes"
+        ? monthLabel(date)
+        : (() => {
+            const label = formatDayLabel(localDateToInstant(date, tz), tz);
+            return date === today ? `Hoje, ${label}` : label;
+          })();
+  const [prevLabel, nextLabel] = PREV_LABEL[view];
+  const showToday = today < range.from || today > range.to;
 
   return (
     <main className="mx-auto w-full max-w-2xl space-y-5 px-4 pt-6 pb-10 md:pt-10">
-      <header className="flex items-start justify-between gap-3">
-        <div>
+      {!chosenView && !savedView ? (
+        <DesktopDefaultView href={agendaHref(state, { view: "semana" })} />
+      ) : null}
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="font-display text-3xl font-extrabold text-ink">Agenda</h1>
-          <p className="mt-0.5 text-ink-2 first-letter:uppercase">
-            {date === today ? `Hoje, ${label}` : label}
+          <p className="mt-0.5 text-ink-2 first-letter:uppercase" aria-live="polite">
+            {title}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link
             href={`/bloquear?data=${date}`}
             className={buttonClasses({ variant: "outline", size: "md" })}
@@ -135,48 +133,40 @@ export default async function AgendaPage({ searchParams }: Props) {
       </header>
 
       <RealtimeRefresh businessId={business.id} />
-      <QuotaAlert notice={quota?.notice ?? null} />
+      {await quotaAlert()}
 
-      <nav aria-label="Navegar entre dias" className="flex items-center gap-2">
+      <nav aria-label="Navegar na agenda" className="flex flex-wrap items-center gap-2">
         <Link
-          href={q(addLocalDays(date, -1))}
-          aria-label="Dia anterior"
+          href={agendaHref(state, { date: shiftDate(date, view, -1) })}
+          aria-label={prevLabel}
           className={buttonClasses({ variant: "outline", size: "sm", className: "w-11 px-0" })}
         >
           ‹
         </Link>
-        {date !== today ? (
-          <Link href={q(today)} className={buttonClasses({ variant: "ghost", size: "sm" })}>
-            Hoje
-          </Link>
-        ) : null}
         <Link
-          href={q(addLocalDays(date, 1))}
-          aria-label="Próximo dia"
+          href={agendaHref(state, { date: shiftDate(date, view, 1) })}
+          aria-label={nextLabel}
           className={buttonClasses({ variant: "outline", size: "sm", className: "w-11 px-0" })}
         >
           ›
         </Link>
-        <DatePicker value={date} extraQuery={staffQuery} />
-        <div
-          className="ml-auto inline-flex rounded-[var(--radius-control)] border border-line bg-white p-1"
-          role="group"
-          aria-label="Visão"
-        >
+        {showToday ? (
           <Link
-            href={q(date, false)}
-            aria-current={!week ? "true" : undefined}
-            className={`inline-flex min-h-9 items-center rounded-xl px-3 text-sm font-semibold ${!week ? "bg-ink text-white" : "text-ink-2"}`}
+            href={agendaHref(state, { date: today })}
+            className={buttonClasses({ variant: "ghost", size: "sm" })}
           >
-            Dia
+            Hoje
           </Link>
-          <Link
-            href={q(date, true)}
-            aria-current={week ? "true" : undefined}
-            className={`inline-flex min-h-9 items-center rounded-xl px-3 text-sm font-semibold ${week ? "bg-ink text-white" : "text-ink-2"}`}
-          >
-            Semana
-          </Link>
+        ) : null}
+        <DatePicker value={date} query={viewQuery} />
+        <div className="ml-auto">
+          <ViewSwitcher
+            current={view}
+            views={AGENDA_VIEWS.filter((v) => ENABLED_VIEWS.includes(v.key)).map((v) => ({
+              ...v,
+              href: agendaHref(state, { view: v.key }),
+            }))}
+          />
         </div>
       </nav>
 
@@ -184,47 +174,97 @@ export default async function AgendaPage({ searchParams }: Props) {
         <StaffChips
           staff={ctx.staff}
           selected={staffId}
-          hrefFor={(id) =>
-            `/?data=${date}${id ? `&profissional=${id}` : ""}${week ? "&visao=semana" : ""}`
-          }
+          hrefFor={(id) => agendaHref(state, { staffId: id })}
         />
       ) : null}
 
-      {week ? (
-        <WeekView
-          days={weekDays}
-          appointments={weekAppointments}
-          timezone={tz}
-          today={today}
-          staffQuery={staffQuery}
-        />
-      ) : (
-        <>
-          <section
-            aria-label="Resumo do dia"
-            className={`grid gap-2 ${finance ? "grid-cols-3" : "grid-cols-2"}`}
-          >
-            <Stat label="Agendamentos" value={String(summary.total)} />
-            <Stat label="Livres" value={String(items.filter((i) => i.kind === "free").length)} />
-            {finance ? (
-              <Stat label="Previsto" value={formatPrice(summary.expectedRevenueCents)} />
-            ) : null}
-          </section>
-
-          <Timeline
-            items={items}
-            canceled={canceled}
-            timezone={tz}
-            date={date}
-            dayStatus={dayStatus}
-            staffNames={staffNames}
-            showStaff={seeAll && !staffId && ctx.staff.length > 1}
-          />
-          <WaitlistSection items={waitlist} />
-        </>
-      )}
+      {view === "semana" ? await renderWeek() : await renderList()}
     </main>
   );
+
+  async function quotaAlert() {
+    const quota =
+      canSendAutomaticMessages(business) && can(member, "settings.manage")
+        ? await getMonthQuota(supabase, business)
+        : null;
+    return <QuotaAlert notice={quota?.notice ?? null} />;
+  }
+
+  async function renderWeek() {
+    const days = weekDaysOf(date);
+    const list = (
+      await loadAppointments(supabase, business.id, {
+        from: zonedDayRange(days[0], tz).start,
+        to: zonedDayRange(days[6], tz).end,
+      })
+    ).filter((a) => !staffId || a.staffId === staffId);
+    return (
+      <WeekView
+        days={days}
+        appointments={list}
+        timezone={tz}
+        today={today}
+        dayHref={(d) => agendaHref(state, { date: d, view: "lista" })}
+      />
+    );
+  }
+
+  async function renderList() {
+    const staffNames = Object.fromEntries(ctx.staff.map((s) => [s.id, s.name]));
+    const { items, canceled, dayStatus } = buildTimeline({
+      ctx,
+      date,
+      staffId,
+      appointments,
+      blocks,
+    });
+    const summary = daySummary(appointments.filter((a) => !staffId || a.staffId === staffId));
+    const { data: waiting } = !manage
+      ? { data: [] }
+      : await supabase
+          .from("waitlist_entries")
+          .select(
+            "id, customer_name, customer_whatsapp, service_id, staff_member_id, desired_date, period, status, services(name)",
+          )
+          .eq("business_id", business.id)
+          .eq("desired_date", date)
+          .neq("status", "closed")
+          .order("created_at");
+    const waitlist: WaitlistItem[] = (waiting ?? []).map((w) => ({
+      id: w.id,
+      name: w.customer_name,
+      whatsapp: w.customer_whatsapp,
+      service: w.services?.name ?? "",
+      period: periodLabel(w.period),
+      status: w.status,
+      waLink: waMeLink(w.customer_whatsapp, waitlistMessage(business, w, w.services?.name ?? "")),
+    }));
+    return (
+      <>
+        <section
+          aria-label="Resumo do dia"
+          className={`grid gap-2 ${finance ? "grid-cols-3" : "grid-cols-2"}`}
+        >
+          <Stat label="Agendamentos" value={String(summary.total)} />
+          <Stat label="Livres" value={String(items.filter((i) => i.kind === "free").length)} />
+          {finance ? (
+            <Stat label="Previsto" value={formatPrice(summary.expectedRevenueCents)} />
+          ) : null}
+        </section>
+
+        <Timeline
+          items={items}
+          canceled={canceled}
+          timezone={tz}
+          date={date}
+          dayStatus={dayStatus}
+          staffNames={staffNames}
+          showStaff={seeAll && !staffId && ctx.staff.length > 1}
+        />
+        <WaitlistSection items={waitlist} />
+      </>
+    );
+  }
 }
 
 function Stat({ label, value }: { label: string; value: string }) {

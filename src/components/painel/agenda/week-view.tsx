@@ -17,13 +17,14 @@ export function WeekView({
   appointments,
   timezone,
   today,
-  staffQuery,
+  dayHref,
 }: {
   days: string[];
   appointments: AgendaAppointment[];
   timezone: string;
   today: string;
-  staffQuery: string;
+  /** Link para abrir o dia (mantém o filtro de profissional). */
+  dayHref: (date: string) => string;
 }) {
   return (
     <ol className="space-y-3" aria-label="Semana">
@@ -34,7 +35,7 @@ export function WeekView({
         return (
           <li key={d}>
             <Link
-              href={`/?data=${d}${staffQuery}`}
+              href={dayHref(d)}
               className={cn(
                 "block rounded-2xl border bg-white px-4 py-3 hover:border-brand",
                 d === today ? "border-brand" : "border-line",

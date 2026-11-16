@@ -3,7 +3,7 @@ import { loginAsZe, seededDay } from "./helpers";
 
 test("agenda do dia mostra agendamentos, livres e bloqueios", async ({ page }) => {
   const day = await seededDay();
-  await loginAsZe(page, `/?data=${day}`);
+  await loginAsZe(page, `/agenda?data=${day}`);
   const timeline = page.getByRole("list", { name: "Linha do tempo do dia" });
   await expect(timeline.getByText("Lucas Andrade").first()).toBeVisible();
   await expect(timeline.getByText("Pedro Henrique")).toBeVisible();
@@ -20,7 +20,7 @@ test("agenda do dia mostra agendamentos, livres e bloqueios", async ({ page }) =
 
 test("horário livre leva ao novo agendamento já preenchido", async ({ page }) => {
   const day = await seededDay();
-  await loginAsZe(page, `/?data=${day}`);
+  await loginAsZe(page, `/agenda?data=${day}`);
   const link = page
     .getByRole("list", { name: "Linha do tempo do dia" })
     .getByRole("link", { name: /Livre/ })
@@ -31,7 +31,7 @@ test("horário livre leva ao novo agendamento já preenchido", async ({ page }) 
 
 test("filtra por profissional e mostra a semana", async ({ page }) => {
   const day = await seededDay();
-  await loginAsZe(page, `/?data=${day}`);
+  await loginAsZe(page, `/agenda?data=${day}`);
   const timeline = page.getByRole("list", { name: "Linha do tempo do dia" });
   await page
     .getByRole("navigation", { name: "Filtrar por profissional" })
@@ -48,8 +48,65 @@ test("filtra por profissional e mostra a semana", async ({ page }) => {
 
 test("seletor de data navega", async ({ page }) => {
   const day = await seededDay();
-  await loginAsZe(page, "/");
+  await loginAsZe(page, "/agenda");
   await page.getByLabel("Escolher data").fill(day);
   await expect(page).toHaveURL(new RegExp(`data=${day}`));
   await expect(page.getByText("Pedro Henrique")).toBeVisible();
+});
+
+// CAL-120: navegação da visão Semana e filtros que não se perdem.
+const RAFAEL = "0d000000-0000-4000-8000-000000000002";
+
+test("semana anda 7 dias e mantém visão e profissional", async ({ page }) => {
+  await loginAsZe(page, `/agenda?data=2030-01-09&visao=semana&profissional=${RAFAEL}`);
+  await expect(page.getByText("7 a 13 de jan", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Próxima semana" }).click();
+  await expect(page).toHaveURL(/data=2030-01-16/);
+  await expect(page).toHaveURL(/visao=semana/);
+  await expect(page).toHaveURL(new RegExp(`profissional=${RAFAEL}`));
+  await expect(page.getByText("14 a 20 de jan", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Semana anterior" }).click();
+  await expect(page).toHaveURL(/data=2030-01-09/);
+  await page.getByRole("link", { name: "Semana anterior" }).click();
+  await expect(page).toHaveURL(/data=2030-01-02/);
+  await expect(page.getByText("31 de dez de 2029 a 6 de jan de 2030")).toBeVisible();
+  // filtro continua marcado
+  await expect(
+    page
+      .getByRole("navigation", { name: "Filtrar por profissional" })
+      .getByRole("link", { name: "Rafael" }),
+  ).toHaveAttribute("aria-current", "true");
+});
+
+test("Hoje volta para o dia atual mantendo a visão", async ({ page }) => {
+  await loginAsZe(page, "/agenda?data=2030-01-09&visao=semana");
+  await page.getByRole("link", { name: "Hoje", exact: true }).click();
+  await expect(page).toHaveURL(/visao=semana/);
+  await expect(page).not.toHaveURL(/data=2030/);
+});
+
+test("trocar profissional e data não perde a visão", async ({ page }) => {
+  await loginAsZe(page, "/agenda?data=2030-01-09&visao=semana");
+  await page
+    .getByRole("navigation", { name: "Filtrar por profissional" })
+    .getByRole("link", { name: "Rafael" })
+    .click();
+  await expect(page).toHaveURL(new RegExp(`profissional=${RAFAEL}`));
+  await expect(page).toHaveURL(/visao=semana/);
+  await page.getByLabel("Escolher data").fill("2030-02-06");
+  await expect(page).toHaveURL(/data=2030-02-06/);
+  await expect(page).toHaveURL(/visao=semana/);
+  await expect(page).toHaveURL(new RegExp(`profissional=${RAFAEL}`));
+  await page
+    .getByRole("navigation", { name: "Filtrar por profissional" })
+    .getByRole("link", { name: "Todos" })
+    .click();
+  await expect(page).not.toHaveURL(/profissional=/);
+  await expect(page).toHaveURL(/visao=semana/);
+});
+
+test("na Lista, anterior/próximo andam 1 dia", async ({ page }) => {
+  await loginAsZe(page, "/agenda?data=2030-01-09&visao=lista");
+  await page.getByRole("link", { name: "Próximo dia" }).click();
+  await expect(page).toHaveURL(/data=2030-01-10&visao=lista/);
 });

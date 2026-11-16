@@ -142,20 +142,20 @@ Pedido do Victor (2026-11-16): a interface do painel do dono e do `/admin` está
 - Rotas antigas que mudarem de lugar ganham redirecionamento (links salvos e e-mails não podem quebrar). Atualizar os testes E2E afetados.
 
 ### Sprint 9 — Estrutura do painel do dono
-- [ ] **CAL-117** · Novo menu do painel · P0 · 1d — Menu enxuto e previsível.
+- [x] **CAL-117** · Novo menu do painel · P0 · 1d — Menu enxuto e previsível.
   - Desktop (menu lateral): **Início · Agenda · Clientes · Financeiro · Meu negócio · Ajustes**.
   - Celular (barra inferior, 5 itens): **Início · Agenda · Clientes · Meu negócio · Ajustes**; o Financeiro vira uma aba dentro do Início no celular.
   - Cada item aparece só se o papel tem permissão (`src/lib/permissions.ts`). Item ativo destacado, ícone + texto.
   - Aceite: nenhuma tela existente fica inacessível; teste E2E de navegação por papel (dono, gerente, recepção, profissional).
-- [ ] **CAL-118** · Aba "Meu negócio" · P0 · 2d — Tudo que é do negócio num lugar só, com **abas**: **Dados e página** (nome, endereço, link, aparência, QR code) · **Serviços e valores** · **Equipe** (profissionais, convites e acessos) · **Horários** (funcionamento, almoço, folgas) · **Pacotes**.
+- [x] **CAL-118** · Aba "Meu negócio" · P0 · 2d — Tudo que é do negócio num lugar só, com **abas**: **Dados e página** (nome, endereço, link, aparência, QR code) · **Serviços e valores** · **Equipe** (profissionais, convites e acessos) · **Horários** (funcionamento, almoço, folgas) · **Pacotes**.
   - Move o que hoje está espalhado em `/ajustes/*` (negócio, serviços, profissionais, equipe, horários, pacotes, aparência, link).
   - Serviços: lista com preço, duração, ativo/inativo e "mais pedido" visíveis de uma vez; editar em painel lateral/modal sem sair da lista.
   - Aceite: onboarding continua funcionando; redirecionamentos das rotas antigas; E2E dos fluxos de serviço/equipe atualizados.
-- [ ] **CAL-119** · Aba "Ajustes" (plataforma e conta) · P1 · 1d — Só o que é geral: **Conta** (nome, e-mail, senha, **sair**) · **Notificações** · **Mensagens automáticas** · **Assinatura e cobrança** · **Domínio próprio** · **Google Agenda** · **Ajuda e suporte** · indicação.
+- [x] **CAL-119** · Aba "Ajustes" (plataforma e conta) · P1 · 1d — Só o que é geral: **Conta** (nome, e-mail, senha, **sair**) · **Notificações** · **Mensagens automáticas** · **Assinatura e cobrança** · **Domínio próprio** · **Google Agenda** · **Ajuda e suporte** · indicação.
   - Aceite: nada do negócio fica aqui; textos curtos explicando cada opção.
 
 ### Sprint 10 — Agenda
-- [ ] **CAL-120** · Corrigir a agenda: filtros rápidos e navegação na visão semana · P0 · 1d — Bugs relatados: (1) os filtros rápidos (profissional, Dia/Semana) se comportam errado; (2) na visão **Semana**, os botões de trocar de dia andam 1 dia em vez de 1 semana e/ou perdem `visao`/`profissional` da URL.
+- [x] **CAL-120** · Corrigir a agenda: filtros rápidos e navegação na visão semana · P0 · 1d — Bugs relatados: (1) os filtros rápidos (profissional, Dia/Semana) se comportam errado; (2) na visão **Semana**, os botões de trocar de dia andam 1 dia em vez de 1 semana e/ou perdem `visao`/`profissional` da URL.
   - Primeiro: reproduzir e escrever o teste que falha (E2E em `tests/e2e/agenda.spec.ts`), depois corrigir. Suspeita: `q()` e os links "Dia anterior/Próximo dia" em `(main)/page.tsx` e `week-view.tsx`.
   - Regras: em **Semana**, anterior/próximo = ±7 dias e o título mostra o intervalo ("10 a 16 de nov"); em **Dia**, ±1 dia; filtros e visão persistem ao navegar; "Hoje" volta para o dia atual mantendo a visão.
   - Aceite: testes de navegação (dia, semana, mês, filtro de profissional) passando.
