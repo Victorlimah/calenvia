@@ -7,7 +7,7 @@ test.afterAll(() => cleanupCustomer(PHONE));
 
 test("dono recebe aviso quando o cliente agenda pela página", async ({ page, context }) => {
   await context.grantPermissions(["notifications"], { origin: "http://app.localhost:3000" });
-  await loginAsZe(page, "/ajustes");
+  await loginAsZe(page, "/ajustes/notificacoes");
   await expect(page.getByText("Avisos ligados neste aparelho.")).toBeVisible();
   await page.waitForTimeout(1500); // canal do Realtime conectando
 

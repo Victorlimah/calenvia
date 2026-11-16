@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { SignOutButton } from "@/components/painel/shell";
-import { NotificationSettings } from "@/components/painel/notification-settings";
 import { getMyMemberships, requireReadyMember } from "@/lib/business/current";
 import { BusinessSwitcher } from "@/components/painel/business-switcher";
 import { ROLE_LABELS } from "@/lib/permissions";
@@ -20,8 +19,11 @@ export default async function AjustesPage() {
     <PageBody>
       <PageHeader
         title="Ajustes"
-        description={`${businessDisplayHost(business.slug)} · ${ROLE_LABELS[member.role]}`}
+        description="Sua conta, mensagens, plano e ajuda. O que é do negócio fica em Meu negócio."
       />
+      <p className="text-sm text-muted">
+        {business.name} · {businessDisplayHost(business.slug)} · {ROLE_LABELS[member.role]}
+      </p>
       <BusinessSwitcher
         current={business.id}
         options={memberships.map((m) => ({
@@ -55,8 +57,7 @@ export default async function AjustesPage() {
           </ul>
         </section>
       ))}
-      <NotificationSettings />
-      <div className="rounded-[var(--radius-card)] border border-line bg-white p-2 md:hidden">
+      <div className="rounded-[var(--radius-card)] border border-line bg-white p-2">
         <SignOutButton />
       </div>
     </PageBody>

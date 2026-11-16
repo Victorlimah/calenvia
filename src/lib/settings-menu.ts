@@ -11,15 +11,23 @@ type Item = {
   needsStaff?: boolean;
 };
 
+/**
+ * Ajustes (CAL-119): só o que é geral, da conta e da plataforma. O que é do negócio (dados,
+ * página, serviços, equipe, horários, pacotes) fica em "Meu negócio" (CAL-118).
+ */
 export const SETTINGS_MENU: { title: string; items: Item[] }[] = [
   {
-    title: "Equipe",
+    title: "Sua conta",
     items: [
       {
-        href: "/ajustes/equipe",
-        perm: "team.manage",
-        title: "Equipe e acessos",
-        desc: "Convidar pessoas e definir o que cada uma pode ver",
+        href: "/ajustes/conta",
+        title: "Conta",
+        desc: "Seu nome, e-mail, senha e sair",
+      },
+      {
+        href: "/ajustes/notificacoes",
+        title: "Notificações",
+        desc: "Aviso neste aparelho quando chegar agendamento novo",
       },
       {
         href: "/meus-horarios",
@@ -30,25 +38,30 @@ export const SETTINGS_MENU: { title: string; items: Item[] }[] = [
     ],
   },
   {
-    title: "Sua página",
+    title: "WhatsApp",
     items: [
       {
-        href: "/ajustes/link",
+        href: "/ajustes/mensagens-automaticas",
         perm: "settings.manage",
-        title: "Link da página",
-        desc: "Copiar, ver a página e dica para o Instagram",
+        title: "Mensagens automáticas",
+        desc: "Confirmação, lembrete (24 h ou 2 h) e cancelamento enviados sozinhos",
       },
       {
-        href: "/ajustes/negocio",
+        href: "/ajustes/mensagens",
         perm: "settings.manage",
-        title: "Dados do negócio",
-        desc: "Nome, endereço, WhatsApp e endereço da página",
+        title: "Textos pelo seu WhatsApp",
+        desc: "Confirmação e lembrete que você mesmo envia",
       },
+    ],
+  },
+  {
+    title: "Plano e integrações",
+    items: [
       {
-        href: "/ajustes/aparencia",
-        perm: "settings.manage",
-        title: "Aparência da página",
-        desc: "Logo, capa, cor e textos",
+        href: "/assinatura",
+        perm: "billing.view",
+        title: "Assinatura e cobrança",
+        desc: "Plano, faturas e mensagens do mês",
       },
       {
         href: "/ajustes/dominio",
@@ -56,97 +69,21 @@ export const SETTINGS_MENU: { title: string; items: Item[] }[] = [
         title: "Domínio próprio",
         desc: "Sua página no seu endereço (Pro+)",
       },
-    ],
-  },
-  {
-    title: "Agenda",
-    items: [
-      {
-        href: "/ajustes/servicos",
-        perm: "settings.manage",
-        title: "Serviços",
-        desc: "Duração, preço e “mais pedido”",
-      },
-      {
-        href: "/ajustes/pacotes",
-        perm: "finance.view",
-        title: "Pacotes",
-        desc: "Várias sessões de um serviço com desconto",
-      },
-      {
-        href: "/ajustes/profissionais",
-        perm: "settings.manage",
-        title: "Profissionais",
-        desc: "Equipe, serviços e horário de cada um",
-      },
-      {
-        href: "/ajustes/horarios",
-        perm: "settings.manage",
-        title: "Horário de funcionamento",
-        desc: "Dias, horários e intervalos",
-      },
-      {
-        href: "/ajustes/regras",
-        perm: "settings.manage",
-        title: "Regras da agenda",
-        desc: "Antecedência, dias à frente e intervalo",
-      },
       {
         href: "/ajustes/google-agenda",
         perm: "settings.manage",
         title: "Google Agenda e celular",
-        desc: "Ver os agendamentos no seu calendário",
+        desc: "Ver os agendamentos no calendário do celular",
       },
     ],
   },
   {
-    title: "WhatsApp",
+    title: "Ajuda",
     items: [
       {
-        href: "/ajustes/mensagens-automaticas",
-        perm: "settings.manage",
-        title: "Mensagens automáticas",
-        desc: "Confirmação, lembrete (24 h ou 2 h) e cancelamento",
-      },
-      {
-        href: "/ajustes/mensagens",
-        perm: "settings.manage",
-        title: "Textos pelo seu WhatsApp",
-        desc: "Confirmação e lembrete que você envia",
-      },
-    ],
-  },
-  {
-    title: "Negócio",
-    items: [
-      {
-        href: "/financeiro",
-        perm: "finance.view",
-        title: "Financeiro",
-        desc: "Despesas, receitas e saldo do mês",
-      },
-      {
-        href: "/relatorios",
-        perm: "finance.view",
-        title: "Relatórios",
-        desc: "Faturamento, faltas e melhores clientes (Pro+)",
-      },
-      {
-        href: "/avaliacoes",
-        perm: "settings.manage",
-        title: "Avaliações",
-        desc: "Notas dos clientes e depoimentos da página",
-      },
-    ],
-  },
-  {
-    title: "Conta",
-    items: [
-      {
-        href: "/assinatura",
-        perm: "billing.view",
-        title: "Assinatura",
-        desc: "Plano, faturas e mensagens do mês",
+        href: "/ajuda",
+        title: "Ajuda e suporte",
+        desc: "Dúvidas frequentes e fale com a gente",
       },
       {
         href: "/indicar",
@@ -154,7 +91,6 @@ export const SETTINGS_MENU: { title: string; items: Item[] }[] = [
         title: "Indique a Calenvia",
         desc: "Seu link de indicação e quem entrou",
       },
-      { href: "/ajuda", title: "Ajuda", desc: "Dúvidas frequentes e fale com a gente" },
     ],
   },
 ];
