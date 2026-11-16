@@ -129,6 +129,83 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 
 ---
 
+## M5 · Painel melhor — organização, agenda, métricas e admin
+
+Pedido do Victor (2026-11-16): a interface do painel do dono e do `/admin` está confusa. Objetivo: navegação clara, agenda com calendário grande, dashboard com métricas e gráficos, e um admin organizado. **Ordem sugerida: Sprint 9 → 10 → 11 → 12 → 13.** Uma tarefa = um item; um item grande = uma fase por sessão (`docs/planos/CAL-xxx.md`).
+
+**Regras para todos os itens deste marco**
+- Mobile-first (390 px) **e** bom no computador: no desktop usar a largura (menu lateral, grades, tabelas), não uma coluna estreita.
+- Português simples, sem termos técnicos (`past_due`, `override` etc. viram "Pagamento atrasado", "Limite personalizado").
+- Gráficos em **SVG próprio, sem biblioteca nova** (CLAUDE.md: confirmar antes de dependência pesada). Cada gráfico precisa de tabela/texto alternativo (acessibilidade AA) e estado vazio.
+- Cálculos de métricas em **funções puras com testes** (Vitest), em `src/lib/metrics-owner/` ou similar; telas só exibem.
+- Valores em dinheiro só para quem tem `finance.view`; profissional comum vê só o que é dele.
+- Rotas antigas que mudarem de lugar ganham redirecionamento (links salvos e e-mails não podem quebrar). Atualizar os testes E2E afetados.
+
+### Sprint 9 — Estrutura do painel do dono
+- [ ] **CAL-117** · Novo menu do painel · P0 · 1d — Menu enxuto e previsível.
+  - Desktop (menu lateral): **Início · Agenda · Clientes · Financeiro · Meu negócio · Ajustes**.
+  - Celular (barra inferior, 5 itens): **Início · Agenda · Clientes · Meu negócio · Ajustes**; o Financeiro vira uma aba dentro do Início no celular.
+  - Cada item aparece só se o papel tem permissão (`src/lib/permissions.ts`). Item ativo destacado, ícone + texto.
+  - Aceite: nenhuma tela existente fica inacessível; teste E2E de navegação por papel (dono, gerente, recepção, profissional).
+- [ ] **CAL-118** · Aba "Meu negócio" · P0 · 2d — Tudo que é do negócio num lugar só, com **abas**: **Dados e página** (nome, endereço, link, aparência, QR code) · **Serviços e valores** · **Equipe** (profissionais, convites e acessos) · **Horários** (funcionamento, almoço, folgas) · **Pacotes**.
+  - Move o que hoje está espalhado em `/ajustes/*` (negócio, serviços, profissionais, equipe, horários, pacotes, aparência, link).
+  - Serviços: lista com preço, duração, ativo/inativo e "mais pedido" visíveis de uma vez; editar em painel lateral/modal sem sair da lista.
+  - Aceite: onboarding continua funcionando; redirecionamentos das rotas antigas; E2E dos fluxos de serviço/equipe atualizados.
+- [ ] **CAL-119** · Aba "Ajustes" (plataforma e conta) · P1 · 1d — Só o que é geral: **Conta** (nome, e-mail, senha, **sair**) · **Notificações** · **Mensagens automáticas** · **Assinatura e cobrança** · **Domínio próprio** · **Google Agenda** · **Ajuda e suporte** · indicação.
+  - Aceite: nada do negócio fica aqui; textos curtos explicando cada opção.
+
+### Sprint 10 — Agenda
+- [ ] **CAL-120** · Corrigir a agenda: filtros rápidos e navegação na visão semana · P0 · 1d — Bugs relatados: (1) os filtros rápidos (profissional, Dia/Semana) se comportam errado; (2) na visão **Semana**, os botões de trocar de dia andam 1 dia em vez de 1 semana e/ou perdem `visao`/`profissional` da URL.
+  - Primeiro: reproduzir e escrever o teste que falha (E2E em `tests/e2e/agenda.spec.ts`), depois corrigir. Suspeita: `q()` e os links "Dia anterior/Próximo dia" em `(main)/page.tsx` e `week-view.tsx`.
+  - Regras: em **Semana**, anterior/próximo = ±7 dias e o título mostra o intervalo ("10 a 16 de nov"); em **Dia**, ±1 dia; filtros e visão persistem ao navegar; "Hoje" volta para o dia atual mantendo a visão.
+  - Aceite: testes de navegação (dia, semana, mês, filtro de profissional) passando.
+- [ ] **CAL-121** · Calendário mensal estilo Google Agenda · P1 · 3d — Nova visão **Mês**: grade com todos os dias do mês, agendamentos como chips ("14:00 Fulano · Corte"), "+3 mais" quando não cabe, hoje destacado, dias fechados/bloqueados esmaecidos.
+  - Seletor de visão: **Lista (como hoje) · Dia · Semana · Mês**, lembrando a última escolhida (preferência por usuário). **No computador, abre em Mês/Semana por padrão; no celular, em Lista.**
+  - Clicar num dia abre o dia; clicar num agendamento abre o detalhe; botão "+" em cada dia leva ao "Novo" com a data preenchida. Filtro por profissional vale em todas as visões; respeita `appointments.view_all`.
+  - Celular: grade compacta com pontos/contagem por dia e a lista do dia selecionado embaixo.
+  - Navegação por teclado e leitor de tela (grade com `aria-label` por dia). Carregar só o intervalo visível do mês.
+  - Aceite: E2E nas visões Dia, Semana e Mês; função pura que monta a grade do mês (semanas começando no domingo ou segunda, a definir) com testes.
+- [ ] **CAL-122** · Visão Semana no computador (colunas por hora) · P2 · 2d — Grade de 7 colunas com eixo de horas e blocos proporcionais à duração, linha do "agora", arrastar não é necessário nesta versão.
+  - Aceite: usável de 1024 px para cima; no celular continua a lista da semana atual.
+
+### Sprint 11 — Início (dashboard), métricas e financeiro
+- [ ] **CAL-123** · Início com resumo do negócio (dashboard) · P1 · 3d — Primeira tela do painel: faturamento de hoje/semana/mês (com comparação ao período anterior), agendamentos de hoje e próximos, taxa de falta, taxa de ocupação, clientes novos x que voltaram, avisos (cota de mensagens, assinatura). Cartões de número + 2 gráficos.
+  - Profissional vê só os próprios números; sem `finance.view` os valores em R$ não aparecem.
+  - Aceite: estados vazios para negócio novo ("assim que você tiver atendimentos, os números aparecem aqui"); carrega em < 1 s com 5 mil agendamentos (consulta agregada no banco, view/função SQL com RLS).
+- [ ] **CAL-124** · Métricas de retorno dos clientes · P1 · 2d — **Tempo médio entre uma visita e a próxima** (geral e por cliente), **taxa de retorno** (voltou em 30/60/90 dias), **clientes sumidos** (passaram do tempo médio dele sem voltar) com botão "Chamar no WhatsApp" (link `wa.me` com mensagem pronta; sem envio automático).
+  - Funções puras com testes (casos: 1 visita só, visitas no mesmo dia, cancelados e faltas não contam, cliente avulso fora da conta).
+  - Aceite: aparece no Início e em Clientes (filtro "Sumidos").
+- [ ] **CAL-125** · Ranking de clientes · P1 · 1d — **Mais frequentes** (nº de visitas) e **que mais gastam**, por período (30 dias, 90 dias, ano, sempre), com ligação para o cliente. Cliente avulso não entra.
+- [ ] **CAL-126** · Faturamento por dia, semana e mês, com gráficos · P1 · 2d — Seletor de período (dia/semana/mês + intervalo personalizado); gráfico de barras por dia/semana/mês, **por serviço** e **por profissional**; ticket médio; comparação com o período anterior.
+  - Considera só atendimentos `completed` (inclui os do "Registrar atendimento") + entradas manuais do financeiro.
+  - Aceite: números batem com o relatório e o financeiro atuais (teste cruzando as três fontes); gráfico acessível.
+- [ ] **CAL-127** · Aba "Financeiro" unificada · P1 · 2d — Junta Relatórios (CAL-100) e Controle financeiro (CAL-102) numa aba com sub-abas: **Resumo** (faturamento, despesas, saldo) · **Entradas e despesas** (lançamentos) · **Relatórios** (faltas, por serviço, por profissional) · **Exportar** (CSV do mês).
+  - Visível só com `finance.view`. Decisão de plano (padrão proposto): Resumo e faturamento básico em **todos os planos**; comparativos e exportação em **Pro+**, como hoje.
+  - Aceite: `/relatorios` e `/financeiro` redirecionam para a nova aba.
+- [ ] **CAL-128** · Forma de pagamento no atendimento · P2 · 1d — Campo dinheiro/Pix/cartão/outro ao concluir ou registrar atendimento; resumo do caixa do dia por forma de pagamento no Financeiro. *(Migration + RLS na mesma migration.)*
+
+### Sprint 12 — Administração da Calenvia (`/admin`)
+- [ ] **CAL-129** · Sair no admin e menu organizado · P0 · 1d — Botão **Sair** sempre visível (o admin hoje não tem) e menu lateral agrupado: **Clientes** (Negócios, Suporte) · **Dinheiro** (Assinaturas, Preços) · **Saúde** (Métricas, Mensagens). No celular, menu recolhível; contador de pendências ao lado de cada item.
+  - Aceite: logout limpa a sessão e volta para `/entrar`; E2E.
+- [ ] **CAL-130** · Home do admin: o que fazer agora + lista de negócios de verdade · P0 · 2d — Topo com **pendências** (negócios aguardando liberação com botão "Ativar", pagamentos atrasados, contas suspensas, suporte aberto, mensagens com falha). Abaixo, a **lista completa de negócios**: busca, filtros (plano, status, cidade/segmento), ordenação, paginação, colunas **negócio · dono · plano · status · valor/mês · cadastro · último acesso · agendamentos no mês**; no celular, cartões.
+  - Aceite: nenhum negócio fica fora da lista (inclui `pending`, suspensos e cancelados, com rótulo); busca por nome, slug, e-mail do dono ou WhatsApp.
+- [ ] **CAL-131** · Tela do negócio em abas · P1 · 2d — Cabeçalho fixo com nome, plano, status e ações principais (**Ativar cortesia · Entrar como o negócio · Suspender/Reativar**). Abas: **Resumo** · **Plano e cobrança** · **Extras e limites** · **Equipe** · **Atividade** (histórico de ações do admin). Ações perigosas pedem confirmação explicando o efeito; textos sem jargão.
+  - Aceite: nenhuma ação atual se perde; E2E dos fluxos de cortesia, limites e extras (`admin.spec.ts`) atualizados.
+- [ ] **CAL-132** · Métricas claras do admin · P1 · 2d — Reescrever `/admin/metricas` com poucos números que importam e gráficos: **MRR** (e variação), **assinantes por plano**, **novos cadastros por semana**, **ativação** (cadastro → 1º agendamento em 7 dias), **cancelamentos/churn**, **inadimplência**, **mensagens enviadas x falhas**, **negócios mais ativos e menos ativos**. Período selecionável; cada número com uma frase explicando o que significa.
+  - Aceite: funções puras testadas; MRR confere com as assinaturas ativas (manuais/cortesia aparecem separados, com R$ 0).
+- [ ] **CAL-133** · Acesso master ("Entrar como o negócio") · P1 · 2d · **plano em `docs/planos/CAL-133.md` antes de codar** — Do admin, abrir o painel de um negócio **como se fosse o dono**, para ajudar o cliente.
+  - Hoje existe só a visão somente leitura (`/admin/negocios/[id]/visao`). Esta tarefa adiciona o modo **com edição**, com estas regras (seguras por padrão): só `platform_admin`; **começa em leitura** e pede um clique em "Permitir editar" com **motivo** obrigatório; **faixa fixa no topo** ("Você está no painel de {negócio} · Sair do modo suporte"); **expira em 30 min**; **auditoria** de início, fim e de **cada gravação** (quem, quando, o quê); **bloqueado** nesse modo: trocar e-mail/senha do dono, apagar conta, cancelar assinatura, ver ou exportar dados pessoais de clientes sem necessidade (LGPD). Nunca expor a senha do dono e **nunca usar `service_role` no navegador**: a sessão de suporte vive no servidor.
+  - Aceite: testes de banco/E2E provando que um admin comum de negócio não consegue ativar o modo; que o modo expira; que cada gravação gera auditoria; que o dono vê no histórico de acessos quando houve suporte (transparência).
+
+### Sprint 13 — Acabamento de UI/UX
+- [ ] **CAL-134** · Revisão de UI/UX do painel e do admin · P1 · 3d — Passada geral depois dos sprints 9–12: layout para computador (menu lateral, tabelas, largura útil), estados vazios/carregando/erro em toda tela, **esqueletos de carregamento** (`loading.tsx`) onde a página demora, textos revisados em português simples, consistência de botões, espaçamentos e ícones, foco e contraste AA.
+  - Performance: medir no build de produção (o modo dev é lento por compilar a página na primeira visita); metas: troca de tela < 500 ms com cache; consultas pesadas do Início/Financeiro agregadas no banco.
+  - Aceite: `acessibilidade.spec.ts` cobre todas as telas novas; lista "antes e depois" no `docs/PROGRESSO.md`; teste de usabilidade rápido com 2 donos reais (CAL-093) antes de fechar.
+
+**Decisões em aberto (padrão adotado se o Victor não disser nada):** semana começa na segunda-feira · dashboard/faturamento básico em todos os planos, comparativos e exportação só Pro+ · gráficos em SVG próprio · modo suporte do admin começa em leitura e expira em 30 min.
+
+---
+
 ## Fora do código (tarefas do dono do projeto)
 - [x] CAL-001 Nome e identidade (Calenvia)
 - [ ] CAL-002 Registrar calenvia.com.br
