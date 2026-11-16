@@ -1,229 +1,122 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Timeline } from "@/components/painel/agenda/timeline";
-import { buttonClasses } from "@/components/ui";
-import { loadAgendaDay, loadAppointments } from "@/lib/agenda/load";
-import { buildTimeline, daySummary } from "@/lib/agenda/timeline";
+import { redirect } from "next/navigation";
+import { InicioTabs } from "@/components/painel/inicio-tabs";
+import { PageBody, PageHeader } from "@/components/painel/page-header";
+import { Badge, buttonClasses } from "@/components/ui";
+import { loadAppointments } from "@/lib/agenda/load";
+import { STATUS_LABELS, STATUS_TONES } from "@/lib/agenda/status";
 import { requireReadyMember } from "@/lib/business/current";
-import { can } from "@/lib/permissions";
-import {
-  addLocalDays,
-  formatDayLabel,
-  isLocalDate,
-  localDateToInstant,
-  todayIn,
-  weekdayOf,
-  zonedDayRange,
-} from "@/lib/dates";
-import { DatePicker } from "@/components/painel/agenda/date-picker";
-import { StaffChips } from "@/components/painel/agenda/staff-chips";
-import { WeekView } from "@/components/painel/agenda/week-view";
+import { formatTime, todayIn, zonedDayRange } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
+import { can } from "@/lib/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { QuotaAlert } from "@/components/painel/quota";
-import { RealtimeRefresh } from "@/components/painel/agenda/realtime-refresh";
-import { WaitlistSection, type WaitlistItem } from "@/components/painel/agenda/waitlist-section";
-import { waMeLink } from "@/lib/phone";
-import { periodLabel, waitlistMessage } from "@/lib/waitlist";
-import { canSendAutomaticMessages } from "@/lib/plans";
-import { getMonthQuota } from "@/lib/whatsapp/quota";
 
-export const metadata: Metadata = { title: "Agenda — Calenvia" };
+export const metadata: Metadata = { title: "Início — Calenvia" };
 
-type Props = { searchParams: Promise<{ data?: string; profissional?: string; visao?: string }> };
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function AgendaPage({ searchParams }: Props) {
+/** Parâmetros da agenda antiga (que morava em "/"): links salvos continuam funcionando. */
+const LEGACY_AGENDA_PARAMS = ["data", "profissional", "visao"];
+
+export default async function InicioPage({ searchParams }: Props) {
+  const sp = await searchParams;
+  const legacy = new URLSearchParams();
+  for (const k of LEGACY_AGENDA_PARAMS) {
+    const v = sp[k];
+    if (typeof v === "string" && v) legacy.set(k, v);
+  }
+  if (legacy.size) redirect(`/agenda?${legacy.toString()}`);
+
   const member = await requireReadyMember();
   const { business } = member;
-  const seeAll = can(member, "appointments.view_all");
-  const finance = can(member, "finance.view");
-  const manage = can(member, "appointments.manage_all");
-  const sp = await searchParams;
   const tz = business.timezone;
   const today = todayIn(tz);
-  const date = sp.data && isLocalDate(sp.data) ? sp.data : today;
+  const finance = can(member, "finance.view");
+  const seeAll = can(member, "appointments.view_all");
+  const manage = can(member, "appointments.manage_all");
   const supabase = await createSupabaseServerClient();
-  const { ctx, appointments, blocks } = await loadAgendaDay(supabase, business, date, {
-    withPrices: finance,
-  });
-  // Profissional vê só a própria agenda, sem escolher outros (CAL-112).
-  const staffId = !seeAll
-    ? member.staffMemberId
-    : sp.profissional && ctx.staff.some((s) => s.id === sp.profissional)
-      ? sp.profissional
-      : null;
-  const staffNames = Object.fromEntries(ctx.staff.map((s) => [s.id, s.name]));
-  const { items, canceled, dayStatus } = buildTimeline({
-    ctx,
-    date,
-    staffId,
-    appointments,
-    blocks,
-  });
-  const summary = daySummary(appointments.filter((a) => !staffId || a.staffId === staffId));
-  const label = formatDayLabel(localDateToInstant(date, tz), tz);
-  const week = sp.visao === "semana";
-  const staffQuery = staffId && seeAll ? `&profissional=${staffId}` : "";
-  const q = (d: string, w = week) => `/?data=${d}${staffQuery}${w ? "&visao=semana" : ""}`;
-  const weekStart = addLocalDays(date, -((weekdayOf(date) + 6) % 7)); // segunda-feira
-  const weekDays = Array.from({ length: 7 }, (_, i) => addLocalDays(weekStart, i));
-  const weekAppointments = week
-    ? (
-        await loadAppointments(supabase, business.id, {
-          from: zonedDayRange(weekDays[0], tz).start,
-          to: zonedDayRange(weekDays[6], tz).end,
-        })
-      ).filter((a) => !staffId || a.staffId === staffId)
-    : [];
-
-  const { data: waiting } = !manage
-    ? { data: [] }
-    : await supabase
-        .from("waitlist_entries")
-        .select(
-          "id, customer_name, customer_whatsapp, service_id, staff_member_id, desired_date, period, status, services(name)",
-        )
-        .eq("business_id", business.id)
-        .eq("desired_date", date)
-        .neq("status", "closed")
-        .order("created_at");
-  const waitlist: WaitlistItem[] = (waiting ?? []).map((w) => ({
-    id: w.id,
-    name: w.customer_name,
-    whatsapp: w.customer_whatsapp,
-    service: w.services?.name ?? "",
-    period: periodLabel(w.period),
-    status: w.status,
-    waLink: waMeLink(w.customer_whatsapp, waitlistMessage(business, w, w.services?.name ?? "")),
-  }));
-
-  const quota =
-    canSendAutomaticMessages(business) && can(member, "settings.manage")
-      ? await getMonthQuota(supabase, business)
-      : null;
+  const { start, end } = zonedDayRange(today, tz);
+  const all = await loadAppointments(
+    supabase,
+    business.id,
+    { from: start, to: end },
+    { withPrices: finance },
+  );
+  const mine = all.filter(
+    (a) => a.status !== "canceled" && (seeAll || a.staffId === member.staffMemberId),
+  );
+  const now = new Date();
+  const next = mine.filter((a) => a.status === "confirmed" && a.end > now).slice(0, 5);
+  const done = mine.filter((a) => a.status === "completed").length;
+  const expected = mine
+    .filter((a) => a.status !== "no_show")
+    .reduce((sum, a) => sum + (a.priceCents ?? 0), 0);
 
   return (
-    <main className="mx-auto w-full max-w-2xl space-y-5 px-4 pt-6 pb-10 md:pt-10">
-      <header className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-extrabold text-ink">Agenda</h1>
-          <p className="mt-0.5 text-ink-2 first-letter:uppercase">
-            {date === today ? `Hoje, ${label}` : label}
-          </p>
+    <PageBody>
+      <PageHeader title="Início" description={business.name} />
+      {finance ? <InicioTabs current="resumo" /> : null}
+
+      <section aria-labelledby="hoje" className="space-y-3">
+        <h2 id="hoje" className="font-display text-xl font-bold text-ink">
+          Hoje
+        </h2>
+        <div className={`grid gap-2 ${finance ? "grid-cols-3" : "grid-cols-2"}`}>
+          <Stat label="Agendamentos" value={String(mine.length)} />
+          <Stat label="Concluídos" value={String(done)} />
+          {finance ? <Stat label="Previsto" value={formatPrice(expected)} /> : null}
         </div>
-        <div className="flex gap-2">
+      </section>
+
+      <section aria-labelledby="proximos" className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <h2 id="proximos" className="font-display text-xl font-bold text-ink">
+            Próximos de hoje
+          </h2>
+          <Link href="/agenda" className="text-sm font-semibold text-brand">
+            Ver agenda
+          </Link>
+        </div>
+        {next.length === 0 ? (
+          <p className="rounded-[var(--radius-card)] border border-line bg-white px-5 py-4 text-ink-2">
+            Nenhum atendimento pela frente hoje.
+          </p>
+        ) : (
+          <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-white">
+            {next.map((a) => (
+              <li key={a.id}>
+                <Link
+                  href={`/agendamento/${a.id}`}
+                  className="flex min-h-14 items-center gap-3 px-4 py-2 hover:bg-paper-2"
+                >
+                  <span className="w-12 font-semibold tabular-nums">{formatTime(a.start, tz)}</span>
+                  <span className="min-w-0 flex-1 truncate">
+                    {a.customerName}
+                    <span className="text-muted"> · {a.serviceName}</span>
+                  </span>
+                  <Badge tone={STATUS_TONES[a.status]}>{STATUS_LABELS[a.status]}</Badge>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {manage ? (
+        <div className="flex flex-wrap gap-2">
+          <Link href={`/novo?data=${today}`} className={buttonClasses({ size: "md" })}>
+            + Novo agendamento
+          </Link>
           <Link
-            href={`/bloquear?data=${date}`}
+            href={`/registrar?data=${today}`}
             className={buttonClasses({ variant: "outline", size: "md" })}
           >
-            Bloquear
-          </Link>
-          {manage ? (
-            <>
-              <Link
-                href={`/registrar?data=${date <= today ? date : today}`}
-                className={buttonClasses({ variant: "outline", size: "md" })}
-              >
-                Registrar
-              </Link>
-              <Link href={`/novo?data=${date}`} className={buttonClasses({ size: "md" })}>
-                + Novo
-              </Link>
-            </>
-          ) : null}
-        </div>
-      </header>
-
-      <RealtimeRefresh businessId={business.id} />
-      <QuotaAlert notice={quota?.notice ?? null} />
-
-      <nav aria-label="Navegar entre dias" className="flex items-center gap-2">
-        <Link
-          href={q(addLocalDays(date, -1))}
-          aria-label="Dia anterior"
-          className={buttonClasses({ variant: "outline", size: "sm", className: "w-11 px-0" })}
-        >
-          ‹
-        </Link>
-        {date !== today ? (
-          <Link href={q(today)} className={buttonClasses({ variant: "ghost", size: "sm" })}>
-            Hoje
-          </Link>
-        ) : null}
-        <Link
-          href={q(addLocalDays(date, 1))}
-          aria-label="Próximo dia"
-          className={buttonClasses({ variant: "outline", size: "sm", className: "w-11 px-0" })}
-        >
-          ›
-        </Link>
-        <DatePicker value={date} extraQuery={staffQuery} />
-        <div
-          className="ml-auto inline-flex rounded-[var(--radius-control)] border border-line bg-white p-1"
-          role="group"
-          aria-label="Visão"
-        >
-          <Link
-            href={q(date, false)}
-            aria-current={!week ? "true" : undefined}
-            className={`inline-flex min-h-9 items-center rounded-xl px-3 text-sm font-semibold ${!week ? "bg-ink text-white" : "text-ink-2"}`}
-          >
-            Dia
-          </Link>
-          <Link
-            href={q(date, true)}
-            aria-current={week ? "true" : undefined}
-            className={`inline-flex min-h-9 items-center rounded-xl px-3 text-sm font-semibold ${week ? "bg-ink text-white" : "text-ink-2"}`}
-          >
-            Semana
+            Registrar atendimento
           </Link>
         </div>
-      </nav>
-
-      {seeAll ? (
-        <StaffChips
-          staff={ctx.staff}
-          selected={staffId}
-          hrefFor={(id) =>
-            `/?data=${date}${id ? `&profissional=${id}` : ""}${week ? "&visao=semana" : ""}`
-          }
-        />
       ) : null}
-
-      {week ? (
-        <WeekView
-          days={weekDays}
-          appointments={weekAppointments}
-          timezone={tz}
-          today={today}
-          staffQuery={staffQuery}
-        />
-      ) : (
-        <>
-          <section
-            aria-label="Resumo do dia"
-            className={`grid gap-2 ${finance ? "grid-cols-3" : "grid-cols-2"}`}
-          >
-            <Stat label="Agendamentos" value={String(summary.total)} />
-            <Stat label="Livres" value={String(items.filter((i) => i.kind === "free").length)} />
-            {finance ? (
-              <Stat label="Previsto" value={formatPrice(summary.expectedRevenueCents)} />
-            ) : null}
-          </section>
-
-          <Timeline
-            items={items}
-            canceled={canceled}
-            timezone={tz}
-            date={date}
-            dayStatus={dayStatus}
-            staffNames={staffNames}
-            showStaff={seeAll && !staffId && ctx.staff.length > 1}
-          />
-          <WaitlistSection items={waitlist} />
-        </>
-      )}
-    </main>
+    </PageBody>
   );
 }
 

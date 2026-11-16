@@ -28,7 +28,7 @@ export function NewPasswordForm() {
       <div className="space-y-4">
         <Alert tone="success">Pronto! Sua senha foi alterada.</Alert>
         <ButtonLink href="/" block size="lg">
-          Ir para a agenda
+          Ir para o início
         </ButtonLink>
       </div>
     );

@@ -42,12 +42,15 @@ test.describe("negócio", () => {
 
 test("painel sem violações", async ({ page }) => {
   await loginAsZe(page, "/");
-  await check(page, "agenda");
+  await check(page, "início");
   for (const path of [
+    "/agenda",
     "/clientes",
+    "/negocio",
+    "/negocio/equipe",
     "/ajustes",
-    "/ajustes/servicos",
-    "/ajustes/horarios",
+    "/negocio/servicos",
+    "/negocio/horarios",
     "/novo",
     "/registrar",
     "/bloquear",

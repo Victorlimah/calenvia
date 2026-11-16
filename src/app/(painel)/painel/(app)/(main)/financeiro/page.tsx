@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { InicioTabs } from "@/components/painel/inicio-tabs";
 import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { Card } from "@/components/ui";
 import { requirePermission } from "@/lib/business/current";
@@ -75,8 +76,8 @@ export default async function FinanceiroPage({
       <PageHeader
         title="Financeiro"
         description="Entradas dos atendimentos, outras receitas e despesas do mês."
-        back={{ href: "/ajustes", label: "Ajustes" }}
       />
+      <InicioTabs current="financeiro" />
       <nav aria-label="Mês" className="flex items-center justify-between gap-2">
         <Link
           href={`/financeiro?mes=${shiftMonth(period, -1)}`}

@@ -27,6 +27,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   }
   return (
     <PainelShell
+      role={member?.role ?? "staff"}
       businessName={business.name}
       businessId={business.id}
       timezone={business.timezone}

@@ -46,7 +46,7 @@ export default async function RelatoriosPage({
   if (!hasFeature(business, "reports")) {
     return (
       <PageBody>
-        <PageHeader title="Relatórios" back={{ href: "/ajustes", label: "Ajustes" }} />
+        <PageHeader title="Relatórios" back={{ href: "/financeiro", label: "Financeiro" }} />
         <EmptyState
           title="Relatórios fazem parte do plano Pro+"
           description="Faturamento do mês, faltas, serviços que mais vendem e melhores clientes."
@@ -93,7 +93,7 @@ export default async function RelatoriosPage({
       <PageHeader
         title="Relatórios"
         description="Faturamento e faltas do mês."
-        back={{ href: "/ajustes", label: "Ajustes" }}
+        back={{ href: "/financeiro", label: "Financeiro" }}
       />
       <nav aria-label="Mês" className="flex items-center justify-between gap-2">
         <Link

@@ -41,7 +41,7 @@ export default async function BloquearPage({
       <PageHeader
         title="Bloquear horário"
         description="Folga, compromisso ou feriado: o horário some da sua página."
-        back={{ href: `/?data=${date}`, label: "Agenda" }}
+        back={{ href: `/agenda?data=${date}`, label: "Agenda" }}
       />
       <BlockForm staff={staff} date={date} allowAll={all} />
       <BlockList

@@ -38,7 +38,7 @@ export default async function RegistrarPage({
     <PageBody>
       <PageHeader
         title="Registrar atendimento"
-        back={{ href: `/?data=${date}`, label: "Agenda" }}
+        back={{ href: `/agenda?data=${date}`, label: "Agenda" }}
       />
       <p className="text-ink-2">
         Para o cliente que chegou sem marcar ou um atendimento que você não anotou na hora. Ele

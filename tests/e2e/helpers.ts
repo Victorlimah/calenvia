@@ -117,3 +117,38 @@ export async function createTestAppointment(phone: string, time = "10:00") {
   if (error) throw error;
   return { id: data!.id, code: data!.manage_code, day };
 }
+
+/**
+ * Cria (ou recria) um usuário membro da barbearia com o papel dado e devolve o e-mail
+ * (senha calenvia123). Profissional fica ligado ao Rafael. Use `removeRoleUser` para limpar.
+ */
+export async function createRoleUser(role: "manager" | "reception" | "staff") {
+  const email = `e2e-${role}@calenvia.dev`;
+  await removeRoleUser(role);
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    password: "calenvia123",
+    email_confirm: true,
+  });
+  if (error) throw error;
+  const { error: memberError } = await admin.from("business_members").insert({
+    business_id: ZE_BIZ,
+    user_id: data.user.id,
+    role,
+    email,
+    display_name: `Teste ${role}`,
+    staff_member_id: role === "staff" ? "0d000000-0000-4000-8000-000000000002" : null,
+    status: "active",
+  });
+  if (memberError) throw memberError;
+  return email;
+}
+
+export async function removeRoleUser(role: "manager" | "reception" | "staff") {
+  const email = `e2e-${role}@calenvia.dev`;
+  const { data } = await admin.auth.admin.listUsers({ perPage: 1000 });
+  const user = data?.users.find((u) => u.email === email);
+  if (!user) return;
+  await admin.from("business_members").delete().eq("user_id", user.id);
+  await admin.auth.admin.deleteUser(user.id);
+}

@@ -9,47 +9,27 @@ import { cn } from "@/lib/cn";
 import { signOutAction } from "@/app/(painel)/painel/(auth)/actions";
 import { NewBookingNotifier } from "./new-booking-notifier";
 import { RegisterServiceWorker } from "./register-sw";
+import { activeNavKey, navItemsFor, type NavKey } from "@/lib/painel-nav";
 
-const NAV = [
-  {
-    href: "/",
-    label: "Agenda",
-    icon: CalendarIcon,
-    match: (p: string) =>
-      p === "/" ||
-      p.startsWith("/agendamento") ||
-      p.startsWith("/novo") ||
-      p.startsWith("/registrar") ||
-      p.startsWith("/bloquear"),
-  },
-  {
-    href: "/clientes",
-    label: "Clientes",
-    icon: UsersIcon,
-    match: (p: string) => p.startsWith("/clientes"),
-  },
-  {
-    href: "/ajustes",
-    label: "Ajustes",
-    icon: GearIcon,
-    match: (p: string) =>
-      p.startsWith("/ajustes") ||
-      p.startsWith("/assinatura") ||
-      p.startsWith("/relatorios") ||
-      p.startsWith("/ajuda") ||
-      p.startsWith("/financeiro") ||
-      p.startsWith("/avaliacoes") ||
-      p.startsWith("/indicar"),
-  },
-];
+const ICONS: Record<NavKey, () => React.ReactElement> = {
+  inicio: HomeIcon,
+  agenda: CalendarIcon,
+  clientes: UsersIcon,
+  financeiro: MoneyIcon,
+  negocio: StoreIcon,
+  ajustes: GearIcon,
+};
 
 export function PainelShell({
   businessName,
   businessId,
   timezone,
   businesses = [],
+  role,
   children,
 }: {
+  /** Papel no negócio atual: decide quais itens do menu aparecem (CAL-117). */
+  role: string;
   businessName: string;
   businessId: string;
   timezone: string;
@@ -57,7 +37,10 @@ export function PainelShell({
   businesses?: { id: string; name: string; role: string }[];
   children: React.ReactNode;
 }) {
-  const pathname = usePathname().replace(/^\/painel(?=\/|$)/, "") || "/";
+  const pathname = usePathname();
+  const desktopActive = activeNavKey(pathname, "desktop");
+  const mobileActive = activeNavKey(pathname, "mobile");
+  const mobileItems = navItemsFor({ role }, "mobile");
   return (
     <div className="min-h-dvh bg-paper md:flex">
       <NewBookingNotifier businessId={businessId} timezone={timezone} />
@@ -72,8 +55,9 @@ export function PainelShell({
           <p className="mt-6 truncate px-3 text-sm font-semibold text-ink-2">{businessName}</p>
         )}
         <nav aria-label="Menu principal" className="mt-3 flex flex-col gap-1">
-          {NAV.map((item) => {
-            const active = item.match(pathname);
+          {navItemsFor({ role }, "desktop").map((item) => {
+            const active = item.key === desktopActive;
+            const Icon = ICONS[item.key];
             return (
               <Link
                 key={item.href}
@@ -84,7 +68,7 @@ export function PainelShell({
                   active ? "bg-brand-50 text-brand" : "text-ink-2 hover:bg-paper-2",
                 )}
               >
-                <item.icon />
+                <Icon />
                 {item.label}
               </Link>
             );
@@ -99,21 +83,23 @@ export function PainelShell({
 
       <nav
         aria-label="Menu principal"
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+        style={{ gridTemplateColumns: `repeat(${mobileItems.length}, minmax(0, 1fr))` }}
+        className="fixed inset-x-0 bottom-0 z-30 grid border-t border-line bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
       >
-        {NAV.map((item) => {
-          const active = item.match(pathname);
+        {mobileItems.map((item) => {
+          const active = item.key === mobileActive;
+          const Icon = ICONS[item.key];
           return (
             <Link
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-semibold",
+                "flex min-h-16 flex-col items-center justify-center gap-1 px-0.5 text-center text-[11px] leading-tight font-semibold",
                 active ? "text-brand" : "text-muted",
               )}
             >
-              <item.icon />
+              <Icon />
               {item.label}
             </Link>
           );
@@ -190,6 +176,54 @@ function GearIcon() {
     >
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+    </svg>
+  );
+}
+function HomeIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M3 11 12 4l9 7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.5 9.5V20h13V9.5" strokeLinejoin="round" />
+      <path d="M10 20v-5h4v5" />
+    </svg>
+  );
+}
+function MoneyIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <rect x="2.5" y="6" width="19" height="12" rx="2.5" />
+      <circle cx="12" cy="12" r="2.5" />
+      <path d="M6 9.5v5M18 9.5v5" strokeLinecap="round" />
+    </svg>
+  );
+}
+function StoreIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="size-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M4 9.5 5.5 4h13L20 9.5" strokeLinejoin="round" />
+      <path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0" />
+      <path d="M5 12v8h14v-8M10 20v-4.5h4V20" strokeLinejoin="round" />
     </svg>
   );
 }

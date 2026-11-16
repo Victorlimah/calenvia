@@ -146,7 +146,7 @@ export default async function AgendamentoPage({
       <RealtimeRefresh businessId={business.id} />
       <PageHeader
         title={a.customer_name}
-        back={{ href: `/?data=${toLocalDate(start, tz)}`, label: "Agenda" }}
+        back={{ href: `/agenda?data=${toLocalDate(start, tz)}`, label: "Agenda" }}
         action={<Badge tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</Badge>}
       />
 

@@ -36,7 +36,10 @@ export default async function NovoPage({ searchParams }: Props) {
   const date = sp.data && isLocalDate(sp.data) ? sp.data : todayIn(business.timezone);
   return (
     <PageBody>
-      <PageHeader title="Novo agendamento" back={{ href: `/?data=${date}`, label: "Agenda" }} />
+      <PageHeader
+        title="Novo agendamento"
+        back={{ href: `/agenda?data=${date}`, label: "Agenda" }}
+      />
       {activeServices.length === 0 || activeStaff.length === 0 ? (
         <EmptyState
           title="Cadastre serviços e profissionais"
