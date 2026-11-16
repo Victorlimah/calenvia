@@ -81,6 +81,7 @@ Planilha completa (com status e resumo): https://claude.ai/artifact/PFjjXxdtk9Lh
 - [x] **CAL-080** · Tela de assinatura no painel · P1 · 1,5d — Plano atual, faturas, uso de mensagens no mês, trocar e cancelar.
 - [ ] **CAL-079** · Teste grátis · P1 · 0,5d **(decisão)** — Definir se terá (ex.: 14 dias sem cartão) e implementar se sim.
 - [x] **CAL-115** · Extras pagos no plano (add-ons) · P1 · 2d — Catálogo de extras (+mensagens, +pessoas, valor livre) cobrados como itens da assinatura; preços versionados e editáveis no `/admin`. Plano em `docs/planos/CAL-076.md` (fases 1 e 5).
+- [x] **CAL-116** · Registrar atendimento (agora ou passado) · P1 · 0,5d — Botão "Registrar" na agenda: lança direto como concluído quem chegou sem marcar ou não foi anotado na hora, com valor editável; cliente sem WhatsApp vira "cliente avulso" (nunca recebe mensagem).
 
 ### Sprint 8 — Pronto para o beta
 - [x] **CAL-083** · Site calenvia.com.br · P0 · 0,5d — Converter `docs/referencias/landing-calenvia.html` para a rota `(site)`.

@@ -19,6 +19,7 @@ const NAV = [
       p === "/" ||
       p.startsWith("/agendamento") ||
       p.startsWith("/novo") ||
+      p.startsWith("/registrar") ||
       p.startsWith("/bloquear"),
   },
   {

@@ -49,6 +49,7 @@ test("painel sem violações", async ({ page }) => {
     "/ajustes/servicos",
     "/ajustes/horarios",
     "/novo",
+    "/registrar",
     "/bloquear",
     "/assinatura",
   ]) {

@@ -4,11 +4,16 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionResult } from "@/lib/action-result";
 import { getDaySlots } from "@/lib/availability";
-import { createAppointment, loadAvailabilityContext, toBookingError } from "@/lib/booking";
+import {
+  createAppointment,
+  loadAvailabilityContext,
+  registerAppointment,
+  toBookingError,
+} from "@/lib/booking";
 import { afterBooking } from "@/lib/booking/after-booking";
 import { requireBusinessFor } from "@/lib/business/current";
 import { zonedDayRange } from "@/lib/dates";
-import { onlyDigits } from "@/lib/phone";
+import { normalizeMobile, onlyDigits } from "@/lib/phone";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { customerSchema } from "@/lib/validation/booking";
 import { track } from "@/lib/metrics";
@@ -150,5 +155,59 @@ export async function createManualAppointmentAction(
     };
   } catch (e) {
     return { ok: false, error: toBookingError(e).message };
+  }
+}
+
+const registerInput = z.object({
+  serviceId: uuid,
+  staffId: uuid,
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  time: z.string().regex(/^\d{2}:\d{2}$/),
+  /** Valor em centavos (pode diferir do preço do serviço). */
+  priceCents: z.number().int().min(0).max(10_000_000),
+  customerId: uuid.nullable(),
+  customerName: z.string().trim().max(80).optional(),
+  customerWhatsapp: z.string().trim().max(30).optional(),
+  notes: z.string().trim().max(500).optional(),
+});
+
+/** "Registrar atendimento": lança, já concluído, um atendimento de agora ou de antes. */
+export async function registerAppointmentAction(
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  const business = await requireBusinessFor("appointments.manage_all");
+  const parsed = registerInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Confira os dados." };
+  const v = parsed.data;
+  if (v.customerWhatsapp && normalizeMobile(v.customerWhatsapp) === null)
+    return { ok: false, error: "Confira o WhatsApp: DDD + celular com 9 dígitos." };
+  if (!v.customerId && (v.customerName?.length ?? 0) < 2)
+    return { ok: false, error: "Informe o nome do cliente." };
+  const supabase = await createSupabaseServerClient();
+  try {
+    const r = await registerAppointment(supabase, {
+      business,
+      serviceId: v.serviceId,
+      staffId: v.staffId,
+      date: v.date,
+      time: v.time,
+      priceCents: v.priceCents,
+      customerId: v.customerId,
+      customer: v.customerId ? null : { name: v.customerName!, whatsapp: v.customerWhatsapp },
+      notes: v.notes || null,
+    });
+    if ("error" in r) {
+      const messages = {
+        future: "Só dá para registrar atendimentos que já aconteceram. Para o futuro, use “Novo”.",
+        overlap:
+          "Esse profissional já tem um atendimento nesse horário. Ajuste a hora ou abra o atendimento existente.",
+        invalid: "Confira o serviço, o profissional e o cliente.",
+      };
+      return { ok: false, error: messages[r.error] };
+    }
+    revalidatePath("/painel", "layout");
+    return { ok: true, data: { id: r.id }, message: "Atendimento registrado." };
+  } catch {
+    return { ok: false, error: "Não foi possível registrar. Tente de novo." };
   }
 }

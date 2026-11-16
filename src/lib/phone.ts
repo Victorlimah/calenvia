@@ -48,8 +48,12 @@ export function isValidMobile(input: string | null | undefined): boolean {
   return normalizeMobile(input) !== null;
 }
 
+/** Número de mentira (DDD 00 não existe) do "cliente avulso": quem não deixou WhatsApp. */
+export const WALK_IN_PHONE = "5500000000000";
+
 /** 5585999990000 → "(85) 9 9999-0000"; 558532221111 → "(85) 3222-1111" */
 export function formatPhone(normalized: string): string {
+  if (normalized === WALK_IN_PHONE) return "Sem WhatsApp";
   const d = onlyDigits(normalized).replace(/^55/, "");
   if (d.length === 11) return `(${d.slice(0, 2)}) ${d[2]} ${d.slice(3, 7)}-${d.slice(7)}`;
   if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;

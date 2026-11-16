@@ -119,9 +119,17 @@ export default async function AgendaPage({ searchParams }: Props) {
             Bloquear
           </Link>
           {manage ? (
-            <Link href={`/novo?data=${date}`} className={buttonClasses({ size: "md" })}>
-              + Novo
-            </Link>
+            <>
+              <Link
+                href={`/registrar?data=${date <= today ? date : today}`}
+                className={buttonClasses({ variant: "outline", size: "md" })}
+              >
+                Registrar
+              </Link>
+              <Link href={`/novo?data=${date}`} className={buttonClasses({ size: "md" })}>
+                + Novo
+              </Link>
+            </>
           ) : null}
         </div>
       </header>

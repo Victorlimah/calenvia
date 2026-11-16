@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   formatPhone,
+  WALK_IN_PHONE,
   isValidMobile,
   maskPhoneInput,
   normalizeMobile,
@@ -52,6 +53,7 @@ describe("formatação", () => {
   it("formata para exibição", () => {
     expect(formatPhone("5585999990000")).toBe("(85) 9 9999-0000");
     expect(formatPhone("558532221111")).toBe("(85) 3222-1111");
+    expect(formatPhone(WALK_IN_PHONE)).toBe("Sem WhatsApp");
   });
   it("máscara enquanto digita", () => {
     expect(maskPhoneInput("8")).toBe("(8");
