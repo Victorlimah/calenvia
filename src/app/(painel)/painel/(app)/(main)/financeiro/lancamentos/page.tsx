@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { InicioTabs } from "@/components/painel/inicio-tabs";
-import { PageBody, PageHeader } from "@/components/painel/page-header";
+import { SectionHeader, TabBody } from "@/components/painel/page-header";
 import { Card } from "@/components/ui";
 import { requirePermission } from "@/lib/business/current";
 import { periodOf, todayIn, zonedDayRange } from "@/lib/dates";
@@ -12,7 +11,7 @@ import { loadAppointmentPrices } from "@/lib/appointments/prices";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { EntryForm, EntryList } from "./entries";
 
-export const metadata: Metadata = { title: "Financeiro — Calenvia" };
+export const metadata: Metadata = { title: "Entradas e despesas — Calenvia" };
 
 const MONTHS = [
   "janeiro",
@@ -29,7 +28,7 @@ const MONTHS = [
   "dezembro",
 ];
 
-export default async function FinanceiroPage({
+export default async function LancamentosPage({
   searchParams,
 }: {
   searchParams: Promise<{ mes?: string }>;
@@ -72,15 +71,14 @@ export default async function FinanceiroPage({
   const defaultDate = period === current ? todayIn(tz) : from;
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Financeiro"
-        description="Entradas dos atendimentos, outras receitas e despesas do mês."
+    <TabBody>
+      <SectionHeader
+        title="Entradas e despesas"
+        description="Lance o que entra e o que sai além dos atendimentos (aluguel, produtos, vendas)."
       />
-      <InicioTabs current="financeiro" />
       <nav aria-label="Mês" className="flex items-center justify-between gap-2">
         <Link
-          href={`/financeiro?mes=${shiftMonth(period, -1)}`}
+          href={`/financeiro/lancamentos?mes=${shiftMonth(period, -1)}`}
           aria-label="Mês anterior"
           className="inline-flex min-h-11 items-center rounded-xl px-3 font-semibold"
         >
@@ -91,7 +89,7 @@ export default async function FinanceiroPage({
         </p>
         {period < current ? (
           <Link
-            href={`/financeiro?mes=${shiftMonth(period, 1)}`}
+            href={`/financeiro/lancamentos?mes=${shiftMonth(period, 1)}`}
             aria-label="Próximo mês"
             className="inline-flex min-h-11 items-center rounded-xl px-3 font-semibold"
           >
@@ -140,6 +138,6 @@ export default async function FinanceiroPage({
 
       <EntryForm defaultDate={defaultDate} />
       <EntryList entries={list} />
-    </PageBody>
+    </TabBody>
   );
 }

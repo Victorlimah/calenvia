@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageBody, PageHeader } from "@/components/painel/page-header";
+import { SectionHeader, TabBody } from "@/components/painel/page-header";
 import { Card, EmptyState } from "@/components/ui";
 import { requirePermission } from "@/lib/business/current";
 import { periodOf, zonedDayRange } from "@/lib/dates";
@@ -45,8 +45,8 @@ export default async function RelatoriosPage({
 
   if (!hasFeature(business, "reports")) {
     return (
-      <PageBody>
-        <PageHeader title="Relatórios" back={{ href: "/financeiro", label: "Financeiro" }} />
+      <TabBody>
+        <SectionHeader title="Relatórios" back={{ href: "/financeiro", label: "Financeiro" }} />
         <EmptyState
           title="Relatórios fazem parte do plano Pro+"
           description="Faturamento do mês, faltas, serviços que mais vendem e melhores clientes."
@@ -56,7 +56,7 @@ export default async function RelatoriosPage({
             </Link>
           }
         />
-      </PageBody>
+      </TabBody>
     );
   }
 
@@ -89,15 +89,11 @@ export default async function RelatoriosPage({
   );
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Relatórios"
-        description="Faturamento e faltas do mês."
-        back={{ href: "/financeiro", label: "Financeiro" }}
-      />
+    <TabBody>
+      <SectionHeader title="Relatórios" description="Faturamento e faltas do mês." />
       <nav aria-label="Mês" className="flex items-center justify-between gap-2">
         <Link
-          href={`/relatorios?mes=${shiftMonth(period, -1)}`}
+          href={`/financeiro/relatorios?mes=${shiftMonth(period, -1)}`}
           className="inline-flex min-h-11 items-center rounded-xl px-3 font-semibold"
           aria-label="Mês anterior"
         >
@@ -108,7 +104,7 @@ export default async function RelatoriosPage({
         </p>
         {period < current ? (
           <Link
-            href={`/relatorios?mes=${shiftMonth(period, 1)}`}
+            href={`/financeiro/relatorios?mes=${shiftMonth(period, 1)}`}
             className="inline-flex min-h-11 items-center rounded-xl px-3 font-semibold"
             aria-label="Próximo mês"
           >
@@ -185,7 +181,7 @@ export default async function RelatoriosPage({
           ) : null}
         </>
       )}
-    </PageBody>
+    </TabBody>
   );
 }
 

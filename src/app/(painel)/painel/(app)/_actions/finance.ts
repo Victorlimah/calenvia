@@ -33,7 +33,7 @@ export async function addFinanceEntryAction(raw: unknown): Promise<ActionResult>
     occurred_on: parsed.data.occurred_on,
   });
   if (error) return { ok: false, error: "Não foi possível salvar o lançamento." };
-  revalidatePath("/painel/financeiro");
+  revalidatePath("/painel/financeiro", "layout");
   return {
     ok: true,
     message: parsed.data.kind === "expense" ? "Despesa lançada." : "Receita lançada.",
@@ -45,6 +45,6 @@ export async function deleteFinanceEntryAction(id: string): Promise<ActionResult
   if (!z.string().uuid().safeParse(id).success) return { ok: false, error: "Pedido inválido." };
   const supabase = await createSupabaseServerClient();
   await supabase.from("finance_entries").delete().eq("id", id).eq("business_id", business.id);
-  revalidatePath("/painel/financeiro");
+  revalidatePath("/painel/financeiro", "layout");
   return { ok: true, message: "Lançamento removido." };
 }

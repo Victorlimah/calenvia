@@ -105,3 +105,11 @@ export function activeTab<T extends Tab>(tabs: T[], pathname: string): T | null 
   }
   return best;
 }
+
+/** Abas do Financeiro (CAL-127). Todas exigem finance.view (o layout já checa). */
+export const FINANCE_TABS: Tab[] = [
+  { href: "/financeiro", label: "Resumo", anyOf: ["finance.view"] },
+  { href: "/financeiro/lancamentos", label: "Entradas e despesas", anyOf: ["finance.view"] },
+  { href: "/financeiro/relatorios", label: "Relatórios", anyOf: ["finance.view"] },
+  { href: "/financeiro/exportar", label: "Exportar", anyOf: ["finance.view"] },
+];
