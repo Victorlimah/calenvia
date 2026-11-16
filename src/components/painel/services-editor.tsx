@@ -3,7 +3,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Alert, Badge, Button, Card, EmptyState, Field, Input, Textarea } from "@/components/ui";
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Drawer,
+  EmptyState,
+  Field,
+  Input,
+  Textarea,
+} from "@/components/ui";
 import { formatDuration } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
 import { serviceSchema, type ServiceInput } from "@/lib/validation/business";
@@ -32,12 +42,19 @@ const DURATIONS = [15, 20, 30, 40, 45, 60, 75, 90, 120, 150, 180, 240];
 export function ServicesEditor({
   services,
   staff,
+  layout = "inline",
 }: {
   services: ServiceRow[];
   staff: StaffOption[];
+  /** "panel": lista sempre visível e edição num painel lateral (Meu negócio, CAL-118). */
+  layout?: "inline" | "panel";
 }) {
-  const [editing, setEditing] = useState<string | "new" | null>(services.length ? null : "new");
+  const panel = layout === "panel";
+  const [editing, setEditing] = useState<string | "new" | null>(
+    services.length || panel ? null : "new",
+  );
   const list = useAction();
+  const editingService = services.find((s) => s.id === editing);
 
   return (
     <div className="space-y-3">
@@ -55,7 +72,7 @@ export function ServicesEditor({
       <ul className="space-y-3">
         {services.map((s, i) => (
           <li key={s.id}>
-            {editing === s.id ? (
+            {editing === s.id && !panel ? (
               <ServiceForm service={s} staff={staff} onDone={() => setEditing(null)} />
             ) : (
               <Card className="flex items-start gap-3 p-4">
@@ -63,7 +80,13 @@ export function ServicesEditor({
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-semibold text-ink">{s.name}</p>
                     {s.is_featured ? <Badge tone="brand">Mais pedido</Badge> : null}
-                    {!s.is_active ? <Badge>Desativado</Badge> : null}
+                    {s.is_active ? (
+                      panel ? (
+                        <Badge tone="success">Ativo</Badge>
+                      ) : null
+                    ) : (
+                      <Badge>Desativado</Badge>
+                    )}
                   </div>
                   <p className="mt-0.5 text-sm text-ink-2">
                     {formatDuration(s.duration_min)} · {formatPrice(s.price_cents)}
@@ -84,7 +107,12 @@ export function ServicesEditor({
                   >
                     ↓
                   </IconButton>
-                  <Button variant="ghost" size="sm" onClick={() => setEditing(s.id)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    aria-label={`Editar ${s.name}`}
+                    onClick={() => setEditing(s.id)}
+                  >
                     Editar
                   </Button>
                 </div>
@@ -94,7 +122,25 @@ export function ServicesEditor({
         ))}
       </ul>
 
-      {editing === "new" ? (
+      {panel ? (
+        <Drawer
+          open={editing !== null}
+          title={editingService ? `Editar ${editingService.name}` : "Novo serviço"}
+          onClose={() => setEditing(null)}
+        >
+          {editing !== null ? (
+            <ServiceForm
+              key={editing}
+              service={editingService}
+              staff={staff}
+              bare
+              onDone={() => setEditing(null)}
+            />
+          ) : null}
+        </Drawer>
+      ) : null}
+
+      {editing === "new" && !panel ? (
         <ServiceForm staff={staff} onDone={() => setEditing(null)} />
       ) : services.length ? (
         <Button variant="secondary" block onClick={() => setEditing("new")}>
@@ -127,10 +173,13 @@ function ServiceForm({
   service,
   staff,
   onDone,
+  bare = false,
 }: {
   service?: ServiceRow;
   staff: StaffOption[];
   onDone: () => void;
+  /** Sem cartão e sem título (dentro do painel lateral, que já tem os dois). */
+  bare?: boolean;
 }) {
   const { run, pending, error } = useAction();
   const del = useAction();
@@ -158,11 +207,15 @@ function ServiceForm({
   );
 
   return (
-    <Card className="space-y-4 border-brand-soft">
+    <Card
+      className={bare ? "border-0 bg-transparent p-0 shadow-none" : "space-y-4 border-brand-soft"}
+    >
       <form onSubmit={onSubmit} noValidate className="space-y-4">
-        <p className="font-display text-lg font-bold">
-          {service ? "Editar serviço" : "Novo serviço"}
-        </p>
+        {bare ? null : (
+          <p className="font-display text-lg font-bold">
+            {service ? "Editar serviço" : "Novo serviço"}
+          </p>
+        )}
         {error || del.error ? <Alert tone="danger">{error ?? del.error}</Alert> : null}
         <Field label="Nome" error={errors.name?.message}>
           {({ id, describedBy, invalid }) => (

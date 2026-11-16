@@ -22,7 +22,7 @@ test.afterAll(cleanup);
 
 test("cria pacote, vende ao cliente e desconta no agendamento", async ({ page }) => {
   const appt = await createTestAppointment(PHONE, "11:30");
-  await loginAsZe(page, "/ajustes/pacotes");
+  await loginAsZe(page, "/negocio/pacotes");
   await page.getByLabel("Serviço").selectOption({ label: "Corte masculino (R$ 40,00)" });
   await page.getByLabel("Nome do pacote").fill("E2E 4 cortes");
   await page.getByLabel("Sessões").fill("4");

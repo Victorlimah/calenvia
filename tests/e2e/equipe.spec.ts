@@ -25,7 +25,7 @@ test.afterAll(cleanup);
 
 test("profissional convidado vê só a própria agenda e nenhum valor", async ({ page, browser }) => {
   test.setTimeout(180_000);
-  await loginAsZe(page, "/ajustes/equipe");
+  await loginAsZe(page, "/negocio/equipe");
   await expect(page.getByRole("heading", { name: "Equipe e acessos" })).toBeVisible();
   await page.getByLabel("Papel", { exact: true }).first().selectOption("staff");
   await page.getByLabel("Cadastro de profissional").selectOption(RAFAEL);
@@ -79,7 +79,7 @@ test("profissional convidado vê só a própria agenda e nenhum valor", async ({
   await expect(guest.locator("main")).not.toContainText("R$");
 
   // Sem Ajustes do negócio, financeiro nem equipe: volta para a agenda.
-  for (const path of ["/ajustes/servicos", "/financeiro", "/ajustes/equipe", "/assinatura"]) {
+  for (const path of ["/negocio/servicos", "/financeiro", "/negocio/equipe", "/assinatura"]) {
     await guest.goto(path);
     await expect(guest).toHaveURL((u) => u.pathname === "/");
   }

@@ -124,7 +124,7 @@ export async function createInvitationAction(
     invited_by: member.userId,
   });
   if (error) return { ok: false, error: "Não foi possível criar o convite." };
-  revalidatePath("/painel/ajustes/equipe");
+  revalidatePath("/painel/negocio/equipe");
   return { ok: true, data: { link: appUrl(`/convite/${token}`) }, message: "Convite criado." };
 }
 
@@ -148,7 +148,7 @@ export async function resendInvitationAction(id: string): Promise<ActionResult<{
     .select("id")
     .maybeSingle();
   if (error || !data) return { ok: false, error: "Convite não encontrado." };
-  revalidatePath("/painel/ajustes/equipe");
+  revalidatePath("/painel/negocio/equipe");
   return { ok: true, data: { link: appUrl(`/convite/${token}`) }, message: "Novo link gerado." };
 }
 
@@ -166,7 +166,7 @@ export async function revokeInvitationAction(id: string): Promise<ActionResult> 
     .select("id")
     .maybeSingle();
   if (!data) return { ok: false, error: "Convite não encontrado." };
-  revalidatePath("/painel/ajustes/equipe");
+  revalidatePath("/painel/negocio/equipe");
   return { ok: true, message: "Convite cancelado." };
 }
 

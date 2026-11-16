@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { PageBody, PageHeader } from "@/components/painel/page-header";
+import { TabBody, SectionHeader } from "@/components/painel/page-header";
 import { requireReadyMember } from "@/lib/business/current";
 import { can } from "@/lib/permissions";
 import { loadWeekHours } from "@/lib/business/load";
@@ -38,17 +38,17 @@ export default async function StaffHoursPage({ params }: { params: Promise<{ id:
       })
     : null;
   return (
-    <PageBody>
-      <PageHeader
+    <TabBody>
+      <SectionHeader
         title={`Horário de ${staff.name}`}
         description="Use quando o profissional trabalha em dias ou horários diferentes do negócio."
-        back={{ href: "/ajustes/profissionais", label: "Profissionais" }}
+        back={{ href: "/negocio/equipe", label: "Equipe" }}
       />
       <StaffHoursForm
         staffId={staff.id}
         own={own}
         businessDays={businessDays.map((d) => ({ ...d, breaks: [] }))}
       />
-    </PageBody>
+    </TabBody>
   );
 }

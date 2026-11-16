@@ -5,3 +5,4 @@ export { Card } from "./card";
 export { EmptyState, ErrorState } from "./empty-state";
 export { Field, Input, Select, Textarea } from "./field";
 export { Spinner } from "./spinner";
+export { Drawer } from "./drawer";

@@ -17,7 +17,7 @@ async function loginAsZe(page: Page, next = "/") {
 }
 
 test("edita um serviço nos ajustes", async ({ page }) => {
-  await loginAsZe(page, "/ajustes/servicos");
+  await loginAsZe(page, "/negocio/servicos");
   await page.getByRole("button", { name: "Editar" }).first().click();
   await page.getByLabel("Preço (R$)").fill("45,00");
   await page.getByRole("button", { name: "Salvar serviço" }).click();
@@ -30,24 +30,25 @@ test("edita um serviço nos ajustes", async ({ page }) => {
 });
 
 test("cadastra profissional com serviços", async ({ page }) => {
-  await loginAsZe(page, "/ajustes/profissionais");
+  await loginAsZe(page, "/negocio/equipe");
   await page.getByRole("button", { name: "+ Adicionar profissional" }).click();
   await page.getByLabel("Nome", { exact: true }).fill("Bruno Teste");
   await page.getByLabel("Barba completa").uncheck();
   await page.getByRole("button", { name: "Salvar profissional" }).click();
-  await expect(page.getByText("Bruno Teste")).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "Bruno Teste" }).first()).toBeVisible();
   await page
     .getByRole("listitem")
     .filter({ hasText: "Bruno Teste" })
     .getByRole("button", { name: "Editar" })
+    .first()
     .click();
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Excluir" }).click();
-  await expect(page.getByText("Bruno Teste")).toHaveCount(0);
+  await expect(page.getByRole("listitem").filter({ hasText: "Bruno Teste" })).toHaveCount(0);
 });
 
 test("horário inválido mostra erro", async ({ page }) => {
-  await loginAsZe(page, "/ajustes/horarios");
+  await loginAsZe(page, "/negocio/horarios");
   await page.getByLabel("Fecha (Terça)").fill("08:00");
   await page.getByRole("button", { name: "Salvar horários" }).click();
   await expect(page.getByText(/Terça: O fechamento precisa ser depois/)).toBeVisible();
@@ -64,7 +65,7 @@ test("navegação inferior leva aos ajustes", async ({ page }) => {
 });
 
 test("salva as regras da agenda", async ({ page }) => {
-  await loginAsZe(page, "/ajustes/regras");
+  await loginAsZe(page, "/negocio/horarios");
   await page.getByLabel("Intervalo entre horários").selectOption("15");
   await page.getByRole("button", { name: "Salvar regras" }).click();
   await expect(page.getByText("Regras salvas.")).toBeVisible();
@@ -76,7 +77,7 @@ test("salva as regras da agenda", async ({ page }) => {
 });
 
 test("envia e remove a foto de um profissional", async ({ page }) => {
-  await loginAsZe(page, "/ajustes/profissionais");
+  await loginAsZe(page, "/negocio/equipe");
   await page.getByRole("button", { name: "Editar" }).first().click();
   await page.getByLabel("Enviar foto").setInputFiles("tests/e2e/fixtures/foto.png");
   await expect(page.getByRole("button", { name: "Remover foto" })).toBeVisible({ timeout: 15000 });
@@ -87,7 +88,7 @@ test("envia e remove a foto de um profissional", async ({ page }) => {
 });
 
 test("aparência: prévia ao vivo, cor e capa", async ({ page }) => {
-  await loginAsZe(page, "/ajustes/aparencia");
+  await loginAsZe(page, "/negocio/aparencia");
   const preview = page.getByRole("complementary", { name: "Prévia da página" });
   await page.getByLabel("Título da página").fill("Corte de respeito");
   await expect(preview.getByRole("heading", { name: "Corte de respeito" })).toBeVisible();
@@ -106,7 +107,7 @@ test("aparência: prévia ao vivo, cor e capa", async ({ page }) => {
 
 test("link da página para copiar", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-  await loginAsZe(page, "/ajustes/link");
+  await loginAsZe(page, "/negocio");
   await expect(page.getByText("barbearia-do-ze.localhost:3000")).toBeVisible();
   await page.getByRole("button", { name: "Copiar link" }).click();
   await expect(page.getByRole("button", { name: "Link copiado!" })).toBeVisible();

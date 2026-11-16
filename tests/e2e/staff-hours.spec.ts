@@ -7,9 +7,9 @@ test.beforeEach(reset);
 test.afterAll(reset);
 
 test("horário próprio do profissional: folga muda a página pública", async ({ page }) => {
-  await loginAsZe(page, "/ajustes/profissionais");
+  await loginAsZe(page, "/negocio/equipe");
   await page.getByRole("link", { name: "Horário de Rafael Lima" }).click();
-  await expect(page).toHaveURL(new RegExp(`/ajustes/profissionais/${RAFAEL}/horario`), {
+  await expect(page).toHaveURL(new RegExp(`/negocio/equipe/${RAFAEL}/horario`), {
     timeout: 45_000,
   });
   await expect(page.getByRole("heading", { name: "Horário de Rafael Lima" })).toBeVisible();
@@ -28,10 +28,10 @@ test("horário próprio do profissional: folga muda a página pública", async (
   expect(data).toHaveLength(7);
   expect(data!.find((d) => d.weekday === 3)?.is_open).toBe(false);
 
-  await page.goto("/ajustes/profissionais");
+  await page.goto("/negocio/equipe");
   await expect(page.getByText("Horário próprio")).toBeVisible();
 
-  await page.goto(`/ajustes/profissionais/${RAFAEL}/horario`);
+  await page.goto(`/negocio/equipe/${RAFAEL}/horario`);
   await page.getByRole("radio", { name: /Mesmo horário do negócio/ }).check();
   await page.getByRole("button", { name: "Voltar ao horário do negócio" }).click();
   await expect(page.getByText("Agora segue o horário do negócio.")).toBeVisible();

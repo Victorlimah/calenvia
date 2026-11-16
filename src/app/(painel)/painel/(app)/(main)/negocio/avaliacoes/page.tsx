@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageBody, PageHeader } from "@/components/painel/page-header";
+import { TabBody, SectionHeader } from "@/components/painel/page-header";
 import { Card, EmptyState } from "@/components/ui";
 import { requirePermission } from "@/lib/business/current";
 import { formatDate } from "@/lib/dates";
@@ -21,11 +21,11 @@ export default async function AvaliacoesPage() {
   const reviews = data ?? [];
   const s = ratingSummary(reviews.map((r) => r.rating));
   return (
-    <PageBody>
-      <PageHeader
+    <TabBody>
+      <SectionHeader
         title="Avaliações"
+        back={{ href: "/negocio", label: "Dados e página" }}
         description="O que os clientes acharam. Escolha quais aparecem como depoimento na sua página."
-        back={{ href: "/ajustes", label: "Ajustes" }}
       />
       {reviews.length === 0 ? (
         <EmptyState
@@ -70,6 +70,6 @@ export default async function AvaliacoesPage() {
           </ul>
         </>
       )}
-    </PageBody>
+    </TabBody>
   );
 }

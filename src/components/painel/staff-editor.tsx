@@ -98,7 +98,7 @@ export function StaffEditor({
                   </p>
                 </div>
                 <Link
-                  href={`/ajustes/profissionais/${p.id}/horario`}
+                  href={`/negocio/equipe/${p.id}/horario`}
                   className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold text-ink-2 hover:bg-paper-2"
                   aria-label={`Horário de ${p.name}`}
                 >

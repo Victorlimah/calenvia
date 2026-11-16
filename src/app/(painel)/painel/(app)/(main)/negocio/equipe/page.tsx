@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageBody, PageHeader } from "@/components/painel/page-header";
+import { TabBody, SectionHeader } from "@/components/painel/page-header";
+import { StaffEditor } from "@/components/painel/staff-editor";
+import { loadServices, loadStaff } from "@/lib/business/load";
+import { can } from "@/lib/permissions";
 import { Alert } from "@/components/ui";
 import { requirePermission } from "@/lib/business/current";
 import { canChangeMember, type Role } from "@/lib/permissions";
@@ -9,12 +12,16 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { invitationStatus } from "@/lib/team/invitations";
 import { TeamManager, type TeamInvite, type TeamPerson } from "./team-manager";
 
-export const metadata: Metadata = { title: "Equipe e acessos — Calenvia" };
+export const metadata: Metadata = { title: "Equipe — Calenvia" };
 
 export default async function EquipePage() {
   const member = await requirePermission("team.manage");
   const { business } = member;
   const supabase = await createSupabaseServerClient();
+  const manageStaff = can(member, "settings.manage");
+  const [services, allStaff] = manageStaff
+    ? await Promise.all([loadServices(supabase, business.id), loadStaff(supabase, business.id)])
+    : [[], []];
   const [{ data: members }, { data: invites }, { data: staff }] = await Promise.all([
     supabase
       .from("business_members")
@@ -63,34 +70,48 @@ export default async function EquipePage() {
   );
 
   return (
-    <PageBody>
-      <PageHeader
-        title="Equipe e acessos"
-        description="Cada pessoa entra com o próprio login e vê só o que o papel dela permite."
-        back={{ href: "/ajustes", label: "Ajustes" }}
-      />
-      <p className="text-sm text-ink-2">
-        {max === null
-          ? `${used} ${used === 1 ? "pessoa" : "pessoas"} com acesso (sem limite no seu plano).`
-          : `${used} de ${max} ${max === 1 ? "pessoa" : "pessoas"} com acesso.`}{" "}
-        Profissionais sem login não contam.
-      </p>
-      {!canAddMember(business, used) ? (
-        <Alert tone="info" title="Limite de acessos">
-          Para convidar mais pessoas, faça upgrade do plano ou fale com o suporte para aumentar o
-          limite.{" "}
-          <Link href="/assinatura" className="font-semibold underline">
-            Ver planos
-          </Link>
-        </Alert>
+    <TabBody>
+      {manageStaff ? (
+        <section className="space-y-4">
+          <SectionHeader
+            title="Profissionais"
+            description="Quem atende, quais serviços cada um faz e o horário de cada um."
+          />
+          <StaffEditor
+            staff={allStaff}
+            businessId={business.id}
+            services={services.map((s) => ({ id: s.id, name: s.name }))}
+          />
+        </section>
       ) : null}
-      <TeamManager
-        businessName={business.name}
-        people={people}
-        invites={pending}
-        staff={(staff ?? []).map((s) => ({ id: s.id, name: s.name, linked: linked.has(s.id) }))}
-        canInvite={canAddMember(business, used)}
-      />
-    </PageBody>
+      <section id="acessos" className="scroll-mt-6 space-y-4">
+        <SectionHeader
+          title="Acessos ao painel"
+          description="Cada pessoa entra com o próprio login e vê só o que o papel dela permite."
+        />
+        <p className="text-sm text-ink-2">
+          {max === null
+            ? `${used} ${used === 1 ? "pessoa" : "pessoas"} com acesso (sem limite no seu plano).`
+            : `${used} de ${max} ${max === 1 ? "pessoa" : "pessoas"} com acesso.`}{" "}
+          Profissionais sem login não contam.
+        </p>
+        {!canAddMember(business, used) ? (
+          <Alert tone="info" title="Limite de acessos">
+            Para convidar mais pessoas, faça upgrade do plano ou fale com o suporte para aumentar o
+            limite.{" "}
+            <Link href="/assinatura" className="font-semibold underline">
+              Ver planos
+            </Link>
+          </Alert>
+        ) : null}
+        <TeamManager
+          businessName={business.name}
+          people={people}
+          invites={pending}
+          staff={(staff ?? []).map((s) => ({ id: s.id, name: s.name, linked: linked.has(s.id) }))}
+          canInvite={canAddMember(business, used)}
+        />
+      </section>
+    </TabBody>
   );
 }

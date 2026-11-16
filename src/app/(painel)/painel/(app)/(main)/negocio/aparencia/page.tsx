@@ -3,7 +3,7 @@ import { AppearanceEditor } from "@/components/painel/appearance-editor";
 import { requirePermission } from "@/lib/business/current";
 import { segmentLabel } from "@/lib/business/segments";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/painel/page-header";
+import { SectionHeader, TabBody } from "@/components/painel/page-header";
 
 export const metadata: Metadata = { title: "Aparência da página — Calenvia" };
 
@@ -19,11 +19,11 @@ export default async function AjustesAparenciaPage() {
       .order("sort_order"),
   ]);
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-6 px-4 pt-6 pb-10 md:pt-10">
-      <PageHeader
+    <TabBody wide>
+      <SectionHeader
         title="Aparência da página"
+        back={{ href: "/negocio", label: "Dados e página" }}
         description="Deixe a página com a cara do seu negócio."
-        back={{ href: "/ajustes", label: "Ajustes" }}
       />
       <AppearanceEditor
         business={{
@@ -39,6 +39,6 @@ export default async function AjustesAparenciaPage() {
         photos={photos ?? []}
         testimonials={testimonials ?? []}
       />
-    </main>
+    </TabBody>
   );
 }

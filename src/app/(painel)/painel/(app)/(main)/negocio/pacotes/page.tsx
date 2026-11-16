@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageBody, PageHeader } from "@/components/painel/page-header";
+import { TabBody, SectionHeader } from "@/components/painel/page-header";
 import { requirePermission } from "@/lib/business/current";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PackagesEditor } from "./packages-editor";
@@ -23,13 +23,12 @@ export default async function PacotesPage() {
       .order("created_at"),
   ]);
   return (
-    <PageBody>
-      <PageHeader
+    <TabBody>
+      <SectionHeader
         title="Pacotes"
         description="Venda várias sessões de um serviço de uma vez (ex.: 4 cortes com desconto)."
-        back={{ href: "/ajustes", label: "Ajustes" }}
       />
       <PackagesEditor services={services ?? []} packages={packages ?? []} />
-    </PageBody>
+    </TabBody>
   );
 }

@@ -6,7 +6,7 @@ import { requireReadyMember } from "@/lib/business/current";
 import { loadWeekHours } from "@/lib/business/load";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { DayHours } from "@/lib/validation/business";
-import { StaffHoursForm } from "../ajustes/profissionais/[id]/horario/staff-hours-form";
+import { StaffHoursForm } from "../negocio/equipe/[id]/horario/staff-hours-form";
 
 export const metadata: Metadata = { title: "Meus horários — Calenvia" };
 
