@@ -13,12 +13,25 @@ import {
 } from "@/lib/customers/summary";
 import { formatPhone, onlyDigits } from "@/lib/phone";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { todayIn } from "@/lib/dates";
+import { groupVisits } from "@/lib/metrics-owner/customers";
+import { loadVisits } from "@/lib/metrics-owner/load";
+import { ClientesTabs, MissingList, RankingView, parseFiltro } from "./insights";
 
 export const metadata: Metadata = { title: "Clientes — Calenvia" };
 
 const PAGE_SIZE = 50;
 
-type Props = { searchParams: Promise<{ q?: string; ordem?: string; pagina?: string }> };
+type Props = {
+  searchParams: Promise<{
+    q?: string;
+    ordem?: string;
+    pagina?: string;
+    filtro?: string;
+    por?: string;
+    periodo?: string;
+  }>;
+};
 
 export default async function ClientesPage({ searchParams }: Props) {
   const member = await requireReadyMember();
@@ -31,6 +44,37 @@ export default async function ClientesPage({ searchParams }: Props) {
   const sort = !finance && parsedSort === "gasto" ? parseCustomerSort(undefined) : parsedSort;
   const page = Math.max(1, Number(sp.pagina) || 1);
   const supabase = await createSupabaseServerClient();
+  const filtro = parseFiltro(sp.filtro);
+
+  if (filtro !== "todos") {
+    // Sumidos e ranking (CAL-124/125): visitas concluídas agregadas no banco.
+    const customers = groupVisits(await loadVisits(supabase, business.id));
+    const today = todayIn(business.timezone);
+    return (
+      <PageBody>
+        <PageHeader
+          title="Clientes"
+          description={
+            filtro === "sumidos"
+              ? "Quem passou do tempo de costume sem voltar."
+              : "Quem mais vem e quem mais gasta."
+          }
+        />
+        <ClientesTabs current={filtro} />
+        {filtro === "sumidos" ? (
+          <MissingList customers={customers} today={today} businessName={business.name} />
+        ) : (
+          <RankingView
+            customers={customers}
+            today={today}
+            finance={finance}
+            por={sp.por}
+            periodo={sp.periodo}
+          />
+        )}
+      </PageBody>
+    );
+  }
 
   let query = supabase
     .from("customer_summaries")
@@ -69,6 +113,7 @@ export default async function ClientesPage({ searchParams }: Props) {
         title="Clientes"
         description={total === 1 ? "1 cliente" : `${total} clientes${q ? " encontrados" : ""}`}
       />
+      <ClientesTabs current="todos" />
 
       <form className="grid gap-2 sm:grid-cols-[1fr_auto_auto]" role="search">
         <label className="sr-only" htmlFor="busca">
