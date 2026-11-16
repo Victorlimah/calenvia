@@ -1,5 +1,6 @@
 "use client";
 
+import { PAYMENT_LABELS, type PaymentMethod } from "@/lib/metrics-owner/stats";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Alert, Button, Card, Field, Input, Select, Textarea } from "@/components/ui";
@@ -40,6 +41,7 @@ export function RegisterForm({
   const [date, setDate] = useState(initialDate);
   const [time, setTime] = useState(nowTime);
   const [price, setPrice] = useState(centsToInput(services[0].price_cents));
+  const [payment, setPayment] = useState<PaymentMethod | null>(null);
   const [customer, setCustomer] = useState<CustomerHit | null>(initialCustomer ?? null);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<CustomerHit[]>([]);
@@ -85,6 +87,7 @@ export function RegisterForm({
         customerName: customer ? undefined : name,
         customerWhatsapp: customer ? undefined : phone || undefined,
         notes,
+        paymentMethod: payment,
       });
       if (r.ok && r.data) router.push(`/agendamento/${r.data.id}`);
       else if (!r.ok) setError(r.error);
@@ -153,6 +156,29 @@ export function RegisterForm({
             />
           )}
         </Field>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-semibold">Forma de pagamento (opcional)</legend>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {(Object.keys(PAYMENT_LABELS) as PaymentMethod[]).map((m) => (
+              <label
+                key={m}
+                className={`flex min-h-11 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border text-sm font-semibold ${
+                  payment === m ? "border-ink bg-ink text-white" : "border-line bg-white text-ink-2"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="pagamento"
+                  value={m}
+                  checked={payment === m}
+                  onChange={() => setPayment(m)}
+                  className="sr-only"
+                />
+                {PAYMENT_LABELS[m]}
+              </label>
+            ))}
+          </div>
+        </fieldset>
       </Card>
 
       <Card className="space-y-4">

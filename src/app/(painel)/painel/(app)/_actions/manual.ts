@@ -169,6 +169,7 @@ const registerInput = z.object({
   customerName: z.string().trim().max(80).optional(),
   customerWhatsapp: z.string().trim().max(30).optional(),
   notes: z.string().trim().max(500).optional(),
+  paymentMethod: z.enum(["cash", "pix", "card", "other"]).nullable().optional(),
 });
 
 /** "Registrar atendimento": lança, já concluído, um atendimento de agora ou de antes. */
@@ -195,6 +196,7 @@ export async function registerAppointmentAction(
       customerId: v.customerId,
       customer: v.customerId ? null : { name: v.customerName!, whatsapp: v.customerWhatsapp },
       notes: v.notes || null,
+      paymentMethod: v.paymentMethod ?? null,
     });
     if ("error" in r) {
       const messages = {

@@ -20,6 +20,8 @@ export type RegisterInput = {
   customerId?: string | null;
   customer?: { name: string; whatsapp?: string | null } | null;
   notes?: string | null;
+  /** Forma de pagamento (CAL-128). */
+  paymentMethod?: "cash" | "pix" | "card" | "other" | null;
   now?: Date;
 };
 
@@ -124,6 +126,7 @@ export async function registerAppointment(
         customer_name: name,
         customer_whatsapp: whatsapp,
         messages_enabled: false,
+        payment_method: input.paymentMethod ?? null,
       })
       .select(APPOINTMENT_COLUMNS)
       .single();

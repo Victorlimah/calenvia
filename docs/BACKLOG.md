@@ -176,13 +176,13 @@ Pedido do Victor (2026-11-16): a interface do painel do dono e do `/admin` está
   - Funções puras com testes (casos: 1 visita só, visitas no mesmo dia, cancelados e faltas não contam, cliente avulso fora da conta).
   - Aceite: aparece no Início e em Clientes (filtro "Sumidos").
 - [x] **CAL-125** · Ranking de clientes · P1 · 1d — **Mais frequentes** (nº de visitas) e **que mais gastam**, por período (30 dias, 90 dias, ano, sempre), com ligação para o cliente. Cliente avulso não entra.
-- [ ] **CAL-126** · Faturamento por dia, semana e mês, com gráficos · P1 · 2d — Seletor de período (dia/semana/mês + intervalo personalizado); gráfico de barras por dia/semana/mês, **por serviço** e **por profissional**; ticket médio; comparação com o período anterior.
+- [x] **CAL-126** · Faturamento por dia, semana e mês, com gráficos · P1 · 2d — Seletor de período (dia/semana/mês + intervalo personalizado); gráfico de barras por dia/semana/mês, **por serviço** e **por profissional**; ticket médio; comparação com o período anterior.
   - Considera só atendimentos `completed` (inclui os do "Registrar atendimento") + entradas manuais do financeiro.
   - Aceite: números batem com o relatório e o financeiro atuais (teste cruzando as três fontes); gráfico acessível.
-- [ ] **CAL-127** · Aba "Financeiro" unificada · P1 · 2d — Junta Relatórios (CAL-100) e Controle financeiro (CAL-102) numa aba com sub-abas: **Resumo** (faturamento, despesas, saldo) · **Entradas e despesas** (lançamentos) · **Relatórios** (faltas, por serviço, por profissional) · **Exportar** (CSV do mês).
+- [x] **CAL-127** · Aba "Financeiro" unificada · P1 · 2d — Junta Relatórios (CAL-100) e Controle financeiro (CAL-102) numa aba com sub-abas: **Resumo** (faturamento, despesas, saldo) · **Entradas e despesas** (lançamentos) · **Relatórios** (faltas, por serviço, por profissional) · **Exportar** (CSV do mês).
   - Visível só com `finance.view`. Decisão de plano (padrão proposto): Resumo e faturamento básico em **todos os planos**; comparativos e exportação em **Pro+**, como hoje.
   - Aceite: `/relatorios` e `/financeiro` redirecionam para a nova aba.
-- [ ] **CAL-128** · Forma de pagamento no atendimento · P2 · 1d — Campo dinheiro/Pix/cartão/outro ao concluir ou registrar atendimento; resumo do caixa do dia por forma de pagamento no Financeiro. *(Migration + RLS na mesma migration.)*
+- [x] **CAL-128** · Forma de pagamento no atendimento · P2 · 1d — Campo dinheiro/Pix/cartão/outro ao concluir ou registrar atendimento; resumo do caixa do dia por forma de pagamento no Financeiro. *(Migration + RLS na mesma migration.)*
 
 ### Sprint 12 — Administração da Calenvia (`/admin`)
 - [ ] **CAL-129** · Sair no admin e menu organizado · P0 · 1d — Botão **Sair** sempre visível (o admin hoje não tem) e menu lateral agrupado: **Clientes** (Negócios, Suporte) · **Dinheiro** (Assinaturas, Preços) · **Saúde** (Métricas, Mensagens). No celular, menu recolhível; contador de pendências ao lado de cada item.

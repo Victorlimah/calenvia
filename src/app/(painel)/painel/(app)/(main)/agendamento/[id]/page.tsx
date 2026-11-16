@@ -211,6 +211,7 @@ export default async function AgendamentoPage({
           date: toLocalDate(start, tz),
           staffId: a.staff_member_id,
           isPast: end.getTime() < Date.now(),
+          paymentMethod: (a.payment_method as "cash" | "pix" | "card" | "other" | null) ?? null,
         }}
         staff={eligibleStaff}
         canManage={manage}

@@ -39,6 +39,29 @@ export async function setAppointmentStatusAction(
   return { ok: true, message: messages[status] };
 }
 
+/** Forma de pagamento do atendimento concluído (CAL-128). null = não informado. */
+export async function setAppointmentPaymentAction(
+  appointmentId: string,
+  method: "cash" | "pix" | "card" | "other" | null,
+): Promise<ActionResult> {
+  await requireWritableMember();
+  if (
+    !id.safeParse(appointmentId).success ||
+    (method !== null && !["cash", "pix", "card", "other"].includes(method))
+  ) {
+    return { ok: false, error: "Pedido inválido." };
+  }
+  const supabase = await createSupabaseServerClient();
+  // A função no banco aplica a mesma regra do status (CAL-112).
+  const { error } = await supabase.rpc("set_appointment_payment", {
+    p_appointment_id: appointmentId,
+    p_method: method as string,
+  });
+  if (error) return { ok: false, error: "Não foi possível salvar a forma de pagamento." };
+  revalidatePath("/painel", "layout");
+  return { ok: true, message: "Forma de pagamento salva." };
+}
+
 export async function cancelAppointmentAction(appointmentId: string): Promise<ActionResult> {
   const business = await requireBusinessFor("appointments.manage_all");
   if (!id.safeParse(appointmentId).success) return { ok: false, error: "Pedido inválido." };

@@ -7,11 +7,20 @@ import {
   cancelAppointmentAction,
   rescheduleAppointmentAction,
   rescheduleSlotsAction,
+  setAppointmentPaymentAction,
   setAppointmentStatusAction,
 } from "../../../_actions/appointments";
+import { PAYMENT_LABELS, type PaymentMethod } from "@/lib/metrics-owner/stats";
 
 type Props = {
-  appointment: { id: string; status: string; date: string; staffId: string; isPast: boolean };
+  appointment: {
+    id: string;
+    status: string;
+    date: string;
+    staffId: string;
+    isPast: boolean;
+    paymentMethod?: PaymentMethod | null;
+  };
   /** Remarcar e cancelar (CAL-112: o profissional só marca concluído/faltou). */
   canManage?: boolean;
   staff: { id: string; name: string }[];
@@ -73,6 +82,10 @@ export function AppointmentActions({ appointment, staff, canManage = true }: Pro
             </>
           ) : null}
         </div>
+      ) : null}
+
+      {appointment.status === "completed" ? (
+        <PaymentPicker id={appointment.id} value={appointment.paymentMethod ?? null} />
       ) : null}
 
       {confirmCancel && !canceled ? (
@@ -223,5 +236,45 @@ function ReschedulePanel({
         </Button>
       </div>
     </Card>
+  );
+}
+
+/** Forma de pagamento ao concluir (CAL-128): salva ao tocar. */
+function PaymentPicker({ id, value }: { id: string; value: PaymentMethod | null }) {
+  const save = useAction();
+  const [current, setCurrent] = useState<PaymentMethod | null>(value);
+  return (
+    <fieldset className="space-y-2 rounded-[var(--radius-card)] border border-line bg-white p-4">
+      <legend className="px-1 text-sm font-semibold text-ink">Como o cliente pagou?</legend>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {(Object.keys(PAYMENT_LABELS) as PaymentMethod[]).map((m) => (
+          <label
+            key={m}
+            className={`flex min-h-11 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border text-sm font-semibold ${
+              current === m ? "border-ink bg-ink text-white" : "border-line bg-white text-ink-2"
+            }`}
+          >
+            <input
+              type="radio"
+              name={`pagamento-${id}`}
+              value={m}
+              checked={current === m}
+              className="sr-only"
+              onChange={() => {
+                setCurrent(m);
+                save.run(() => setAppointmentPaymentAction(id, m));
+              }}
+            />
+            {PAYMENT_LABELS[m]}
+          </label>
+        ))}
+      </div>
+      {save.error ? <p className="text-sm text-danger">{save.error}</p> : null}
+      {save.message ? (
+        <p className="text-sm text-success" role="status">
+          {save.message}
+        </p>
+      ) : null}
+    </fieldset>
   );
 }
