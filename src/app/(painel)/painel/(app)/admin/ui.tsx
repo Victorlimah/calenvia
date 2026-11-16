@@ -1,7 +1,11 @@
 import Link from "next/link";
 
 export function AdminBody({ children }: { children: React.ReactNode }) {
-  return <main className="mx-auto w-full max-w-5xl space-y-6 px-4 pt-6 pb-10">{children}</main>;
+  return (
+    <main className="mx-auto w-full max-w-6xl space-y-6 px-4 pt-6 pb-10 md:px-8 md:pt-10">
+      {children}
+    </main>
+  );
 }
 
 export function AdminTitle({
