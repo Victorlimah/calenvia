@@ -169,13 +169,13 @@ Pedido do Victor (2026-11-16): a interface do painel do dono e do `/admin` está
   - Aceite: usável de 1024 px para cima; no celular continua a lista da semana atual.
 
 ### Sprint 11 — Início (dashboard), métricas e financeiro
-- [ ] **CAL-123** · Início com resumo do negócio (dashboard) · P1 · 3d — Primeira tela do painel: faturamento de hoje/semana/mês (com comparação ao período anterior), agendamentos de hoje e próximos, taxa de falta, taxa de ocupação, clientes novos x que voltaram, avisos (cota de mensagens, assinatura). Cartões de número + 2 gráficos.
+- [x] **CAL-123** · Início com resumo do negócio (dashboard) · P1 · 3d — Primeira tela do painel: faturamento de hoje/semana/mês (com comparação ao período anterior), agendamentos de hoje e próximos, taxa de falta, taxa de ocupação, clientes novos x que voltaram, avisos (cota de mensagens, assinatura). Cartões de número + 2 gráficos.
   - Profissional vê só os próprios números; sem `finance.view` os valores em R$ não aparecem.
   - Aceite: estados vazios para negócio novo ("assim que você tiver atendimentos, os números aparecem aqui"); carrega em < 1 s com 5 mil agendamentos (consulta agregada no banco, view/função SQL com RLS).
-- [ ] **CAL-124** · Métricas de retorno dos clientes · P1 · 2d — **Tempo médio entre uma visita e a próxima** (geral e por cliente), **taxa de retorno** (voltou em 30/60/90 dias), **clientes sumidos** (passaram do tempo médio dele sem voltar) com botão "Chamar no WhatsApp" (link `wa.me` com mensagem pronta; sem envio automático).
+- [x] **CAL-124** · Métricas de retorno dos clientes · P1 · 2d — **Tempo médio entre uma visita e a próxima** (geral e por cliente), **taxa de retorno** (voltou em 30/60/90 dias), **clientes sumidos** (passaram do tempo médio dele sem voltar) com botão "Chamar no WhatsApp" (link `wa.me` com mensagem pronta; sem envio automático).
   - Funções puras com testes (casos: 1 visita só, visitas no mesmo dia, cancelados e faltas não contam, cliente avulso fora da conta).
   - Aceite: aparece no Início e em Clientes (filtro "Sumidos").
-- [ ] **CAL-125** · Ranking de clientes · P1 · 1d — **Mais frequentes** (nº de visitas) e **que mais gastam**, por período (30 dias, 90 dias, ano, sempre), com ligação para o cliente. Cliente avulso não entra.
+- [x] **CAL-125** · Ranking de clientes · P1 · 1d — **Mais frequentes** (nº de visitas) e **que mais gastam**, por período (30 dias, 90 dias, ano, sempre), com ligação para o cliente. Cliente avulso não entra.
 - [ ] **CAL-126** · Faturamento por dia, semana e mês, com gráficos · P1 · 2d — Seletor de período (dia/semana/mês + intervalo personalizado); gráfico de barras por dia/semana/mês, **por serviço** e **por profissional**; ticket médio; comparação com o período anterior.
   - Considera só atendimentos `completed` (inclui os do "Registrar atendimento") + entradas manuais do financeiro.
   - Aceite: números batem com o relatório e o financeiro atuais (teste cruzando as três fontes); gráfico acessível.
