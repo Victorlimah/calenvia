@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, ButtonLink, Card } from "@/components/ui";
+import { Badge, Card } from "@/components/ui";
+import { lastAccessLabel } from "@/lib/admin/directory";
+import { segmentLabel } from "@/lib/business/segments";
+import { BusinessHeaderActions } from "./header-actions";
 import {
   type AdminBusinessInput,
   AUDIT_FIELD_LABELS,
@@ -29,8 +32,25 @@ export const metadata: Metadata = { title: "Negócio — Administração Calenvi
 
 type AuditChanges = Record<string, { from: unknown; to: unknown }>;
 
-export default async function AdminBusinessPage({ params }: { params: Promise<{ id: string }> }) {
+const TABS = [
+  { key: "resumo", label: "Resumo" },
+  { key: "cobranca", label: "Plano e cobrança" },
+  { key: "extras", label: "Extras e limites" },
+  { key: "equipe", label: "Equipe" },
+  { key: "atividade", label: "Atividade" },
+] as const;
+type TabKey = (typeof TABS)[number]["key"];
+
+export default async function AdminBusinessPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ aba?: string }>;
+}) {
   const { id } = await params;
+  const { aba } = await searchParams;
+  const tab: TabKey = TABS.some((t) => t.key === aba) ? (aba as TabKey) : "resumo";
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const db = createSupabaseAdminClient();
   const { data: business } = await db.from("businesses").select("*").eq("id", id).maybeSingle();
@@ -120,204 +140,272 @@ export default async function AdminBusinessPage({ params }: { params: Promise<{ 
     notes: note.data?.notes ?? "",
   };
 
+  const canCourtesy = !sub || (sub.provider === "manual" && business.plan_status !== "active");
+  const tabHref = (k: TabKey) =>
+    k === "resumo" ? `/admin/negocios/${business.id}` : `/admin/negocios/${business.id}?aba=${k}`;
+
   return (
     <AdminBody>
-      <AdminTitle title={business.name} back={{ href: "/admin", label: "Negócios" }} />
-      <ButtonLink href={`/admin/negocios/${business.id}/visao`} variant="secondary">
-        Ver painel do cliente
-      </ButtonLink>
-
-      <div className="flex flex-wrap gap-1.5">
-        <Badge tone="brand">{plan.name}</Badge>
-        <Badge tone={statusTone(business.plan_status)}>
-          {PLAN_STATUS_LABELS[business.plan_status as PlanStatus] ?? business.plan_status}
-        </Badge>
-        {business.onboarding_completed_at ? null : <Badge>Onboarding não concluído</Badge>}
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="space-y-2 text-sm">
-          <h2 className="font-display text-lg font-bold text-ink">Dados</h2>
-          <Info label="Dono" value={ownerEmail} />
-          <Info label="WhatsApp" value={business.whatsapp ?? "—"} />
-          <Info label="Segmento" value={business.segment ?? "—"} />
-          <Info label="Fuso" value={business.timezone} />
-          <Info label="Criado em" value={formatAdminDate(business.created_at)} />
-          <p>
-            <a
-              href={businessUrl(business.slug)}
-              target="_blank"
-              rel="noreferrer"
-              className="font-semibold text-brand underline"
-            >
-              Abrir página pública ({business.slug})
-            </a>
-          </p>
-          <p>
-            <Link
-              href={`/admin/mensagens?negocio=${business.id}`}
-              className="font-semibold text-brand underline"
-            >
-              Ver mensagens com falha
-            </Link>
-          </p>
-        </Card>
-
-        <Card className="space-y-2 text-sm">
-          <h2 className="font-display text-lg font-bold text-ink">Uso</h2>
-          <Info
-            label="Pessoas com acesso"
-            value={`${memberList.length + pending} de ${max ?? "ilimitado"}${pending ? ` (${pending} convite${pending > 1 ? "s" : ""} pendente${pending > 1 ? "s" : ""})` : ""}`}
+      <div className="sticky top-14 z-20 -mx-4 space-y-3 border-b border-line bg-paper/95 px-4 pt-2 pb-0 backdrop-blur md:top-0 md:-mx-8 md:px-8">
+        <AdminTitle title={business.name} back={{ href: "/admin", label: "Negócios" }} />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-1.5">
+            <Badge tone="brand">{plan.name}</Badge>
+            <Badge tone={statusTone(business.plan_status)}>
+              {PLAN_STATUS_LABELS[business.plan_status as PlanStatus] ?? business.plan_status}
+            </Badge>
+            {sub?.provider === "manual" ? <Badge>Cortesia</Badge> : null}
+            {business.onboarding_completed_at ? null : <Badge>Cadastro incompleto</Badge>}
+          </div>
+          <BusinessHeaderActions
+            businessId={business.id}
+            name={business.name}
+            status={business.plan_status}
+            canCourtesy={canCourtesy}
+            enterHref={`/admin/negocios/${business.id}/visao`}
           />
-          <Info label={`Mensagens em ${period}`} value={`${used} de ${msgLimit}`} />
-          <Info label="Agendamentos (30 dias)" value={String(appts.count ?? 0)} />
-          <p className="text-muted">
-            Padrão do {plan.name}: {plan.maxMembers ?? "ilimitado"}{" "}
-            {plan.maxMembers === 1 ? "pessoa" : "pessoas"} e {plan.monthlyMessages ?? 0} mensagens
-            por mês.
-          </p>
-        </Card>
-      </div>
-
-      <Card className="space-y-4">
-        <h2 className="font-display text-lg font-bold text-ink">Plano e limites</h2>
-        <BusinessAdminForm
-          businessId={business.id}
-          defaults={defaults}
-          planDefaults={Object.fromEntries(
-            Object.values(PLANS).map((p) => [
-              p.id,
-              { members: p.maxMembers, messages: p.monthlyMessages ?? 0 },
-            ]),
-          )}
-        />
-      </Card>
-
-      <Card className="space-y-3 text-sm" aria-labelledby="cobranca-admin">
-        <h2 id="cobranca-admin" className="font-display text-lg font-bold text-ink">
-          Cobrança
-        </h2>
-        {sub ? (
-          <>
-            <Info label="Provedor" value={PROVIDER_LABELS[sub.provider] ?? sub.provider} />
-            <Info label="Status da assinatura" value={sub.status} />
-            <Info
-              label="Ciclo atual até"
-              value={sub.current_period_end ? formatAdminDate(sub.current_period_end) : "—"}
-            />
-            {sub.pending_plan ? (
-              <Info
-                label="Troca agendada"
-                value={`para ${PLANS[sub.pending_plan as keyof typeof PLANS]?.name ?? sub.pending_plan}`}
-              />
-            ) : null}
-            {sub.cancel_at_period_end ? (
-              <Info label="Cancelamento" value="agendado para o fim do ciclo" />
-            ) : null}
-            {sub.past_due_since ? (
-              <Info label="Em atraso desde" value={formatAdminDate(sub.past_due_since)} />
-            ) : null}
-          </>
-        ) : (
-          <p className="text-muted">Sem assinatura aberta.</p>
-        )}
-        {(invoices.data ?? []).length > 0 ? (
-          <ul className="divide-y divide-line">
-            {(invoices.data ?? []).map((i) => (
-              <li key={i.id} className="flex justify-between gap-2 py-1.5">
-                <span className="text-muted">{formatAdminDate(i.created_at)}</span>
-                <span className="text-ink">
-                  {formatPrice(i.amount_cents)} · {INVOICE_LABELS[i.status] ?? i.status}
-                </span>
+        </div>
+        <nav aria-label="Seções do negócio" className="-mx-1 overflow-x-auto">
+          <ul className="flex min-w-max gap-1">
+            {TABS.map((t) => (
+              <li key={t.key}>
+                <Link
+                  href={tabHref(t.key)}
+                  aria-current={tab === t.key ? "page" : undefined}
+                  className={`-mb-px inline-flex min-h-11 items-center border-b-2 px-3 text-sm font-semibold whitespace-nowrap ${
+                    tab === t.key
+                      ? "border-brand text-brand"
+                      : "border-transparent text-ink-2 hover:text-ink"
+                  }`}
+                >
+                  {t.label}
+                </Link>
               </li>
             ))}
           </ul>
-        ) : null}
-        <Info label="Total por mês" value={formatPrice(totalCents)} />
-        {!sub || sub.provider === "manual" ? (
-          business.plan_status === "active" && sub ? null : (
+        </nav>
+      </div>
+
+      {tab === "resumo" ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="space-y-2 text-sm">
+            <h2 className="font-display text-lg font-bold text-ink">Dados</h2>
+            <Info label="Dono" value={ownerEmail} />
+            <Info label="WhatsApp" value={business.whatsapp ?? "—"} />
+            <Info label="Segmento" value={segmentLabel(business.segment)} />
+            <Info label="Endereço" value={business.address ?? "—"} />
+            <Info label="Fuso horário" value={business.timezone} />
+            <Info label="Criado em" value={formatAdminDate(business.created_at)} />
+            <Info
+              label="Último acesso do dono"
+              value={lastAccessLabel(owner.data.user?.last_sign_in_at ?? null)}
+            />
+            <p>
+              <a
+                href={businessUrl(business.slug)}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-brand underline"
+              >
+                Abrir página pública ({business.slug})
+              </a>
+            </p>
+            <p>
+              <Link
+                href={`/admin/mensagens?negocio=${business.id}`}
+                className="font-semibold text-brand underline"
+              >
+                Ver mensagens com falha
+              </Link>
+            </p>
+          </Card>
+
+          <Card className="space-y-2 text-sm">
+            <h2 className="font-display text-lg font-bold text-ink">Uso</h2>
+            <Info
+              label="Pessoas com acesso"
+              value={`${memberList.length + pending} de ${max ?? "ilimitado"}${pending ? ` (${pending} convite${pending > 1 ? "s" : ""} pendente${pending > 1 ? "s" : ""})` : ""}`}
+            />
+            <Info label={`Mensagens em ${period}`} value={`${used} de ${msgLimit}`} />
+            <Info label="Agendamentos (30 dias)" value={String(appts.count ?? 0)} />
+            <Info label="Valor por mês" value={formatPrice(totalCents)} />
+            <p className="text-muted">
+              Padrão do {plan.name}: {plan.maxMembers ?? "ilimitado"}{" "}
+              {plan.maxMembers === 1 ? "pessoa" : "pessoas"} e {plan.monthlyMessages ?? 0} mensagens
+              por mês.
+            </p>
+          </Card>
+        </div>
+      ) : null}
+
+      {tab === "cobranca" ? (
+        <Card className="space-y-3 text-sm" aria-labelledby="cobranca-admin">
+          <h2 id="cobranca-admin" className="font-display text-lg font-bold text-ink">
+            Cobrança
+          </h2>
+          {sub ? (
+            <>
+              <Info
+                label="Forma de cobrança"
+                value={PROVIDER_LABELS[sub.provider] ?? sub.provider}
+              />
+              <Info
+                label="Situação da assinatura"
+                value={PLAN_STATUS_LABELS[sub.status as PlanStatus] ?? sub.status}
+              />
+              <Info
+                label="Ciclo atual até"
+                value={sub.current_period_end ? formatAdminDate(sub.current_period_end) : "—"}
+              />
+              {sub.pending_plan ? (
+                <Info
+                  label="Troca agendada"
+                  value={`para ${PLANS[sub.pending_plan as keyof typeof PLANS]?.name ?? sub.pending_plan}`}
+                />
+              ) : null}
+              {sub.cancel_at_period_end ? (
+                <Info label="Cancelamento" value="agendado para o fim do ciclo" />
+              ) : null}
+              {sub.past_due_since ? (
+                <Info label="Em atraso desde" value={formatAdminDate(sub.past_due_since)} />
+              ) : null}
+            </>
+          ) : (
+            <p className="text-muted">Sem assinatura aberta.</p>
+          )}
+          {(invoices.data ?? []).length > 0 ? (
+            <>
+              <h3 className="pt-2 font-semibold text-ink">Últimas faturas</h3>
+              <ul className="divide-y divide-line">
+                {(invoices.data ?? []).map((i) => (
+                  <li key={i.id} className="flex justify-between gap-2 py-1.5">
+                    <span className="text-muted">{formatAdminDate(i.created_at)}</span>
+                    <span className="text-ink">
+                      {formatPrice(i.amount_cents)} · {INVOICE_LABELS[i.status] ?? i.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          <Info label="Total por mês" value={formatPrice(totalCents)} />
+          {canCourtesy ? (
             <div className="border-t border-line pt-3">
               <CourtesyButton businessId={business.id} />
             </div>
-          )
-        ) : null}
-        {isMockBilling() && sub && sub.provider !== "stripe" ? (
-          <div className="space-y-2 border-t border-line pt-3">
-            <p className="text-muted">Pagamento simulado: teste o ciclo de cobrança.</p>
-            <BillingSimulations businessId={business.id} />
-          </div>
-        ) : null}
-      </Card>
+          ) : null}
+          {isMockBilling() && sub && sub.provider !== "stripe" ? (
+            <div className="space-y-2 border-t border-line pt-3">
+              <p className="text-muted">Pagamento simulado: teste o ciclo de cobrança.</p>
+              <BillingSimulations businessId={business.id} />
+            </div>
+          ) : null}
+        </Card>
+      ) : null}
 
-      <Card className="space-y-3 text-sm">
-        <h2 className="font-display text-lg font-bold text-ink">Extras</h2>
-        <p className="text-muted">
-          Itens cobrados na assinatura. Mensagens e pessoas extras somam no limite (além do ajuste
-          manual acima). Mudanças entram na fatura com cobrança proporcional.
-        </p>
-        <BusinessAddons
-          businessId={business.id}
-          active={activeAddons}
-          catalog={addonsForPlan(prices.addons, plan.id).map((a) => ({
-            addonId: a.addonId,
-            name: a.name,
-            amountCents: a.amountCents,
-          }))}
-        />
-      </Card>
+      {tab === "extras" ? (
+        <>
+          <Card className="space-y-4">
+            <h2 className="font-display text-lg font-bold text-ink">Plano e limites</h2>
+            <p className="text-sm text-muted">
+              Mude o plano, a situação e os limites deste negócio. Campo de limite vazio = padrão do
+              plano.
+            </p>
+            <BusinessAdminForm
+              businessId={business.id}
+              defaults={defaults}
+              planDefaults={Object.fromEntries(
+                Object.values(PLANS).map((p) => [
+                  p.id,
+                  { members: p.maxMembers, messages: p.monthlyMessages ?? 0 },
+                ]),
+              )}
+            />
+          </Card>
+          <Card className="space-y-3 text-sm">
+            <h2 className="font-display text-lg font-bold text-ink">Extras</h2>
+            <p className="text-muted">
+              Itens cobrados na assinatura. Mensagens e pessoas extras somam no limite (além do
+              ajuste manual acima). Mudanças entram na fatura com cobrança proporcional.
+            </p>
+            <BusinessAddons
+              businessId={business.id}
+              active={activeAddons}
+              catalog={addonsForPlan(prices.addons, plan.id).map((a) => ({
+                addonId: a.addonId,
+                name: a.name,
+                amountCents: a.amountCents,
+              }))}
+            />
+          </Card>
+        </>
+      ) : null}
 
-      <Card className="space-y-3">
-        <h2 className="font-display text-lg font-bold text-ink">Equipe</h2>
-        <ul className="divide-y divide-line text-sm">
-          {memberList.map((m) => (
-            <li key={m.id} className="flex flex-wrap justify-between gap-2 py-2">
-              <span className="text-ink">{m.display_name ?? m.email ?? "Sem nome"}</span>
-              <span className="text-muted">
-                {ROLE_LABELS[m.role as Role]}
-                {m.email ? ` · ${m.email}` : ""}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Card>
-
-      <section aria-labelledby="historico" className="space-y-3">
-        <h2 id="historico" className="font-display text-lg font-bold text-ink">
-          Histórico da administração
-        </h2>
-        {(audit.data ?? []).length === 0 ? (
-          <p className="text-sm text-muted">Nenhuma alteração feita pela administração ainda.</p>
-        ) : (
-          <ol className="space-y-2">
-            {(audit.data ?? []).map((a) => {
-              const summary = describeAuditEntry(a.action, a.changes);
-              return (
-                <li key={a.id}>
-                  <Card className="space-y-1 text-sm">
-                    <p className="text-muted">
-                      {formatAdminDateTime(a.created_at)} · {a.admin_email}
-                    </p>
-                    {summary ? (
-                      <p className="text-ink">{summary}</p>
-                    ) : (
-                      <ul>
-                        {Object.entries((a.changes ?? {}) as AuditChanges).map(([field, c]) => (
-                          <li key={field} className="text-ink">
-                            <span className="font-semibold">
-                              {AUDIT_FIELD_LABELS[field] ?? field}:
-                            </span>{" "}
-                            {formatChangeValue(field, c.from)} → {formatChangeValue(field, c.to)}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </Card>
+      {tab === "equipe" ? (
+        <Card className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-ink">Equipe</h2>
+          {memberList.length === 0 ? (
+            <p className="text-sm text-muted">Ninguém com acesso.</p>
+          ) : (
+            <ul className="divide-y divide-line text-sm">
+              {memberList.map((m) => (
+                <li key={m.id} className="flex flex-wrap justify-between gap-2 py-2">
+                  <span className="text-ink">{m.display_name ?? m.email ?? "Sem nome"}</span>
+                  <span className="text-muted">
+                    {ROLE_LABELS[m.role as Role]}
+                    {m.email ? ` · ${m.email}` : ""}
+                  </span>
                 </li>
-              );
-            })}
-          </ol>
-        )}
-      </section>
+              ))}
+            </ul>
+          )}
+          {pending ? (
+            <p className="text-sm text-muted">
+              {pending} convite{pending > 1 ? "s" : ""} pendente{pending > 1 ? "s" : ""}.
+            </p>
+          ) : null}
+        </Card>
+      ) : null}
+
+      {tab === "atividade" ? (
+        <section aria-labelledby="historico" className="space-y-3">
+          <h2 id="historico" className="font-display text-lg font-bold text-ink">
+            Histórico da administração
+          </h2>
+          {(audit.data ?? []).length === 0 ? (
+            <p className="text-sm text-muted">Nenhuma alteração feita pela administração ainda.</p>
+          ) : (
+            <ol className="space-y-2">
+              {(audit.data ?? []).map((a) => {
+                const summary = describeAuditEntry(a.action, a.changes);
+                return (
+                  <li key={a.id}>
+                    <Card className="space-y-1 text-sm">
+                      <p className="text-muted">
+                        {formatAdminDateTime(a.created_at)} · {a.admin_email}
+                      </p>
+                      {summary ? (
+                        <p className="text-ink">{summary}</p>
+                      ) : (
+                        <ul>
+                          {Object.entries((a.changes ?? {}) as AuditChanges).map(([field, c]) => (
+                            <li key={field} className="text-ink">
+                              <span className="font-semibold">
+                                {AUDIT_FIELD_LABELS[field] ?? field}:
+                              </span>{" "}
+                              {formatChangeValue(field, c.from)} → {formatChangeValue(field, c.to)}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </Card>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </section>
+      ) : null}
     </AdminBody>
   );
 }

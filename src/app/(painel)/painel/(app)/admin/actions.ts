@@ -147,3 +147,36 @@ export async function updateSupportRequestAction(
   // lista na hora, tirando o pedido (e a confirmação) da tela quando ele sai de "Abertos".
   return { ok: true, message: "Pedido atualizado. Ele sai desta lista quando você recarregar." };
 }
+
+/**
+ * Suspender ou reativar um negócio na hora (CAL-131): suspenso = painel só leitura e página
+ * de agendamento fechada. Vai para o histórico.
+ */
+export async function setBusinessSuspendedAction(
+  businessId: string,
+  suspend: boolean,
+): Promise<ActionResult> {
+  const admin = await getPlatformAdmin();
+  if (!admin) return { ok: false, error: NOT_ADMIN };
+  if (!UUID.test(businessId)) return { ok: false, error: "Pedido inválido." };
+  const db = createSupabaseAdminClient();
+  const { data: before } = await db
+    .from("businesses")
+    .select("plan_status")
+    .eq("id", businessId)
+    .maybeSingle();
+  if (!before) return { ok: false, error: "Negócio não encontrado." };
+  const to = suspend ? "suspended" : "active";
+  if (before.plan_status === to) return { ok: true, message: "Nada mudou." };
+  const { error } = await db.from("businesses").update({ plan_status: to }).eq("id", businessId);
+  if (error) return { ok: false, error: "Não foi possível salvar. Tente de novo." };
+  await db.from("admin_audit_log").insert({
+    admin_user_id: admin.userId,
+    admin_email: admin.email,
+    business_id: businessId,
+    action: "business.update",
+    changes: { plan_status: { from: before.plan_status, to } },
+  });
+  revalidatePath(`/admin/negocios/${businessId}`);
+  return { ok: true, message: suspend ? "Negócio suspenso." : "Negócio reativado." };
+}

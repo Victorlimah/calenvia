@@ -27,6 +27,10 @@ test("admin muda o limite de um negócio e a mudança vai para o histórico", as
   await page.getByRole("button", { name: "Filtrar" }).click();
   await page.getByRole("link", { name: /Barbearia do Zé/ }).click();
   await expect(page.getByRole("heading", { name: "Barbearia do Zé" })).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Seções do negócio" })
+    .getByRole("link", { name: "Extras e limites" })
+    .click();
 
   await page.getByLabel("Limite de pessoas com acesso").fill("4");
   await page.getByLabel("Mensagens automáticas por mês").fill("400");
@@ -34,6 +38,10 @@ test("admin muda o limite de um negócio e a mudança vai para o histórico", as
   await page.getByRole("button", { name: "Salvar alterações" }).click();
   await expect(page.getByText("Alterações salvas.")).toBeVisible();
 
+  await page
+    .getByRole("navigation", { name: "Seções do negócio" })
+    .getByRole("link", { name: "Atividade" })
+    .click();
   const history = page.getByRole("region", { name: "Histórico da administração" });
   await expect(history.getByText("Limite de pessoas: padrão do plano → 4")).toBeVisible();
   await expect(history.getByText("Cota de mensagens: padrão do plano → 400")).toBeVisible();
@@ -99,7 +107,7 @@ test("admin responde um pedido de suporte e o dono vê a resposta", async ({ pag
   expect(data?.status).toBe("answered");
   expect(data?.answered_at).toBeTruthy();
 
-  await page.goto(`/admin/negocios/${ZE_BIZ}`);
+  await page.goto(`/admin/negocios/${ZE_BIZ}?aba=atividade`);
   const history = page.getByRole("region", { name: "Histórico da administração" });
   await expect(history.getByText("Pedido de suporte: Aberto → Respondido")).toBeVisible();
 
@@ -147,7 +155,7 @@ test("admin vê o painel do cliente só para leitura e o acesso vai para o hist�
 
   await loginAsZe(page, `/admin/negocios/${ZE_BIZ}`, "admin@calenvia.dev");
   await page.waitForURL((u) => u.pathname.startsWith("/admin/negocios"));
-  await page.getByRole("link", { name: "Ver painel do cliente" }).click();
+  await page.getByRole("link", { name: "Entrar como o negócio" }).click();
   await expect(page.getByText(/Você está vendo o painel de\s+Barbearia do Zé/)).toBeVisible();
 
   await page.goto(`/admin/negocios/${ZE_BIZ}/visao?data=${day}`);
@@ -185,7 +193,7 @@ test("admin vê o painel do cliente só para leitura e o acesso vai para o hist�
     .eq("changes->page->>to", "agenda");
   expect(count).toBe(1);
 
-  await page.goto(`/admin/negocios/${ZE_BIZ}`);
+  await page.goto(`/admin/negocios/${ZE_BIZ}?aba=atividade`);
   const history = page.getByRole("region", { name: "Histórico da administração" });
   await expect(history.getByText("Viu o painel (agenda)")).toBeVisible();
 });
@@ -207,9 +215,13 @@ test("cobrança no admin: preços e extras de um negócio (CAL-115)", async ({ p
   await expect(page.getByRole("heading", { name: "Preços e extras" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "+100 mensagens/mês" })).toBeVisible();
 
-  await page.goto(`/admin/negocios/${ANA_BIZ}`);
+  await page.goto(`/admin/negocios/${ANA_BIZ}?aba=cobranca`);
   await expect(page.getByRole("heading", { name: "Cobrança" })).toBeVisible();
   await expect(page.getByText("Manual (sem cobrança)")).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Seções do negócio" })
+    .getByRole("link", { name: "Extras e limites" })
+    .click();
   await page
     .getByLabel("Extra", { exact: true })
     .selectOption({ label: "+1 pessoa na equipe · R$ 5,00/mês" });
@@ -277,6 +289,36 @@ test("lista de negócios: todos aparecem, com busca por e-mail e WhatsApp", asyn
     await page.getByLabel("Ordenar por").selectOption("valor");
     await page.getByRole("button", { name: "Filtrar" }).click();
     await expect(page).toHaveURL(/ordem=valor/);
+  } finally {
+    await admin.from("businesses").update({ plan_status: "active" }).eq("id", ANA_BIZ);
+  }
+});
+
+// CAL-131: tela do negócio em abas, suspender e reativar com confirmação.
+test("tela do negócio em abas: suspender e reativar vão para a atividade", async ({ page }) => {
+  await loginAsZe(page, `/admin/negocios/${ANA_BIZ}`, "admin@calenvia.dev");
+  await page.waitForURL((u) => u.pathname.startsWith("/admin/negocios"));
+  const tabs = page.getByRole("navigation", { name: "Seções do negócio" });
+  await expect(tabs.getByRole("link")).toHaveText([
+    "Resumo",
+    "Plano e cobrança",
+    "Extras e limites",
+    "Equipe",
+    "Atividade",
+  ]);
+  await expect(page.getByRole("link", { name: "Entrar como o negócio" })).toBeVisible();
+  try {
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: "Suspender" }).click();
+    await expect(page.getByText("Negócio suspenso.")).toBeVisible();
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: "Reativar" }).click();
+    await expect(page.getByText("Negócio reativado.")).toBeVisible();
+    await tabs.getByRole("link", { name: "Atividade" }).click();
+    const history = page.getByRole("region", { name: "Histórico da administração" });
+    await expect(history.getByText(/Ativa → Suspensa/).first()).toBeVisible();
+    await tabs.getByRole("link", { name: "Equipe" }).click();
+    await expect(page.getByText("ana@calenvia.dev").first()).toBeVisible();
   } finally {
     await admin.from("businesses").update({ plan_status: "active" }).eq("id", ANA_BIZ);
   }
