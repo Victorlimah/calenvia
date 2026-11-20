@@ -166,7 +166,7 @@ export default async function NegocioPage({ params }: Props) {
           }}
         />
         <div className="relative mx-auto max-w-2xl px-5 py-20 text-center">
-          <h2 className="font-display text-4xl leading-tight font-extrabold">
+          <h2 className="font-t-display text-4xl leading-tight font-extrabold">
             Seu horário está esperando
           </h2>
           <p className="mt-3 text-t-sub">Escolha o melhor dia e hora para você.</p>

@@ -11,6 +11,7 @@ import {
   ensureContrastAll,
   normalizeHex,
 } from "./color";
+import { fontPairVars } from "./font-pairs";
 import {
   FIXED_SECTIONS,
   SECTION_IDS,
@@ -72,8 +73,9 @@ export function orderedSections(sections: SectionSetting[]): { id: SectionId; vi
 
 const RADIUS: Record<RadiusId, { card: string; control: string }> = {
   square: { card: "4px", control: "4px" },
-  soft: { card: "16px", control: "12px" },
-  round: { card: "28px", control: "999px" },
+  // "Suave" é o visual de antes dos temas (sem regressão no Noturno).
+  soft: { card: "20px", control: "14px" },
+  round: { card: "32px", control: "999px" },
 };
 
 export type ResolvedTheme = {
@@ -162,7 +164,11 @@ export function themeCssVars(r: ResolvedTheme): Record<string, string> {
     "--c-link": c.link,
     "--radius": radius.card,
     "--radius-sm": radius.control,
-    "--density": r.theme.density === "compact" ? "0.8" : "1",
+    // Os componentes usam rounded-[var(--radius-card|control)]: o tema sobrescreve na raiz.
+    "--radius-card": radius.card,
+    "--radius-control": radius.control,
+    "--density": r.theme.density === "compact" ? "0.75" : "1",
+    ...fontPairVars(r.theme.fontPairId),
     // Apelidos usados pelo fluxo de agendamento (até o CAL-150).
     "--accent": c.primary,
     "--accent-fg": c.primaryFg,

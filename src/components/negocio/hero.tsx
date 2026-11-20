@@ -73,20 +73,20 @@ export function Hero({
           ) : (
             <span
               aria-hidden="true"
-              className="inline-flex size-12 items-center justify-center rounded-2xl font-display text-xl font-extrabold"
+              className="inline-flex size-12 items-center justify-center rounded-2xl font-t-display text-xl font-extrabold"
               style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
             >
               {name.trim().charAt(0).toUpperCase()}
             </span>
           )}
           <div>
-            <p className="font-display text-lg leading-tight font-bold">{name}</p>
+            <p className="font-t-display text-lg leading-tight font-bold">{name}</p>
             <p className="text-sm text-t-sub">{segmentLabel}</p>
           </div>
         </div>
         <h1
           className={cn(
-            "mt-8 font-display leading-[1.05] font-extrabold tracking-tight",
+            "mt-8 font-t-display leading-[1.05] font-extrabold tracking-tight",
             preview ? "text-3xl" : "text-[2.6rem] md:text-6xl",
           )}
         >

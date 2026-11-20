@@ -22,6 +22,8 @@ import {
 } from "@/app/(painel)/painel/(app)/_actions/media";
 import { ImageUpload } from "./image-upload";
 import { PaletteEditor } from "./palette-editor";
+import { StyleEditor } from "./style-editor";
+import { fontPairClassName } from "@/lib/themes/fonts";
 import { useAction } from "./use-action";
 
 type Props = {
@@ -104,13 +106,15 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
         </Card>
 
         <Card className="space-y-4">
-          <h2 className="font-display text-xl font-bold">Cores da página</h2>
+          <h2 className="font-display text-xl font-bold">Cores e estilo</h2>
           <p className="text-sm text-ink-2">
-            Escolha uma paleta pronta ou use a sua cor. A gente garante que tudo fica legível.
+            Escolha uma paleta pronta ou use a sua cor, e as fontes e formas. A gente garante que
+            tudo fica legível.
           </p>
           {colors.error ? <Alert tone="danger">{colors.error}</Alert> : null}
           {colors.message && !dirtyColors ? <Alert tone="success">{colors.message}</Alert> : null}
           <PaletteEditor theme={theme} onChange={setTheme} />
+          <StyleEditor theme={theme} onChange={setTheme} />
           <Button
             type="button"
             block
@@ -122,7 +126,7 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
               })
             }
           >
-            Salvar cores
+            Salvar visual
           </Button>
         </Card>
 
@@ -168,7 +172,11 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
 
       <aside className="lg:sticky lg:top-6" aria-label="Prévia da página">
         <p className="mb-2 text-sm font-semibold text-ink-2">Prévia ao vivo</p>
-        <div style={themeCssVars(resolveTheme(theme)) as React.CSSProperties}>
+        <div
+          data-theme-root=""
+          className={fontPairClassName(theme.fontPairId)}
+          style={themeCssVars(resolveTheme(theme)) as React.CSSProperties}
+        >
           <Hero
             preview
             name={business.name}

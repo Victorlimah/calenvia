@@ -16,7 +16,7 @@ export function SectionTitle({ kicker, title }: { kicker?: string; title: string
           {kicker}
         </p>
       ) : null}
-      <h2 className="mt-1 font-display text-3xl leading-tight font-extrabold md:text-4xl">
+      <h2 className="mt-1 font-t-display text-3xl leading-tight font-extrabold md:text-4xl">
         {title}
       </h2>
     </div>
@@ -34,7 +34,10 @@ export function Section({
 }) {
   return (
     <section id={id} className={alt ? "bg-t-surface" : ""}>
-      <div className="mx-auto max-w-2xl px-5 py-14 md:py-20">{children}</div>
+      {/* Densidade do tema (CAL-142): --density 1 (confortável) ou 0.75 (compacta). */}
+      <div className="mx-auto max-w-2xl px-5 py-[calc(3.5rem*var(--density,1))] md:py-[calc(5rem*var(--density,1))]">
+        {children}
+      </div>
     </section>
   );
 }
@@ -58,12 +61,12 @@ export function HowItWorks({ automatic }: { automatic: boolean }) {
           className="rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-5"
         >
           <span
-            className="inline-flex size-9 items-center justify-center rounded-full font-display font-extrabold"
+            className="inline-flex size-9 items-center justify-center rounded-full font-t-display font-extrabold"
             style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
           >
             {i + 1}
           </span>
-          <p className="mt-3 font-display text-lg font-bold">{s.t}</p>
+          <p className="mt-3 font-t-display text-lg font-bold">{s.t}</p>
           <p className="mt-1 text-t-sub">{s.d}</p>
         </li>
       ))}
@@ -82,7 +85,7 @@ export function ServicesList({ services }: { services: PublicService[] }) {
           >
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="font-display text-lg font-bold">{s.name}</p>
+                <p className="font-t-display text-lg font-bold">{s.name}</p>
                 {s.is_featured ? (
                   <span
                     className="rounded-full px-2.5 py-0.5 text-xs font-bold"
@@ -96,7 +99,7 @@ export function ServicesList({ services }: { services: PublicService[] }) {
               <p className="mt-2 text-sm text-t-sub">{formatDuration(s.duration_min)}</p>
             </div>
             <div className="text-right">
-              <p className="font-display text-lg font-bold">{formatPrice(s.price_cents)}</p>
+              <p className="font-t-display text-lg font-bold">{formatPrice(s.price_cents)}</p>
               <p className="text-sm font-semibold" style={{ color: "var(--c-link)" }}>
                 Agendar <span aria-hidden="true">→</span>
               </p>
@@ -141,7 +144,7 @@ export function Team({ staff }: { staff: PublicStaff[] }) {
           className="flex flex-col items-center rounded-[var(--radius-card)] bg-t-text/5 p-5 text-center"
         >
           <Avatar name={p.name} url={p.photo_url} size={80} />
-          <p className="mt-3 font-display font-bold">{p.name}</p>
+          <p className="mt-3 font-t-display font-bold">{p.name}</p>
           {p.role ? <p className="text-sm text-t-sub">{p.role}</p> : null}
         </li>
       ))}
@@ -161,7 +164,7 @@ export function Testimonials({
           <figure className="h-full rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-5">
             <p
               aria-hidden="true"
-              className="font-display text-4xl leading-none"
+              className="font-t-display text-4xl leading-none"
               style={{ color: "var(--c-link)" }}
             >
               “
@@ -224,7 +227,7 @@ export function Location({
     <div className="grid gap-6 md:grid-cols-2">
       {address ? (
         <div className="rounded-[var(--radius-card)] bg-t-text/5 p-5">
-          <p className="font-display text-lg font-bold">Endereço</p>
+          <p className="font-t-display text-lg font-bold">Endereço</p>
           <p className="mt-2">{address}</p>
           {reference ? <p className="mt-1 text-t-sub">{reference}</p> : null}
           <a
@@ -238,7 +241,7 @@ export function Location({
         </div>
       ) : null}
       <div className="rounded-[var(--radius-card)] bg-t-text/5 p-5">
-        <p className="font-display text-lg font-bold">Horários</p>
+        <p className="font-t-display text-lg font-bold">Horários</p>
         <dl className="mt-2 space-y-1.5">
           {hoursLines(hours, breaks).map((l) => (
             <div key={l.weekday} className="flex justify-between gap-4 text-sm">

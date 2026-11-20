@@ -126,8 +126,10 @@ test("cores: paleta pronta clara, cor inválida, salvar e a página pública mud
     await expect(page.getByText("Ajustamos para ficar legível")).toBeVisible();
     await page.getByRole("button", { name: "Voltar à paleta original" }).click();
     await expect(page.getByLabel("Cor principal", { exact: true })).toHaveValue("#7048B6");
-    await page.getByRole("button", { name: "Salvar cores" }).click();
-    await expect(page.getByText("Cores salvas.")).toBeVisible();
+    await page.getByRole("button", { name: "Elegante" }).click();
+    await page.getByRole("button", { name: "Bem arredondados" }).click();
+    await page.getByRole("button", { name: "Salvar visual" }).click();
+    await expect(page.getByText("Visual salvo.")).toBeVisible();
 
     await page.goto("http://barbearia-do-ze.localhost:3000/");
     await expect(page.locator("main section, section").first()).toHaveCSS(
@@ -137,6 +139,12 @@ test("cores: paleta pronta clara, cor inválida, salvar e a página pública mud
     await expect(page.getByRole("link", { name: "Agendar meu horário" }).first()).toHaveCSS(
       "background-color",
       "rgb(112, 72, 182)",
+    );
+    // Fonte e cantos do tema na página pública.
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCSS("font-family", /Playfair/);
+    await expect(page.getByRole("link", { name: "Agendar meu horário" }).first()).toHaveCSS(
+      "border-top-left-radius",
+      "999px",
     );
   } finally {
     await admin

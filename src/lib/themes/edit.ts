@@ -4,7 +4,15 @@
  */
 import { autoTextOn, isDark, mix, normalizeHex, WHITE } from "./color";
 import { findPalette, presetPalette, type PalettePreset } from "./palettes";
-import type { Palette, Theme } from "./schema";
+import { FONT_PAIRS } from "./font-pairs";
+import {
+  DENSITY_IDS,
+  RADIUS_IDS,
+  type DensityId,
+  type Palette,
+  type RadiusId,
+  type Theme,
+} from "./schema";
 
 /** Aplica uma paleta pronta (no modo pedido; sem modo, mantém o atual). */
 export function choosePreset(theme: Theme, preset: PalettePreset, mode?: Palette["mode"]): Theme {
@@ -88,3 +96,18 @@ export function swatchText(color: string): string {
 }
 
 export { isDark };
+
+/** Par de fontes (CAL-142). Id desconhecido é ignorado. */
+export function setFontPair(theme: Theme, id: string): Theme {
+  return FONT_PAIRS.some((f) => f.id === id) ? { ...theme, fontPairId: id } : theme;
+}
+
+/** Cantos (retos · suaves · bem arredondados). */
+export function setRadius(theme: Theme, radius: RadiusId): Theme {
+  return RADIUS_IDS.includes(radius) ? { ...theme, radius } : theme;
+}
+
+/** Densidade (compacta · confortável). */
+export function setDensity(theme: Theme, density: DensityId): Theme {
+  return DENSITY_IDS.includes(density) ? { ...theme, density } : theme;
+}

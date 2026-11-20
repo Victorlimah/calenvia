@@ -46,6 +46,15 @@
   --color-t-primary-hover: var(--c-primary-hover, #3a2fc0);
   --color-t-primary-soft: var(--c-primary-soft, #241f4a);
   --color-t-link: var(--c-link, #b8b3ff);
+  /* Fontes do tema (CAL-142): --t-font-* vêm de fontPairVars() na raiz da página. */
+  --font-t-display: var(
+    --t-font-display,
+    var(--font-bricolage),
+    var(--font-inter),
+    system-ui,
+    sans-serif
+  );
+  --font-t-body: var(--t-font-body, var(--font-inter), system-ui, sans-serif);
 
   --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
@@ -73,4 +82,11 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Raiz da página pública (CAL-142): fonte do texto do tema e sem negrito falso em fontes de
+   título que só têm um peso (ex.: DM Serif Display). */
+[data-theme-root] {
+  font-family: var(--font-t-body);
+  font-synthesis-weight: none;
 }

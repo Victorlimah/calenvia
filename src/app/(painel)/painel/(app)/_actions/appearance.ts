@@ -32,12 +32,12 @@ export async function saveThemeAction(
     .from("businesses")
     .update({ theme: parsed.data, accent_color: resolved.colors.primary })
     .eq("id", business.id);
-  if (error) return { ok: false, error: "Não foi possível salvar as cores." };
+  if (error) return { ok: false, error: "Não foi possível salvar o visual." };
   revalidatePath("/painel", "layout");
   return {
     ok: true,
     data: { adjustments: resolved.adjustments },
-    message: "Cores salvas. Sua página já está com o visual novo.",
+    message: "Visual salvo. Sua página já está com a cara nova.",
   };
 }
 

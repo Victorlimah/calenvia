@@ -7,8 +7,13 @@ import {
   revertToPreset,
   setMode,
   setPrimary,
+  setDensity,
+  setFontPair,
+  setRadius,
   setSecondary,
 } from "./edit";
+import { FONT_PAIRS, findFontPair, fontPairVars } from "./font-pairs";
+import { themeCssVars } from "./resolve";
 import { findPalette } from "./palettes";
 import { defaultTheme, resolveTheme } from "./resolve";
 import { themeSchema } from "./schema";
@@ -66,5 +71,33 @@ describe("editor de cores (CAL-141)", () => {
     const r = resolveTheme(t);
     expect(r.colors.primaryFg).toBe("#111111");
     expect(contrastRatio(r.colors.primaryFg, r.colors.primary)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+});
+
+describe("fontes e formas (CAL-142)", () => {
+  it("6 a 8 pares, ids únicos, padrão é o de hoje", () => {
+    expect(FONT_PAIRS.length).toBeGreaterThanOrEqual(6);
+    expect(FONT_PAIRS.length).toBeLessThanOrEqual(8);
+    expect(new Set(FONT_PAIRS.map((f) => f.id)).size).toBe(FONT_PAIRS.length);
+    expect(findFontPair("nao-existe").id).toBe("bricolage-inter");
+    expect(fontPairVars(null)["--t-font-display"]).toContain("--font-bricolage");
+  });
+
+  it("trocar fonte, cantos e densidade; valores desconhecidos são ignorados", () => {
+    const t = defaultTheme();
+    expect(setFontPair(t, "elegante").fontPairId).toBe("elegante");
+    expect(setFontPair(t, "comic-sans").fontPairId).toBe(t.fontPairId);
+    expect(setRadius(t, "round").radius).toBe("round");
+    expect(setDensity(t, "compact").density).toBe("compact");
+    const vars = themeCssVars(resolveTheme(setFontPair(setRadius(t, "square"), "editorial")));
+    expect(vars["--radius-card"]).toBe("4px");
+    expect(vars["--t-font-display"]).toContain("--font-dm-serif");
+  });
+
+  it("padrão mantém os cantos de antes (20px / 14px)", () => {
+    const vars = themeCssVars(resolveTheme(null, "#F5B014"));
+    expect(vars["--radius-card"]).toBe("20px");
+    expect(vars["--radius-control"]).toBe("14px");
+    expect(vars["--density"]).toBe("1");
   });
 });
