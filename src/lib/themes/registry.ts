@@ -13,6 +13,7 @@ import { alegre } from "./templates/alegre";
 import { editorial } from "./templates/editorial";
 import { boutique } from "./templates/boutique";
 import { pop } from "./templates/pop";
+import { minimalista } from "./templates/minimalista";
 
 export const TEMPLATES: TemplateDefinition[] = [
   noturno,
@@ -24,6 +25,7 @@ export const TEMPLATES: TemplateDefinition[] = [
   editorial,
   boutique,
   pop,
+  minimalista,
 ];
 
 export const DEFAULT_TEMPLATE_ID = "noturno";
