@@ -60,7 +60,10 @@ export default async function AdminBusinessPage({
   const period = periodOf(new Date(), business.timezone);
   const [owner, members, invites, usage, appts, note, audit, subscription, invoices] =
     await Promise.all([
-      db.auth.admin.getUserById(business.owner_id),
+      // Negócio convidado (CAL-136) ainda sem dono: não há usuário para buscar.
+      business.owner_id
+        ? db.auth.admin.getUserById(business.owner_id)
+        : Promise.resolve({ data: { user: null } }),
       db
         .from("business_members")
         .select("id, role, display_name, email, status, created_at")
@@ -125,7 +128,7 @@ export default async function AdminBusinessPage({
     }));
 
   const plan = planOf(business);
-  const ownerEmail = owner.data.user?.email ?? "—";
+  const ownerEmail = owner.data.user?.email ?? (business.owner_id ? "—" : "Convite não aceito");
   const memberList = members.data ?? [];
   const pending = invites.count ?? 0;
   const max = maxMembers(business);

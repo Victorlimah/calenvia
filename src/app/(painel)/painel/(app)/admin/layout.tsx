@@ -14,10 +14,21 @@ export const metadata: Metadata = {
 /** Administração da Calenvia (CAL-129): menu lateral em grupos, contadores e Sair. */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const admin = await requirePlatformAdmin();
-  const { data } = await createSupabaseAdminClient().rpc("admin_pending_counts");
+  const db = createSupabaseAdminClient();
+  const [{ data }, { count: openInvites }] = await Promise.all([
+    db.rpc("admin_pending_counts"),
+    // CAL-136: convites ainda não aceitos e dentro da validade.
+    db
+      .from("owner_invitations")
+      .select("id", { count: "exact", head: true })
+      .is("accepted_at", null)
+      .is("canceled_at", null)
+      .gt("expires_at", new Date().toISOString()),
+  ]);
   const c = data?.[0];
   const counts: Record<AdminCounter, number> = {
     pending: Number(c?.pending_activation ?? 0),
+    invites: openInvites ?? 0,
     billing: Number(c?.past_due ?? 0) + Number(c?.suspended ?? 0),
     support: Number(c?.support_open ?? 0),
     failed: Number(c?.failed_messages_7d ?? 0),

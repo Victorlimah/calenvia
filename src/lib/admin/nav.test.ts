@@ -6,6 +6,7 @@ describe("menu do admin (CAL-129)", () => {
     expect(ADMIN_NAV.map((g) => g.title)).toEqual(["Clientes", "Dinheiro", "Saúde"]);
     expect(ADMIN_NAV.flatMap((g) => g.items.map((i) => i.label))).toEqual([
       "Negócios",
+      "Convites",
       "Suporte",
       "Assinaturas",
       "Preços",
@@ -19,6 +20,7 @@ describe("menu do admin (CAL-129)", () => {
     expect(activeAdminHref("/painel/admin/negocios/abc/visao")).toBe("/admin");
     expect(activeAdminHref("/admin/metricas")).toBe("/admin/metricas");
     expect(activeAdminHref("/admin/precos")).toBe("/admin/precos");
+    expect(activeAdminHref("/admin/convites")).toBe("/admin/convites");
     expect(activeAdminHref("/agenda")).toBeNull();
   });
 });

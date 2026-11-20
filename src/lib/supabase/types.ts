@@ -729,7 +729,7 @@ export type Database = {
           min_notice_min: number;
           name: string;
           onboarding_completed_at: string | null;
-          owner_id: string;
+          owner_id: string | null;
           plan: string;
           plan_status: string;
           referral_code: string | null;
@@ -763,7 +763,7 @@ export type Database = {
           min_notice_min?: number;
           name: string;
           onboarding_completed_at?: string | null;
-          owner_id: string;
+          owner_id?: string | null;
           plan?: string;
           plan_status?: string;
           referral_code?: string | null;
@@ -796,7 +796,7 @@ export type Database = {
           min_notice_min?: number;
           name?: string;
           onboarding_completed_at?: string | null;
-          owner_id?: string;
+          owner_id?: string | null;
           plan?: string;
           plan_status?: string;
           referral_code?: string | null;
@@ -1212,6 +1212,66 @@ export type Database = {
           },
           {
             foreignKeyName: "messages_business_id_fkey";
+            columns: ["business_id"];
+            isOneToOne: false;
+            referencedRelation: "businesses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      owner_invitations: {
+        Row: {
+          accepted_at: string | null;
+          accepted_by: string | null;
+          business_id: string;
+          canceled_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          email: string;
+          expires_at: string;
+          id: string;
+          opened_at: string | null;
+          owner_name: string;
+          token_hash: string;
+          updated_at: string;
+          whatsapp: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          business_id: string;
+          canceled_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email: string;
+          expires_at?: string;
+          id?: string;
+          opened_at?: string | null;
+          owner_name: string;
+          token_hash: string;
+          updated_at?: string;
+          whatsapp?: string | null;
+        };
+        Update: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          business_id?: string;
+          canceled_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          opened_at?: string | null;
+          owner_name?: string;
+          token_hash?: string;
+          updated_at?: string;
+          whatsapp?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "owner_invitations_business_id_fkey";
             columns: ["business_id"];
             isOneToOne: false;
             referencedRelation: "businesses";

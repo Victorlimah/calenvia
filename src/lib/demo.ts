@@ -30,7 +30,7 @@ async function ensureOwner(db: Db): Promise<string> {
     .select("owner_id")
     .eq("id", DEMO.business)
     .maybeSingle();
-  if (existing) return existing.owner_id;
+  if (existing?.owner_id) return existing.owner_id;
   const { data, error } = await db.auth.admin.createUser({
     email: DEMO_EMAIL,
     password: crypto.randomUUID() + crypto.randomUUID(), // ninguém entra no painel da demo
