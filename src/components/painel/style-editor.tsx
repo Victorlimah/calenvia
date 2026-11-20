@@ -1,7 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-import { setDensity, setFontPair, setLogoOptions, setRadius } from "@/lib/themes/edit";
+import {
+  setDensity,
+  setFontPair,
+  setLogoOptions,
+  setPhotoStyle,
+  setRadius,
+} from "@/lib/themes/edit";
 import { logoPlacements } from "@/lib/themes/logo";
 import { FONT_PAIRS, fontPairVars } from "@/lib/themes/font-pairs";
 import { ALL_FONT_CLASSNAMES } from "@/lib/themes/fonts";
@@ -145,6 +151,36 @@ export function StyleEditor({ theme, onChange }: { theme: Theme; onChange: (t: T
             );
           })}
         </div>
+      </fieldset>
+
+      <fieldset>
+        <legend className="mb-2 text-sm font-semibold text-ink">Fotos</legend>
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              ["none", "Cores naturais"],
+              ["duotone", "Na cor do tema"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={(theme.photoStyle ?? "none") === id}
+              onClick={() => onChange(setPhotoStyle(theme, id))}
+              className={cn(
+                "min-h-11 rounded-[var(--radius-control)] border bg-white px-4 font-semibold text-ink",
+                (theme.photoStyle ?? "none") === id
+                  ? "border-brand ring-2 ring-brand"
+                  : "border-line",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-1 text-sm text-ink-2">
+          “Na cor do tema” deixa fotos de celulares diferentes com a mesma cara.
+        </p>
       </fieldset>
 
       <fieldset>

@@ -1,5 +1,6 @@
 import { getTemplate } from "@/lib/themes/registry";
-import { orderedSections } from "@/lib/themes/resolve";
+import { orderedSections, resolveTheme } from "@/lib/themes/resolve";
+import { duotoneTables } from "@/lib/themes/photo";
 import type { Theme } from "@/lib/themes/schema";
 import { BASE_SECTIONS, sectionHasContent } from "./base-sections";
 import { BusinessMark } from "./business-mark";
@@ -16,8 +17,29 @@ export function PublicPage({ data, theme }: { data: PageData; theme: Theme }) {
     (s) => s.visible && sectionHasContent(s.id, data),
   );
   const placements = data.logo.placements;
+  const photo = theme.photoStyle ?? "none";
+  // Duotone (CAL-147): sombras na cor escura do tema, luzes na cor clara.
+  const c = resolveTheme(theme).colors;
+  const tables =
+    photo === "duotone"
+      ? theme.palette.mode === "dark"
+        ? duotoneTables(c.bg, c.primary)
+        : duotoneTables(c.text, c.primarySoft)
+      : null;
   return (
-    <div className={template.rootClassName} data-template={template.meta.id}>
+    <div className={template.rootClassName} data-template={template.meta.id} data-photo={photo}>
+      {tables ? (
+        <svg width="0" height="0" aria-hidden="true" className="absolute">
+          <filter id="t-duotone" colorInterpolationFilters="sRGB">
+            <feColorMatrix type="saturate" values="0" />
+            <feComponentTransfer>
+              <feFuncR type="table" tableValues={tables.r} />
+              <feFuncG type="table" tableValues={tables.g} />
+              <feFuncB type="table" tableValues={tables.b} />
+            </feComponentTransfer>
+          </filter>
+        </svg>
+      ) : null}
       {placements.includes("header") ? (
         <header className="border-b border-t-text/10 bg-t-bg">
           <div className="mx-auto flex max-w-2xl items-center gap-3 px-5 py-3">

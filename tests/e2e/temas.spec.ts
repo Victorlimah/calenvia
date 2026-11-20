@@ -90,3 +90,35 @@ for (const tpl of TEMPLATES) {
     expect(v, describeViolations(v)).toEqual([]);
   });
 }
+
+// CAL-147: foto de capa vertical, horizontal ou minúscula não quebra a abertura; duotone ativo.
+const tall = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="1200"><rect width="300" height="1200" fill="#c47"/></svg>')}`;
+const tiny = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="12" height="9"><rect width="12" height="9" fill="#4a7"/></svg>')}`;
+for (const tpl of TEMPLATES) {
+  test(`tema ${tpl.meta.name}: capa vertical e minúscula, fotos em duotone`, async ({ page }) => {
+    try {
+      for (const cover of [tall, tiny]) {
+        await admin
+          .from("businesses")
+          .update({
+            cover_url: cover,
+            theme: { ...themeFromTemplate(tpl.meta, { accent: "#F5B014" }), photoStyle: "duotone" },
+          })
+          .eq("id", ZE_BIZ);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(ZE, { waitUntil: "networkidle" });
+        await expect(page.locator("[data-photo]")).toHaveAttribute("data-photo", "duotone");
+        const scroll = await page.evaluate(() => document.documentElement.scrollWidth);
+        expect(scroll).toBeLessThanOrEqual(390);
+        // A abertura continua com o botão na primeira tela e mais curta que 3 telas.
+        const heroHeight = await page
+          .locator("section")
+          .first()
+          .evaluate((el) => el.getBoundingClientRect().height);
+        expect(heroHeight).toBeLessThan(844 * 3);
+      }
+    } finally {
+      await admin.from("businesses").update({ cover_url: null }).eq("id", ZE_BIZ);
+    }
+  });
+}

@@ -30,6 +30,7 @@ export function BusinessMark({
     return shape === "free" ? (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        data-raw=""
         src={logoUrl}
         alt={`Logo da ${name}`}
         className={cn("w-auto object-contain", FREE_H[size])}
@@ -37,6 +38,7 @@ export function BusinessMark({
     ) : (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        data-raw=""
         src={logoUrl}
         alt={`Logo da ${name}`}
         className={cn("shrink-0 bg-white object-cover", SIZES[size], rounded)}

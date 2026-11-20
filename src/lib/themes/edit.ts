@@ -170,3 +170,8 @@ export function moveSection(theme: Theme, id: SectionId, dir: -1 | 1): Theme {
   [list[i], list[j]] = [list[j], list[i]];
   return withSections(theme, list);
 }
+
+/** Fotos naturais ou duotone na cor do tema (CAL-147). */
+export function setPhotoStyle(theme: Theme, photoStyle: "none" | "duotone"): Theme {
+  return { ...theme, photoStyle };
+}

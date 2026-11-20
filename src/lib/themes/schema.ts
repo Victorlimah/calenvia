@@ -75,6 +75,8 @@ export const themeSchema = z.object({
     shape: z.enum(LOGO_SHAPES),
     placements: z.array(z.enum(LOGO_PLACEMENTS)).max(3).optional(),
   }),
+  /** Tratamento das fotos (CAL-147): sem filtro ou duotone com as cores do tema. */
+  photoStyle: z.enum(["none", "duotone"]).optional(),
   sections: z
     .array(sectionSettingSchema)
     .max(SECTION_IDS.length)

@@ -37,5 +37,6 @@ export function themeFromTemplate(
       placements: opts.base?.logo.placements ?? ["hero"],
     },
     sections: opts.base?.sections ?? defaultSections(),
+    ...(opts.base?.photoStyle ? { photoStyle: opts.base.photoStyle } : {}),
   };
 }
