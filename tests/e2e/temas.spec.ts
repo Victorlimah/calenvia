@@ -68,3 +68,25 @@ for (const tpl of TEMPLATES) {
     });
   }
 }
+
+// O outro modo (claro ↔ escuro) de cada template, que o dono pode escolher no editor.
+for (const tpl of TEMPLATES) {
+  const other = tpl.meta.mode === "light" ? "dark" : "light";
+  test(`tema ${tpl.meta.name} no modo ${other === "dark" ? "escuro" : "claro"} (390 px)`, async ({
+    page,
+  }) => {
+    const paletteId = tpl.meta.paletteId ?? tpl.meta.altPaletteIds[0];
+    await admin
+      .from("businesses")
+      .update({ theme: themeFromTemplate(tpl.meta, { paletteId, mode: other }) })
+      .eq("id", ZE_BIZ);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(ZE, { waitUntil: "networkidle" });
+    await expect(page.locator("[data-template]")).toHaveAttribute("data-template", tpl.meta.id);
+    const scroll = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(scroll).toBeLessThanOrEqual(390);
+    const v = await axeViolations(page);
+    expect(v, describeViolations(v)).toEqual([]);
+  });
+}

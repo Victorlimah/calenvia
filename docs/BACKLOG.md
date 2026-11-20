@@ -260,7 +260,7 @@ Pedido do Victor (2026-11-20): (1) enquanto a integração com o Stripe não sai
 - [x] **CAL-144** · Arquitetura de templates e seções · P0 · 2d — Refatorar a página pública `(negocio)/[slug]/page.tsx` em **seções independentes** (abertura, como funciona, serviços, equipe, fotos, depoimentos, onde fica, dúvidas, chamada final) que recebem **dados + tema**. Cada template = `src/lib/themes/templates/{id}/` com `meta` (nome, descrição, segmentos indicados, paleta padrão, fonte padrão), variantes das seções que quiser sobrescrever e `index`. Registro central em `src/lib/themes/registry.ts`.
   - O dono pode **ligar/desligar e reordenar seções** (menos a abertura e a chamada final) sem mudar de template.
   - Aceite: o template atual vira o **"Noturno"** (primeiro da lista) sem mudar nada visualmente; testes de snapshot/E2E; template desconhecido cai no padrão sem quebrar.
-- [ ] **CAL-145** · Templates da primeira leva (6) · P0 · 5d (uma fase por template, uma por sessão) — Estilos **bem diferentes entre si**, com público feminino, masculino e neutro bem representados:
+- [x] **CAL-145** · Templates da primeira leva (6) · P0 · 5d (uma fase por template, uma por sessão) — Estilos **bem diferentes entre si**, com público feminino, masculino e neutro bem representados:
   1. **Noturno** (atual: escuro, ousado, títulos enormes) — barbearia, tattoo, academia.
   2. **Delicado** — fundo claro quente, serifada elegante, cantos suaves, ornamentos finos — salão, manicure, estética, sobrancelha.
   3. **Clínico** — branco e azul/verde-água, limpo, muito respiro, ícones simples e selos de confiança — clínica, consultório, psicólogo, fisioterapia.
