@@ -235,7 +235,7 @@ Pedido do Victor (2026-11-20): (1) enquanto a integração com o Stripe não sai
   - Cabeçalho/rodapé e `opengraph-image` sem menção a preço; `/cadastro?plano=` redireciona para a home. Termos/privacidade intactos (revisar menções a pagamento se houver).
   - Com `SIGNUP_MODE=open` + `BILLING_ENABLED=true`, a seção de planos volta (componente guardado, não apagado).
   - Aceite: nenhuma página pública mostra preço enquanto `BILLING_ENABLED=false`; `acessibilidade.spec.ts` do site passando; lista de espera recebe o contato e o admin vê em `/admin` (lista simples, exportar CSV).
-- [ ] **CAL-139** · Admin: tratar contas sem cobrança · P1 · 1d — No `/admin`, com cobrança desligada: esconder simulação de pagamento e Stripe; "Ativar cortesia" vira o estado padrão; filtros e pendências (CAL-130) deixam de contar `pending` por falta de pagamento. Mostrar **"Convites pendentes"** nas pendências do topo.
+- [x] **CAL-139** · Admin: tratar contas sem cobrança · P1 · 1d — No `/admin`, com cobrança desligada: esconder simulação de pagamento e Stripe; "Ativar cortesia" vira o estado padrão; filtros e pendências (CAL-130) deixam de contar `pending` por falta de pagamento. Mostrar **"Convites pendentes"** nas pendências do topo.
   - Aceite: `admin.spec.ts` atualizado; nenhuma ação do admin leva a tela de pagamento.
 
 ### Sprint 15 — Fundação da biblioteca de temas

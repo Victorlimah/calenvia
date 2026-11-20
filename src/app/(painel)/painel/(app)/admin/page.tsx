@@ -11,6 +11,7 @@ import { formatAdminDate } from "@/lib/admin/format";
 import { SEGMENTS } from "@/lib/business/segments";
 import { PLAN_ORDER, PLANS } from "@/lib/plans";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { isBillingEnabled } from "@/lib/config/access";
 import { ActivateButton } from "./activate-button";
 import { BusinessDirectory, type DirectoryRow } from "./business-directory";
 import { AdminBody, AdminTitle } from "./ui";
@@ -21,7 +22,7 @@ type Search = Record<string, string | undefined>;
 export default async function AdminHomePage({ searchParams }: { searchParams: Promise<Search> }) {
   const f = parseDirectoryFilters(await searchParams);
   const db = createSupabaseAdminClient();
-  const [list, pendingList, counts] = await Promise.all([
+  const [list, pendingList, counts, openInvites, newRequests] = await Promise.all([
     db.rpc("admin_business_directory", {
       p_search: f.q || undefined,
       p_plan: f.plan ?? undefined,
@@ -34,14 +35,35 @@ export default async function AdminHomePage({ searchParams }: { searchParams: Pr
     }),
     db.rpc("admin_business_directory", { p_status: "pending", p_limit: 5 }),
     db.rpc("admin_pending_counts"),
+    // CAL-139: convites ainda não aceitos e dentro da validade.
+    db
+      .from("owner_invitations")
+      .select("id", { count: "exact", head: true })
+      .is("accepted_at", null)
+      .is("canceled_at", null)
+      .gt("expires_at", new Date().toISOString()),
+    db.from("access_requests").select("id", { count: "exact", head: true }).eq("status", "new"),
   ]);
+  const billing = isBillingEnabled();
   const rows = (list.data ?? []) as unknown as (DirectoryRow & { total_count: number })[];
   const total = Number(rows[0]?.total_count ?? 0);
   const pages = Math.max(1, Math.ceil(total / DIRECTORY_PAGE_SIZE));
   const c = counts.data?.[0];
   const pending = (pendingList.data ?? []) as unknown as DirectoryRow[];
   const n = (v: unknown) => Number(v ?? 0);
-  const todo = [
+  const invitesTodo = {
+    label: "Convites pendentes",
+    count: openInvites.count ?? 0,
+    href: "/admin/convites",
+    hint: "Enviados e ainda não aceitos",
+  };
+  const requestsTodo = {
+    label: "Lista de espera",
+    count: newRequests.count ?? 0,
+    href: "/admin/lista-de-espera",
+    hint: "Pedidos de acesso novos",
+  };
+  const billingTodo = [
     {
       label: "Pagamentos atrasados",
       count: n(c?.past_due),
@@ -54,6 +76,11 @@ export default async function AdminHomePage({ searchParams }: { searchParams: Pr
       href: "/admin?status=suspended",
       hint: "Painel só leitura e página fechada",
     },
+  ];
+  // Com a cobrança desligada não há atraso nem suspensão por pagamento (CAL-139).
+  const todo = [
+    invitesTodo,
+    ...(billing ? billingTodo : [requestsTodo]),
     {
       label: "Suporte aberto",
       count: n(c?.support_open),
@@ -113,7 +140,7 @@ export default async function AdminHomePage({ searchParams }: { searchParams: Pr
             </Link>
           ) : null}
         </div>
-        <ul className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-2 lg:grid-cols-4 xl:grid-cols-5">
           {todo.map((t) => (
             <li key={t.label}>
               <Link

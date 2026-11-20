@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { admin, ANA_BIZ, loginAsZe, seededDay, ZE_BIZ } from "./helpers";
+import { admin, ANA_BIZ, BILLING_ON, loginAsZe, seededDay, ZE_BIZ } from "./helpers";
 
 // CAL-114: administração da Calenvia (só quem está em platform_admins).
 const E2E_ERROR = "E2E: número sem WhatsApp (131026)";
@@ -252,7 +252,16 @@ test("admin sai pelo menu e volta para o login", async ({ page }) => {
   await page.waitForURL((u) => u.pathname === "/admin");
   await page.locator("summary").filter({ hasText: "Menu" }).click();
   const nav = page.getByRole("navigation", { name: "Administração (celular)" });
-  for (const label of ["Negócios", "Suporte", "Assinaturas", "Preços", "Métricas", "Mensagens"]) {
+  for (const label of [
+    "Negócios",
+    "Convites",
+    "Lista de espera",
+    "Suporte",
+    "Assinaturas",
+    "Preços",
+    "Métricas",
+    "Mensagens",
+  ]) {
     await expect(nav.getByRole("link", { name: new RegExp(`^${label}`) })).toBeVisible();
   }
   await nav.getByRole("button", { name: "Sair" }).click();
@@ -322,4 +331,21 @@ test("tela do negócio em abas: suspender e reativar vão para a atividade", asy
   } finally {
     await admin.from("businesses").update({ plan_status: "active" }).eq("id", ANA_BIZ);
   }
+});
+
+test("sem cobrança: pendências sem pagamento, convites no topo e nada leva a pagamento (CAL-139)", async ({
+  page,
+}) => {
+  test.skip(BILLING_ON, "Só com BILLING_ENABLED=false");
+  await loginAsZe(page, "/admin", "admin@calenvia.dev");
+  const agora = page.getByRole("region", { name: "O que fazer agora" });
+  await expect(agora.getByText("Convites pendentes")).toBeVisible();
+  await expect(agora.getByText("Lista de espera")).toBeVisible();
+  await expect(agora.getByText("Pagamentos atrasados")).toHaveCount(0);
+  await expect(agora.getByText("Contas suspensas")).toHaveCount(0);
+
+  await page.goto(`/admin/negocios/${ZE_BIZ}?aba=cobranca`);
+  await expect(page.getByTestId("billing-off")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Simular/ })).toHaveCount(0);
+  await expect(page.locator('a[href*="checkout"], a[href*="pagamento-simulado"]')).toHaveCount(0);
 });

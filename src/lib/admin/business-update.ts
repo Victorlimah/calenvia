@@ -16,7 +16,7 @@ export const PLAN_STATUSES: PlanStatus[] = [
 ];
 
 export const PLAN_STATUS_LABELS: Record<PlanStatus, string> = {
-  pending: "Aguardando pagamento",
+  pending: "Aguardando ativação",
   active: "Ativa",
   past_due: "Pagamento atrasado",
   suspended: "Suspensa",

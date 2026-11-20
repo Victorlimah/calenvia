@@ -26,6 +26,7 @@ import { loadSubscriptionItems } from "@/lib/billing/items";
 import { addonsForPlan } from "@/lib/billing/prices";
 import { getCurrentPrices } from "@/lib/billing/prices-server";
 import { isMockBilling } from "@/lib/billing/config";
+import { isBillingEnabled } from "@/lib/config/access";
 import { formatPrice } from "@/lib/money";
 
 export const metadata: Metadata = { title: "Negócio — Administração Calenvia" };
@@ -246,6 +247,16 @@ export default async function AdminBusinessPage({
           <h2 id="cobranca-admin" className="font-display text-lg font-bold text-ink">
             Cobrança
           </h2>
+          {!isBillingEnabled() ? (
+            <p
+              className="rounded-[var(--radius-control)] bg-paper-2 px-3 py-2 text-ink-2"
+              data-testid="billing-off"
+            >
+              A cobrança está desligada (acesso por convite): os negócios ficam em cortesia, sem
+              cartão nem fatura. Para cobrar, ligue <code>BILLING_ENABLED</code> quando o Stripe
+              estiver pronto.
+            </p>
+          ) : null}
           {sub ? (
             <>
               <Info

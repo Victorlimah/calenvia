@@ -4,6 +4,7 @@ import { SignOutButton } from "@/components/painel/shell";
 import { requirePlatformAdmin } from "@/lib/admin/auth";
 import type { AdminCounter } from "@/lib/admin/nav";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { isBillingEnabled } from "@/lib/config/access";
 import { AdminNavLinks } from "./admin-nav";
 
 export const metadata: Metadata = {
@@ -29,7 +30,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const counts: Record<AdminCounter, number> = {
     pending: Number(c?.pending_activation ?? 0),
     invites: openInvites ?? 0,
-    billing: Number(c?.past_due ?? 0) + Number(c?.suspended ?? 0),
+    // CAL-139: sem cobrança, nada de "assinatura com problema".
+    billing: isBillingEnabled() ? Number(c?.past_due ?? 0) + Number(c?.suspended ?? 0) : 0,
     support: Number(c?.support_open ?? 0),
     failed: Number(c?.failed_messages_7d ?? 0),
   };
