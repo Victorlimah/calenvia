@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { buttonClasses } from "@/components/ui";
-import { isInviteOnly } from "@/lib/config/access";
+import { redirect } from "next/navigation";
+import { isBillingEnabled, isInviteOnly } from "@/lib/config/access";
+import { siteUrl } from "@/lib/hosts";
 import { checkTeamInvitePath } from "@/lib/config/access-server";
 import { supportWaLink } from "@/lib/config/support";
 import { PLAN_LABELS, parsePlanParam } from "@/lib/plan-param";
@@ -20,6 +22,8 @@ export default async function CadastroPage({
   const { plano, ref, next: nextParam } = await searchParams;
   // Convite da equipe (CAL-112): depois do cadastro, volta para aceitar o convite.
   const invite = nextParam?.startsWith("/convite/") ? nextParam : undefined;
+  // CAL-138: sem cobrança não há plano para escolher; links antigos do site voltam para a home.
+  if (plano && !isBillingEnabled()) redirect(siteUrl("/#acesso"));
 
   // CAL-135: no modo convite, sem um convite da equipe válido, não há cadastro.
   if (isInviteOnly()) {

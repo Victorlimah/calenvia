@@ -7,6 +7,7 @@ describe("menu do admin (CAL-129)", () => {
     expect(ADMIN_NAV.flatMap((g) => g.items.map((i) => i.label))).toEqual([
       "Negócios",
       "Convites",
+      "Lista de espera",
       "Suporte",
       "Assinaturas",
       "Preços",

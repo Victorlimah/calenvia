@@ -18,6 +18,11 @@ export const RATE_LIMITS = {
   beacon: [{ limit: 30, windowSeconds: 60 }],
   // Aceitar convite de dono (CAL-137): tentativas de senha/token por IP.
   invite: [{ limit: 10, windowSeconds: 10 * 60 }],
+  // Pedido de acesso pela home (CAL-138).
+  access: [
+    { limit: 3, windowSeconds: 10 * 60 },
+    { limit: 10, windowSeconds: 24 * 60 * 60 },
+  ],
 } as const;
 
 export type RateAction = keyof typeof RATE_LIMITS;

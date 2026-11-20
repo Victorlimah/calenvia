@@ -856,3 +856,90 @@
     width: 100%;
   }
 }
+
+/* Pedir acesso (CAL-138) */
+.lp .access-grid {
+  display: grid;
+  align-items: start;
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+@media (min-width: 860px) {
+  .lp .access-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lp .access-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lp .access-card h3 {
+  font-family: var(--display);
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.lp .access-card p {
+  color: var(--ink-2);
+}
+.lp .access-card .btn {
+  align-self: stretch;
+  justify-content: center;
+}
+.lp .access-login a {
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.lp .access-form {
+  display: grid;
+  gap: 12px;
+}
+.lp .access-field {
+  display: grid;
+  gap: 6px;
+}
+.lp .access-field label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.lp .access-field input,
+.lp .access-field select {
+  min-height: 48px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+}
+.lp .access-field input:focus-visible,
+.lp .access-field select:focus-visible {
+  outline: 3px solid var(--brand-soft);
+  border-color: var(--brand);
+}
+.lp .access-error {
+  color: #b42318;
+  font-size: 0.9rem;
+}
+.lp .access-done {
+  background: #e8f6ee;
+  color: #135c33;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-weight: 600;
+}
+.lp .access-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

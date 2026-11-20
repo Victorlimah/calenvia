@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useEffect, useState, type CSSProperties } from "react";
 import { DEMO_SVGS, type DemoSvg } from "./demo-svgs";
 
@@ -179,7 +180,7 @@ export function PhoneDemo({ rootDomain }: { rootDomain: string }) {
   return (
     <div className="mockup">
       <div className="phone" style={vars}>
-        <div className={`phone-inner${fading ? "fading" : ""}`}>
+        <div className={cn("phone-inner", fading && "fading")}>
           <div className="phone-top">
             <span className="phone-avatar" />
             <span>{d.name}</span>

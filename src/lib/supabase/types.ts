@@ -23,6 +23,43 @@ export type Database = {
   };
   public: {
     Tables: {
+      access_requests: {
+        Row: {
+          business_name: string;
+          city: string | null;
+          created_at: string;
+          id: string;
+          name: string;
+          segment: string | null;
+          status: string;
+          updated_at: string;
+          whatsapp: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          business_name: string;
+          city?: string | null;
+          created_at?: string;
+          id?: string;
+          name: string;
+          segment?: string | null;
+          status?: string;
+          updated_at?: string;
+          whatsapp: string;
+        };
+        Update: {
+          business_name?: string;
+          city?: string | null;
+          created_at?: string;
+          id?: string;
+          name?: string;
+          segment?: string | null;
+          status?: string;
+          updated_at?: string;
+          whatsapp?: string;
+        };
+        Relationships: [];
+      };
       admin_audit_log: {
         Row: {
           action: string;

@@ -13,6 +13,9 @@ async function check(page: import("@playwright/test").Page, name: string) {
 test.afterAll(() => cleanupCustomer(PHONE));
 
 test("site, termos e privacidade sem violações WCAG AA", async ({ page }) => {
+  // Confere o estado final: sem a animação de entrada nem a troca de cores do celular de
+  // exemplo (decorativo), que no meio da transição mistura as cores e engana o axe.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   for (const url of [
     "http://localhost:3000",
     "http://localhost:3000/termos",
@@ -64,6 +67,6 @@ test("painel sem violações", async ({ page }) => {
 test("login sem violações", async ({ page }) => {
   await page.goto("/entrar");
   await check(page, "entrar");
-  await page.goto("/cadastro?plano=pro");
+  await page.goto("/cadastro");
   await check(page, "cadastro");
 });

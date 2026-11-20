@@ -12,6 +12,7 @@ export const ADMIN_NAV: { title: string; items: AdminNavItem[] }[] = [
     items: [
       { href: "/admin", label: "Negócios", counter: "pending" },
       { href: "/admin/convites", label: "Convites", counter: "invites" },
+      { href: "/admin/lista-de-espera", label: "Lista de espera" },
       { href: "/admin/suporte", label: "Suporte", counter: "support" },
     ],
   },

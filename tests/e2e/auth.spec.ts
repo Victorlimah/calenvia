@@ -20,7 +20,7 @@ test("senha errada mostra mensagem amigável", async ({ page }) => {
 
 test("modo convite: /cadastro não tem formulário, só pedir acesso ou entrar", async ({ page }) => {
   test.skip(SIGNUP_OPEN, "Só no modo convite (padrão)");
-  await page.goto("/cadastro?plano=pro");
+  await page.goto("/cadastro");
   await expect(
     page.getByRole("heading", { name: "A Calenvia está em acesso por convite" }),
   ).toBeVisible();

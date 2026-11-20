@@ -1,10 +1,19 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useState } from "react";
 
 /** Cabeçalho da landing com menu no celular. */
-export function LandingHeader({ loginUrl }: { loginUrl: string }) {
+export function LandingHeader({
+  loginUrl,
+  billing = false,
+}: {
+  loginUrl: string;
+  /** Cobrança ligada: mostra "Planos"; senão, "Pedir acesso" (CAL-138). */
+  billing?: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const cta = billing ? "#planos" : "#acesso";
   const close = () => setOpen(false);
   return (
     <header className="header">
@@ -50,22 +59,24 @@ export function LandingHeader({ loginUrl }: { loginUrl: string }) {
             <path d="M4 7h16M4 12h16M4 17h16" />
           </svg>
         </button>
-        <nav className={`nav${open ? "open" : ""}`} id="menu" aria-label="Principal">
+        <nav className={cn("nav", open && "open")} id="menu" aria-label="Principal">
           <a href="#como-funciona" onClick={close}>
             Como funciona
           </a>
           <a href="#recursos" onClick={close}>
             Recursos
           </a>
-          <a href="#planos" onClick={close}>
-            Planos
-          </a>
+          {billing ? (
+            <a href={cta} onClick={close}>
+              Planos
+            </a>
+          ) : null}
           <a href="#duvidas" onClick={close}>
             Dúvidas
           </a>
           <a href={loginUrl}>Entrar</a>
-          <a href="#planos" className="btn btn-dark" onClick={close}>
-            Começar agora
+          <a href={cta} className="btn btn-dark" onClick={close}>
+            {billing ? "Começar agora" : "Pedir meu acesso"}
           </a>
         </nav>
       </div>
