@@ -94,3 +94,81 @@ test("admin convida um negócio: cria, copia o link, lista, gera outro e cancela
   await row.getByRole("button", { name: "Cancelar convite" }).click();
   await expect(row).toContainText("Cancelado");
 });
+
+test("dono aceita o convite: cria a senha, faz o onboarding e a página fica no ar", async ({
+  page,
+  browser,
+}) => {
+  test.setTimeout(180_000);
+  const stamp = Date.now();
+  const email = `${EMAIL_PREFIX}-aceite-${stamp}@calenvia.dev`;
+  const business = `Espaco Bela ${stamp}`;
+  const link = await createInvite(page, { business, email, segment: "manicure" });
+  const path = new URL(link).pathname;
+
+  const ctx = await browser.newContext();
+  const owner = await ctx.newPage();
+  await owner.goto(path);
+  await expect(
+    owner.getByRole("heading", { name: `Você foi convidado(a) para a ${business}` }),
+  ).toBeVisible();
+  await expect(owner.getByLabel("E-mail")).toHaveValue(email);
+  await expect(owner.getByLabel("E-mail")).toHaveAttribute("readonly", "");
+  // Aberto aparece para o admin.
+  await page.reload();
+  await expect(page.getByTestId("owner-invite").filter({ hasText: business })).toContainText(
+    "Aberto",
+  );
+
+  await owner.getByLabel("Crie uma senha").fill("senhaforte123");
+  await owner.getByLabel("Repita a senha").fill("senhaforte123");
+  await owner.getByRole("button", { name: "Criar senha e começar" }).click();
+  await expect(owner).toHaveURL(/\/onboarding$/, { timeout: 30_000 });
+
+  // Passo 1 já vem preenchido com os dados do convite: só falta o endereço.
+  await expect(owner.getByLabel("Nome do negócio")).toHaveValue(business);
+  await owner
+    .getByLabel("Endereço", { exact: true })
+    .fill("Rua das Flores, 10 — Centro, João Pessoa/PB");
+  await owner.getByRole("button", { name: "Continuar" }).click();
+
+  // Passo 2: serviços iniciais do segmento já estão lá.
+  await expect(owner).toHaveURL(/\/onboarding\/servicos/);
+  await expect(owner.getByText("Manicure", { exact: true }).first()).toBeVisible();
+  await owner.getByRole("link", { name: "Continuar" }).click();
+
+  await expect(owner).toHaveURL(/\/onboarding\/profissionais/);
+  await owner.getByRole("button", { name: "Eu mesmo atendo" }).click();
+  await expect(owner.getByText("Bela Convidada")).toBeVisible();
+  await owner.getByRole("link", { name: "Continuar" }).click();
+
+  await expect(owner).toHaveURL(/\/onboarding\/horarios/);
+  await owner.getByRole("button", { name: "Salvar e finalizar" }).click();
+  await expect(owner).toHaveURL(/\/onboarding\/pronto/);
+  await expect(owner.getByRole("heading", { name: "Sua página está no ar!" })).toBeVisible();
+  await expect(owner.getByRole("link", { name: "Assinar e ativar" })).toHaveCount(0);
+
+  // Página pública no ar.
+  const { data: biz } = await admin
+    .from("owner_invitations")
+    .select("businesses(slug)")
+    .eq("email", email)
+    .single();
+  const slug = (biz?.businesses as unknown as { slug: string } | null)?.slug;
+  await owner.goto(`http://${slug}.localhost:3000/`);
+  await expect(owner.getByRole("heading", { level: 1 })).toContainText(business);
+  await expect(owner.getByRole("link", { name: /Agendar meu horário/ }).first()).toBeVisible();
+
+  // O mesmo link de novo: já usado, leva ao login.
+  const again = await browser.newPage();
+  await again.goto(link);
+  await expect(again.getByRole("heading", { name: "Convite já usado" })).toBeVisible();
+  await again.close();
+  await ctx.close();
+});
+
+test("link adulterado não mostra convite", async ({ page }) => {
+  await page.goto(`/convite/${"x".repeat(32)}`);
+  await expect(page.getByText("Este convite não vale")).toBeVisible();
+  await expect(page.getByLabel("Crie uma senha")).toHaveCount(0);
+});

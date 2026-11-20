@@ -109,7 +109,13 @@ export function PainelShell({
   );
 }
 
-export function SignOutButton({ className }: { className?: string }) {
+export function SignOutButton({
+  className,
+  label = "Sair",
+}: {
+  className?: string;
+  label?: string;
+}) {
   const router = useRouter();
   const [pending, start] = useTransition();
   return (
@@ -128,7 +134,7 @@ export function SignOutButton({ className }: { className?: string }) {
         })
       }
     >
-      {pending ? "Saindo…" : "Sair"}
+      {pending ? "Saindo…" : label}
     </button>
   );
 }

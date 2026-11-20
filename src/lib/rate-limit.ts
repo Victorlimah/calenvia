@@ -16,6 +16,8 @@ export const RATE_LIMITS = {
   manage: [{ limit: 10, windowSeconds: 10 * 60 }],
   lookup: [{ limit: 40, windowSeconds: 10 * 60 }],
   beacon: [{ limit: 30, windowSeconds: 60 }],
+  // Aceitar convite de dono (CAL-137): tentativas de senha/token por IP.
+  invite: [{ limit: 10, windowSeconds: 10 * 60 }],
 } as const;
 
 export type RateAction = keyof typeof RATE_LIMITS;

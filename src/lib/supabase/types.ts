@@ -1950,6 +1950,10 @@ export type Database = {
       };
     };
     Functions: {
+      accept_owner_invitation: {
+        Args: { p_token_hash: string; p_user_id: string };
+        Returns: string;
+      };
       admin_business_directory: {
         Args: {
           p_city?: string;
@@ -2059,6 +2063,7 @@ export type Database = {
           status: string;
         }[];
       };
+      auth_user_id_by_email: { Args: { p_email: string }; Returns: string };
       consume_message_quota: {
         Args: { p_business_id: string; p_limit: number; p_period: string };
         Returns: number;
