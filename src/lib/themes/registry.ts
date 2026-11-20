@@ -12,6 +12,7 @@ import { natureza } from "./templates/natureza";
 import { alegre } from "./templates/alegre";
 import { editorial } from "./templates/editorial";
 import { boutique } from "./templates/boutique";
+import { pop } from "./templates/pop";
 
 export const TEMPLATES: TemplateDefinition[] = [
   noturno,
@@ -22,6 +23,7 @@ export const TEMPLATES: TemplateDefinition[] = [
   alegre,
   editorial,
   boutique,
+  pop,
 ];
 
 export const DEFAULT_TEMPLATE_ID = "noturno";
