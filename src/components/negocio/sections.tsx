@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cn } from "@/lib/cn";
 import { Avatar } from "@/components/avatar";
 import { formatDuration, formatHourShort } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
@@ -27,15 +28,27 @@ export function Section({
   id,
   children,
   alt,
+  flushTop,
+  tightBottom,
 }: {
   id?: string;
   children: React.ReactNode;
   alt?: boolean;
+  /** Sem espaço em cima (continua a seção anterior, ex.: equipe logo depois das fotos). */
+  flushTop?: boolean;
+  /** Espaço menor embaixo no computador (a próxima seção continua esta). */
+  tightBottom?: boolean;
 }) {
   return (
     <section id={id} className={alt ? "bg-t-surface" : ""}>
       {/* Densidade do tema (CAL-142): --density 1 (confortável) ou 0.75 (compacta). */}
-      <div className="mx-auto max-w-2xl px-5 py-[calc(3.5rem*var(--density,1))] md:py-[calc(5rem*var(--density,1))]">
+      <div
+        className={cn(
+          "mx-auto max-w-2xl px-5 py-[calc(3.5rem*var(--density,1))] md:py-[calc(5rem*var(--density,1))]",
+          flushTop && "pt-0 md:pt-0",
+          tightBottom && "md:pb-[calc(3.5rem*var(--density,1))]",
+        )}
+      >
         {children}
       </div>
     </section>
@@ -290,12 +303,20 @@ export function CtaButton({ className = "" }: { className?: string }) {
   );
 }
 
-export function StickyCta({ name }: { name: string }) {
+export function StickyCta({ name, contained }: { name: string; contained?: boolean }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-t-text/10 bg-t-bg/90 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
-      <div className="mx-auto flex max-w-2xl items-center gap-3">
-        <p className="hidden min-w-0 flex-1 truncate font-semibold sm:block">{name}</p>
-        <CtaButton className="w-full sm:w-auto" />
+    <div
+      className={cn(
+        "inset-x-0 bottom-0 z-40",
+        // Na prévia do editor a barra fica presa à prévia, não à tela.
+        contained ? "sticky" : "fixed",
+      )}
+    >
+      <div className="border-t border-t-text/10 bg-t-bg/90 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+        <div className="mx-auto flex max-w-2xl items-center gap-3">
+          <p className="hidden min-w-0 flex-1 truncate font-semibold sm:block">{name}</p>
+          <CtaButton className="w-full sm:w-auto" />
+        </div>
       </div>
     </div>
   );

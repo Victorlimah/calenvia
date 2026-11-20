@@ -1,29 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Hero } from "@/components/negocio/hero";
-import {
-  CtaButton,
-  Faq,
-  Gallery,
-  HowItWorks,
-  Location,
-  Section,
-  SectionTitle,
-  ServicesList,
-  StickyCta,
-  Team,
-  Testimonials,
-} from "@/components/negocio/sections";
-import { segmentLabel } from "@/lib/business/segments";
-import { todayIn, weekdayOf } from "@/lib/dates";
-import { canSendAutomaticMessages, isBookingOpen } from "@/lib/plans";
+import { isBookingOpen } from "@/lib/plans";
 import { getPublicBusiness, getPublicCatalog, getPublicPageContent } from "@/lib/public/business";
-import { buildFaq } from "@/lib/public/faq";
 import { businessUrl } from "@/lib/hosts";
 import { jsonLdString, localBusinessJsonLd } from "@/lib/seo/local-business";
 import { Unavailable } from "./unavailable";
-import { BusinessMark } from "@/components/negocio/business-mark";
-import { logoPlacements, pickLogo } from "@/lib/themes/logo";
+import { PublicPage } from "@/components/negocio/public-page";
+import { buildPageData } from "@/lib/public/page-data";
 import { parseTheme } from "@/lib/themes/resolve";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -66,17 +49,8 @@ export default async function NegocioPage({ params }: Props) {
     getPublicCatalog(business.id),
     getPublicPageContent(business.id),
   ]);
-  const faq = buildFaq(business);
-  // Logo opcional (CAL-143): versão escura no fundo escuro; sem logo, monograma.
   const theme = parseTheme(business.theme, business.accent_color);
-  const logo = pickLogo({
-    name: business.name,
-    logoUrl: business.logo_url,
-    logoAltUrl: business.logo_alt_url,
-    mode: theme.palette.mode,
-    show: theme.logo.show,
-  });
-  const placements = logoPlacements(theme);
+  const data = buildPageData(business, theme, services, staff, content);
 
   const jsonLd = localBusinessJsonLd({
     name: business.name,
@@ -96,131 +70,8 @@ export default async function NegocioPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
       />
-      {placements.includes("header") ? (
-        <header className="border-b border-t-text/10 bg-t-bg">
-          <div className="mx-auto flex max-w-2xl items-center gap-3 px-5 py-3">
-            <BusinessMark
-              name={business.name}
-              logoUrl={logo.url}
-              shape={theme.logo.shape}
-              size="sm"
-            />
-            <span className="truncate font-t-display font-bold">{business.name}</span>
-          </div>
-        </header>
-      ) : null}
-      <Hero
-        name={business.name}
-        segmentLabel={segmentLabel(business.segment)}
-        headline={business.headline}
-        subheadline={business.subheadline}
-        logoUrl={logo.url}
-        logoShape={theme.logo.shape}
-        showLogo={placements.includes("hero")}
-        coverUrl={business.cover_url}
-      />
-
-      <Section id="como-funciona">
-        <SectionTitle kicker="Como funciona" title="Agende em menos de 1 minuto" />
-        <HowItWorks automatic={canSendAutomaticMessages(business)} />
-      </Section>
-
-      {services.length ? (
-        <Section id="servicos" alt>
-          <SectionTitle kicker="Serviços" title="Escolha o seu" />
-          <ServicesList services={services} />
-        </Section>
-      ) : null}
-
-      {content.photos.length || staff.length ? (
-        <Section id="trabalho">
-          {content.photos.length ? (
-            <>
-              <SectionTitle kicker="Nosso trabalho" title="Veja de perto" />
-              <Gallery photos={content.photos} name={business.name} />
-            </>
-          ) : null}
-          {staff.length ? (
-            <div className={content.photos.length ? "mt-14" : ""}>
-              <SectionTitle
-                kicker="Equipe"
-                title={staff.length === 1 ? "Quem atende você" : "Quem atende"}
-              />
-              <Team staff={staff} />
-            </div>
-          ) : null}
-        </Section>
-      ) : null}
-
-      {content.testimonials.length ? (
-        <Section id="depoimentos" alt>
-          <SectionTitle kicker="Depoimentos" title="Quem já veio, recomenda" />
-          {content.rating.count >= 3 && content.rating.average ? (
-            <p className="-mt-4 mb-6 text-lg font-semibold">
-              <span aria-hidden="true" style={{ color: "var(--c-link)" }}>
-                ★
-              </span>{" "}
-              {content.rating.average.toFixed(1).replace(".", ",")} de 5 · {content.rating.count}{" "}
-              avaliações
-            </p>
-          ) : null}
-          <Testimonials items={content.testimonials} />
-        </Section>
-      ) : null}
-
-      <Section id="onde-fica">
-        <SectionTitle kicker="Onde fica" title="Endereço e horários" />
-        <Location
-          address={business.address}
-          reference={business.address_reference}
-          hours={content.hours}
-          breaks={content.breaks}
-          todayWeekday={weekdayOf(todayIn(business.timezone))}
-        />
-      </Section>
-
-      <Section id="duvidas" alt>
-        <SectionTitle kicker="Dúvidas" title="Perguntas frequentes" />
-        <Faq items={faq} />
-      </Section>
-
-      <section className="relative overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-30"
-          style={{
-            background:
-              "radial-gradient(80% 100% at 50% 100%, var(--c-primary) 0%, transparent 70%)",
-          }}
-        />
-        <div className="relative mx-auto max-w-2xl px-5 py-20 text-center">
-          <h2 className="font-t-display text-4xl leading-tight font-extrabold">
-            Seu horário está esperando
-          </h2>
-          <p className="mt-3 text-t-sub">Escolha o melhor dia e hora para você.</p>
-          <CtaButton className="mt-8 w-full sm:w-auto" />
-        </div>
-      </section>
-
-      <footer className="px-5 pt-6 pb-32 text-center text-xs text-t-sub">
-        {placements.includes("footer") ? (
-          <div className="mb-4 flex flex-col items-center gap-2">
-            <BusinessMark
-              name={business.name}
-              logoUrl={logo.url}
-              shape={theme.logo.shape}
-              size="lg"
-            />
-            <p className="font-t-display text-base font-bold text-t-text">{business.name}</p>
-          </div>
-        ) : null}
-        Agendamento online por{" "}
-        <a href="https://calenvia.com.br" className="underline underline-offset-2">
-          Calenvia
-        </a>
-      </footer>
-
-      <StickyCta name={business.name} />
+      {/* CAL-144: seções do template, na ordem e com a visibilidade escolhidas pelo dono. */}
+      <PublicPage data={data} theme={theme} />
     </>
   );
 }

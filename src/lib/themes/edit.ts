@@ -5,13 +5,16 @@
 import { autoTextOn, isDark, mix, normalizeHex, WHITE } from "./color";
 import { findPalette, presetPalette, type PalettePreset } from "./palettes";
 import { FONT_PAIRS } from "./font-pairs";
+import { orderedSections } from "./resolve";
 import {
   DENSITY_IDS,
+  FIXED_SECTIONS,
   RADIUS_IDS,
   type DensityId,
   type Palette,
   type RadiusId,
   type Theme,
+  type SectionId,
 } from "./schema";
 
 /** Aplica uma paleta pronta (no modo pedido; sem modo, mantém o atual). */
@@ -117,4 +120,53 @@ export function setLogoOptions(theme: Theme, patch: Partial<Theme["logo"]>): The
   const logo = { ...theme.logo, ...patch };
   if (logo.placements && logo.placements.length === 0) logo.placements = ["hero"];
   return { ...theme, logo };
+}
+
+/** Nomes das seções na interface (CAL-144). */
+export const SECTION_LABELS: Record<SectionId, string> = {
+  hero: "Abertura",
+  how: "Como funciona",
+  services: "Serviços",
+  gallery: "Fotos do trabalho",
+  team: "Equipe",
+  testimonials: "Depoimentos",
+  location: "Onde fica e horários",
+  faq: "Dúvidas",
+  final: "Chamada final",
+};
+
+/** Seções que o dono pode mexer, na ordem atual (abertura e chamada final ficam fixas). */
+export function editableSections(theme: Theme): { id: SectionId; visible: boolean }[] {
+  return orderedSections(theme.sections).filter((s) => !FIXED_SECTIONS.includes(s.id));
+}
+
+function withSections(theme: Theme, list: { id: SectionId; visible: boolean }[]): Theme {
+  const middle = list.map((s, i) => ({ id: s.id, visible: s.visible, order: i + 1 }));
+  return {
+    ...theme,
+    sections: [
+      { id: "hero", visible: true, order: 0 },
+      ...middle,
+      { id: "final", visible: true, order: middle.length + 1 },
+    ],
+  };
+}
+
+/** Mostra/esconde uma seção (abertura e chamada final não podem ser escondidas). */
+export function toggleSection(theme: Theme, id: SectionId): Theme {
+  if (FIXED_SECTIONS.includes(id)) return theme;
+  return withSections(
+    theme,
+    editableSections(theme).map((s) => (s.id === id ? { ...s, visible: !s.visible } : s)),
+  );
+}
+
+/** Sobe (-1) ou desce (+1) uma seção entre as editáveis. */
+export function moveSection(theme: Theme, id: SectionId, dir: -1 | 1): Theme {
+  const list = editableSections(theme);
+  const i = list.findIndex((s) => s.id === id);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= list.length) return theme;
+  [list[i], list[j]] = [list[j], list[i]];
+  return withSections(theme, list);
 }

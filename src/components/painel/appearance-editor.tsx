@@ -23,6 +23,7 @@ import {
 import { ImageUpload } from "./image-upload";
 import { PaletteEditor } from "./palette-editor";
 import { StyleEditor } from "./style-editor";
+import { SectionsEditor } from "./sections-editor";
 import { LogoUpload } from "./logo-upload";
 import { pickLogo } from "@/lib/themes/logo";
 import { fontPairClassName } from "@/lib/themes/fonts";
@@ -142,6 +143,10 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
           {colors.message && !dirtyColors ? <Alert tone="success">{colors.message}</Alert> : null}
           <PaletteEditor theme={theme} onChange={setTheme} logoUrl={business.logo_url} />
           <StyleEditor theme={theme} onChange={setTheme} />
+          <fieldset>
+            <legend className="mb-2 text-sm font-semibold text-ink">Seções da página</legend>
+            <SectionsEditor theme={theme} onChange={setTheme} />
+          </fieldset>
           <Button
             type="button"
             block

@@ -115,3 +115,34 @@ describe("opções do logo (CAL-143)", () => {
     expect(setLogoOptions(t, { placements: [] }).logo.placements).toEqual(["hero"]);
   });
 });
+
+describe("seções (CAL-144)", () => {
+  it("esconde, mostra e reordena; abertura e chamada final ficam nas pontas", async () => {
+    const { editableSections, moveSection, toggleSection } = await import("./edit");
+    const { orderedSections } = await import("./resolve");
+    let t = defaultTheme();
+    expect(editableSections(t).map((s) => s.id)).toEqual([
+      "how",
+      "services",
+      "gallery",
+      "team",
+      "testimonials",
+      "location",
+      "faq",
+    ]);
+    t = toggleSection(t, "how");
+    expect(editableSections(t)[0]).toEqual({ id: "how", visible: false });
+    t = moveSection(t, "faq", -1);
+    expect(
+      editableSections(t)
+        .slice(-2)
+        .map((s) => s.id),
+    ).toEqual(["faq", "location"]);
+    expect(moveSection(t, "how", -1)).toBe(t); // já é a primeira
+    expect(toggleSection(t, "hero")).toBe(t);
+    const ids = orderedSections(t.sections).map((s) => s.id);
+    expect(ids[0]).toBe("hero");
+    expect(ids.at(-1)).toBe("final");
+    expect(themeSchema.safeParse(t).success).toBe(true);
+  });
+});

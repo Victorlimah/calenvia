@@ -195,3 +195,33 @@ test("logo opcional: envia com recorte, reduz para 512 px e some para o monogram
     await admin.from("businesses").update({ logo_url: null, logo_alt_url: null }).eq("id", ZE_BIZ);
   }
 });
+
+test("seções: esconder e reordenar sem trocar de template; template desconhecido não quebra (CAL-144)", async ({
+  page,
+}) => {
+  try {
+    await loginAsZe(page, "/negocio/aparencia");
+    await page.getByRole("checkbox", { name: "Como funciona" }).uncheck();
+    for (let i = 0; i < 6; i++) await page.getByRole("button", { name: "Subir Dúvidas" }).click();
+    await page.getByRole("button", { name: "Salvar visual" }).click();
+    await expect(page.getByText("Visual salvo.")).toBeVisible();
+
+    await page.goto("http://barbearia-do-ze.localhost:3000/");
+    await expect(page.locator("#como-funciona")).toHaveCount(0);
+    const order = await page
+      .locator("main section[id], section[id]")
+      .evaluateAll((els) => els.map((e) => e.id));
+    expect(order.indexOf("duvidas")).toBeLessThan(order.indexOf("servicos"));
+    await expect(page.getByRole("link", { name: "Agendar meu horário" }).first()).toBeVisible();
+
+    await admin
+      .from("businesses")
+      .update({ theme: { version: 1, templateId: "inexistente" } })
+      .eq("id", ZE_BIZ);
+    await page.reload();
+    await expect(page.locator("[data-template]")).toHaveAttribute("data-template", "noturno");
+    await expect(page.locator("#como-funciona")).toHaveCount(1);
+  } finally {
+    await admin.from("businesses").update({ theme: null }).eq("id", ZE_BIZ);
+  }
+});
