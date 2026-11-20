@@ -34,3 +34,73 @@ export const NOTURNO_META: TemplateMeta = {
   density: "comfortable",
   logoShape: "square",
 };
+
+export const DELICADO_META: TemplateMeta = {
+  id: "delicado",
+  name: "Delicado",
+  description: "Claro e quente, serifada elegante, detalhes finos",
+  segments: ["salao", "manicure", "estetica", "sobrancelha"],
+  paletteId: "nude-rosado",
+  mode: "light",
+  altPaletteIds: ["lavanda", "pessego"],
+  fontPairId: "elegante",
+  radius: "soft",
+  density: "comfortable",
+  logoShape: "round",
+};
+
+export const CLINICO_META: TemplateMeta = {
+  id: "clinico",
+  name: "Clínico",
+  description: "Limpo, muito respiro e selos de confiança",
+  segments: ["clinica", "psicologia", "fisioterapia"],
+  paletteId: "azul-petroleo",
+  mode: "light",
+  altPaletteIds: ["menta", "azul-marinho"],
+  fontPairId: "limpa",
+  radius: "soft",
+  density: "comfortable",
+  logoShape: "square",
+};
+
+export const VITRINE_META: TemplateMeta = {
+  id: "vitrine",
+  name: "Vitrine",
+  description: "Fotos em destaque, estilo portfólio",
+  segments: ["manicure", "sobrancelha", "tatuagem", "estetica"],
+  paletteId: "monocromatico",
+  mode: "light",
+  altPaletteIds: ["nude-rosado", "grafite-dourado"],
+  fontPairId: "geometrica",
+  radius: "square",
+  density: "compact",
+  logoShape: "round",
+};
+
+export const NATUREZA_META: TemplateMeta = {
+  id: "natureza",
+  name: "Natureza",
+  description: "Tons de terra e verde, formas orgânicas e calma",
+  segments: ["estetica", "pilates", "fisioterapia", "psicologia"],
+  paletteId: "salvia",
+  mode: "light",
+  altPaletteIds: ["areia-oliva", "terracota"],
+  fontPairId: "classica",
+  radius: "round",
+  density: "comfortable",
+  logoShape: "round",
+};
+
+export const ALEGRE_META: TemplateMeta = {
+  id: "alegre",
+  name: "Alegre",
+  description: "Cores vivas, cantos redondos e tom divertido",
+  segments: ["pet", "lava-jato", "personal", "outro"],
+  paletteId: "oceano",
+  mode: "light",
+  altPaletteIds: ["rosa-chiclete", "pessego"],
+  fontPairId: "amigavel",
+  radius: "round",
+  density: "comfortable",
+  logoShape: "round",
+};

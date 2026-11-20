@@ -87,6 +87,6 @@ body {
 /* Raiz da página pública (CAL-142): fonte do texto do tema e sem negrito falso em fontes de
    título que só têm um peso (ex.: DM Serif Display). */
 [data-theme-root] {
-  font-family: var(--font-t-body);
+  font-family: var(--t-font-body, var(--font-inter), system-ui, sans-serif);
   font-synthesis-weight: none;
 }

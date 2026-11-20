@@ -126,6 +126,6 @@ export function deriveTones(p: {
     surface2: mix(p.surface, p.text, 0.06),
     border: mix(p.background, p.text, dark ? 0.2 : 0.16),
     sub: ensureContrastAll(mix(p.text, p.background, 0.3), [p.background, p.surface], AA_TEXT),
-    link: ensureContrast(p.primary, p.background, AA_TEXT),
+    link: ensureContrastAll(p.primary, [p.background, p.surface], AA_TEXT),
   };
 }

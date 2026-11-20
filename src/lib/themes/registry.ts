@@ -5,8 +5,9 @@
  */
 import type { TemplateDefinition } from "@/components/negocio/template-types";
 import { noturno } from "./templates/noturno";
+import { delicado } from "./templates/delicado";
 
-export const TEMPLATES: TemplateDefinition[] = [noturno];
+export const TEMPLATES: TemplateDefinition[] = [noturno, delicado];
 
 export const DEFAULT_TEMPLATE_ID = "noturno";
 
