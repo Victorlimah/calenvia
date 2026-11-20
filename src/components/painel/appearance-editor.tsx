@@ -4,16 +4,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Hero } from "@/components/negocio/hero";
-import { resolveTheme, themeCssVars } from "@/lib/themes/resolve";
+import { parseTheme, resolveTheme, themeCssVars } from "@/lib/themes/resolve";
+import type { Theme } from "@/lib/themes/schema";
 import { Alert, Button, Card, Field, Input, Textarea } from "@/components/ui";
-import { ACCENT_PRESETS, isHexColor } from "@/lib/color";
 import { MAX_GALLERY_PHOTOS } from "@/lib/images";
-import { cn } from "@/lib/cn";
 import type { AppearanceInput, TestimonialInput } from "@/lib/validation/business";
 import {
   addTestimonialAction,
   removeTestimonialAction,
   saveAppearanceAction,
+  saveThemeAction,
 } from "@/app/(painel)/painel/(app)/_actions/appearance";
 import {
   addGalleryPhotoAction,
@@ -21,6 +21,7 @@ import {
   setBusinessImageAction,
 } from "@/app/(painel)/painel/(app)/_actions/media";
 import { ImageUpload } from "./image-upload";
+import { PaletteEditor } from "./palette-editor";
 import { useAction } from "./use-action";
 
 type Props = {
@@ -29,6 +30,8 @@ type Props = {
     name: string;
     segmentLabel: string;
     accent_color: string;
+    /** Tema guardado (CAL-140); null = padrão Noturno. */
+    theme: unknown;
     headline: string | null;
     subheadline: string | null;
     logo_url: string | null;
@@ -41,15 +44,20 @@ type Props = {
 export function AppearanceEditor({ business, photos, testimonials }: Props) {
   const router = useRouter();
   const { run, pending, error, message } = useAction();
+  const colors = useAction();
   const form = useForm<AppearanceInput>({
     defaultValues: {
-      accent_color: business.accent_color,
       headline: business.headline ?? "",
       subheadline: business.subheadline ?? "",
     },
   });
   const values = form.watch();
-  const accent = isHexColor(values.accent_color) ? values.accent_color : business.accent_color;
+  // Cores (CAL-141): o tema fica em memória até salvar; a prévia usa os mesmos tokens da página.
+  const [theme, setTheme] = useState<Theme>(() =>
+    parseTheme(business.theme, business.accent_color),
+  );
+  const [savedTheme, setSavedTheme] = useState(() => JSON.stringify(theme));
+  const dirtyColors = JSON.stringify(theme) !== savedTheme;
 
   const onSubmit = form.handleSubmit((v) => run(() => saveAppearanceAction(v)));
 
@@ -95,42 +103,35 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
           </p>
         </Card>
 
+        <Card className="space-y-4">
+          <h2 className="font-display text-xl font-bold">Cores da página</h2>
+          <p className="text-sm text-ink-2">
+            Escolha uma paleta pronta ou use a sua cor. A gente garante que tudo fica legível.
+          </p>
+          {colors.error ? <Alert tone="danger">{colors.error}</Alert> : null}
+          {colors.message && !dirtyColors ? <Alert tone="success">{colors.message}</Alert> : null}
+          <PaletteEditor theme={theme} onChange={setTheme} />
+          <Button
+            type="button"
+            block
+            loading={colors.pending}
+            disabled={!dirtyColors}
+            onClick={() =>
+              colors.run(() => saveThemeAction(theme), {
+                onSuccess: () => setSavedTheme(JSON.stringify(theme)),
+              })
+            }
+          >
+            Salvar cores
+          </Button>
+        </Card>
+
         <Card>
           <form onSubmit={onSubmit} className="space-y-5">
-            <h2 className="font-display text-xl font-bold">Cor e textos</h2>
+            <h2 className="font-display text-xl font-bold">Textos</h2>
             {error ? <Alert tone="danger">{error}</Alert> : null}
             {message ? <Alert tone="success">{message}</Alert> : null}
-            <fieldset>
-              <legend className="mb-2 text-sm font-semibold">Cor de destaque</legend>
-              <div className="flex flex-wrap gap-2">
-                {ACCENT_PRESETS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    aria-label={`Cor ${c}`}
-                    aria-pressed={accent.toUpperCase() === c}
-                    onClick={() => form.setValue("accent_color", c)}
-                    className={cn(
-                      "size-11 rounded-full border-2",
-                      accent.toUpperCase() === c
-                        ? "border-ink ring-2 ring-white ring-inset"
-                        : "border-transparent",
-                    )}
-                    style={{ background: c }}
-                  />
-                ))}
-                <label className="relative inline-flex size-11 cursor-pointer items-center justify-center rounded-full border border-dashed border-ink-2 text-xs font-semibold">
-                  <span aria-hidden="true">+</span>
-                  <input
-                    type="color"
-                    aria-label="Escolher outra cor"
-                    className="absolute inset-0 cursor-pointer opacity-0"
-                    value={accent}
-                    onChange={(e) => form.setValue("accent_color", e.target.value.toUpperCase())}
-                  />
-                </label>
-              </div>
-            </fieldset>
+
             <Field
               label="Título da página"
               hint="Até 90 caracteres. Deixe vazio para usar o padrão."
@@ -167,7 +168,7 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
 
       <aside className="lg:sticky lg:top-6" aria-label="Prévia da página">
         <p className="mb-2 text-sm font-semibold text-ink-2">Prévia ao vivo</p>
-        <div style={themeCssVars(resolveTheme(null, accent)) as React.CSSProperties}>
+        <div style={themeCssVars(resolveTheme(theme)) as React.CSSProperties}>
           <Hero
             preview
             name={business.name}

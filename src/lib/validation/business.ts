@@ -195,7 +195,11 @@ export function defaultWeekHours(): DayHours[] {
 }
 
 export const appearanceSchema = z.object({
-  accent_color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Cor inválida."),
+  /** Opcional desde o CAL-141: a cor vem da paleta do tema (saveThemeAction). */
+  accent_color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, "Cor inválida.")
+    .optional(),
   headline: z
     .string()
     .trim()

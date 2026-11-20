@@ -31,6 +31,7 @@ export default async function AjustesAparenciaPage() {
           name: b.name,
           segmentLabel: segmentLabel(b.segment),
           accent_color: b.accent_color,
+          theme: b.theme,
           headline: b.headline,
           subheadline: b.subheadline,
           logo_url: b.logo_url,

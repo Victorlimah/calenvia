@@ -92,7 +92,6 @@ test("aparência: prévia ao vivo, cor e capa", async ({ page }) => {
   const preview = page.getByRole("complementary", { name: "Prévia da página" });
   await page.getByLabel("Título da página").fill("Corte de respeito");
   await expect(preview.getByRole("heading", { name: "Corte de respeito" })).toBeVisible();
-  await page.getByRole("button", { name: "Cor #1F9D55" }).click();
   await page.getByRole("button", { name: "Salvar aparência" }).click();
   await expect(page.getByText("Aparência salva.")).toBeVisible();
   await page.getByLabel("Enviar foto de capa").setInputFiles("tests/e2e/fixtures/foto.png");
@@ -100,9 +99,51 @@ test("aparência: prévia ao vivo, cor e capa", async ({ page }) => {
   // restaura
   await page.getByRole("button", { name: "Remover capa" }).click();
   await page.getByLabel("Título da página").fill("Seu corte no horário certo, sem fila.");
-  await page.getByRole("button", { name: "Cor #F5B014" }).click();
   await page.getByRole("button", { name: "Salvar aparência" }).click();
   await expect(page.getByText("Aparência salva.")).toBeVisible();
+});
+
+test("cores: paleta pronta clara, cor inválida, salvar e a página pública muda (CAL-141)", async ({
+  page,
+}) => {
+  try {
+    await loginAsZe(page, "/negocio/aparencia");
+    const preview = page.getByRole("complementary", { name: "Prévia da página" });
+    await page.getByRole("button", { name: "Claro", exact: true }).click();
+    await page.getByRole("button", { name: "Lavanda suave" }).click();
+    await expect(page.getByRole("button", { name: "Lavanda suave" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    // Prévia já no fundo claro da paleta.
+    await expect(preview.locator("section").first()).toHaveCSS(
+      "background-color",
+      "rgb(248, 245, 253)",
+    );
+    await page.getByLabel("Cor principal", { exact: true }).fill("roxo");
+    await expect(page.getByText("Cor inválida. Use o formato #RRGGBB")).toBeVisible();
+    await page.getByLabel("Cor principal", { exact: true }).fill("#FFE600");
+    await expect(page.getByText("Ajustamos para ficar legível")).toBeVisible();
+    await page.getByRole("button", { name: "Voltar à paleta original" }).click();
+    await expect(page.getByLabel("Cor principal", { exact: true })).toHaveValue("#7048B6");
+    await page.getByRole("button", { name: "Salvar cores" }).click();
+    await expect(page.getByText("Cores salvas.")).toBeVisible();
+
+    await page.goto("http://barbearia-do-ze.localhost:3000/");
+    await expect(page.locator("main section, section").first()).toHaveCSS(
+      "background-color",
+      "rgb(248, 245, 253)",
+    );
+    await expect(page.getByRole("link", { name: "Agendar meu horário" }).first()).toHaveCSS(
+      "background-color",
+      "rgb(112, 72, 182)",
+    );
+  } finally {
+    await admin
+      .from("businesses")
+      .update({ theme: null, accent_color: "#F5B014" })
+      .eq("id", ZE_BIZ);
+  }
 });
 
 test("link da página para copiar", async ({ page, context }) => {

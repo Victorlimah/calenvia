@@ -115,6 +115,10 @@ export function resolveTheme(raw: unknown, accent?: string | null): ResolvedThem
     surface: p.surface,
     text,
   });
+  if (tones.link !== button.color)
+    adjustments.push(
+      "Nos textos e links, usamos um tom da cor principal que aparece bem no fundo.",
+    );
   const secondary = p.secondary
     ? ensureContrast(p.secondary, p.background, AA_LARGE)
     : tones.primaryHover;
