@@ -144,6 +144,10 @@ test("dono aceita o convite: cria a senha, faz o onboarding e a página fica no 
 
   await expect(owner).toHaveURL(/\/onboarding\/horarios/);
   await owner.getByRole("button", { name: "Salvar e finalizar" }).click();
+  // Passo opcional do tema (CAL-148): a galeria aparece, a pessoa pode pular.
+  await expect(owner).toHaveURL(/\/onboarding\/tema/);
+  await expect(owner.getByRole("button", { name: /Ver o tema Delicado/ })).toBeVisible();
+  await owner.getByRole("link", { name: "Pular por enquanto" }).click();
   await expect(owner).toHaveURL(/\/onboarding\/pronto/);
   await expect(owner.getByRole("heading", { name: "Sua página está no ar!" })).toBeVisible();
   await expect(owner.getByRole("link", { name: "Assinar e ativar" })).toHaveCount(0);

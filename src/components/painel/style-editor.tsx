@@ -37,10 +37,10 @@ const DENSITY_OPTIONS: [DensityId, string][] = [
 /** Fontes, cantos e densidade (CAL-142). Controlado pelo pai, como o editor de cores. */
 export function StyleEditor({ theme, onChange }: { theme: Theme; onChange: (t: Theme) => void }) {
   return (
-    <div className={cn("space-y-5", ALL_FONT_CLASSNAMES)}>
+    <div className={cn("@container space-y-5", ALL_FONT_CLASSNAMES)}>
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink">Fontes</legend>
-        <ul className="grid gap-2 sm:grid-cols-2" aria-label="Pares de fontes">
+        <ul className="grid gap-2 @md:grid-cols-2" aria-label="Pares de fontes">
           {FONT_PAIRS.map((f) => {
             const vars = fontPairVars(f.id);
             const active = theme.fontPairId === f.id;

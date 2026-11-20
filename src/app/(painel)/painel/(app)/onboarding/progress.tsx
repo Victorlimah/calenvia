@@ -8,6 +8,7 @@ export const ONBOARDING_STEPS = [
   { path: "/onboarding/servicos", label: "Serviços" },
   { path: "/onboarding/profissionais", label: "Equipe" },
   { path: "/onboarding/horarios", label: "Horários" },
+  { path: "/onboarding/tema", label: "Tema" },
   { path: "/onboarding/pronto", label: "Pronto" },
 ];
 
@@ -22,7 +23,7 @@ export function OnboardingProgress() {
       <p className="text-sm font-medium text-ink-2">
         Etapa {current + 1} de {ONBOARDING_STEPS.length}: {ONBOARDING_STEPS[current].label}
       </p>
-      <ol className="mt-2 grid grid-cols-5 gap-1.5">
+      <ol className="mt-2 grid grid-cols-6 gap-1.5">
         {ONBOARDING_STEPS.map((s, i) => (
           <li
             key={s.path}

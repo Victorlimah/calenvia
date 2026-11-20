@@ -18,7 +18,7 @@ export function HoursStep({ initial }: { initial: DayHours[] }) {
         submitLabel="Salvar e finalizar"
         onSaved={async () => {
           const result = await finishOnboardingAction();
-          if (result.ok) router.push("/onboarding/pronto");
+          if (result.ok) router.push("/onboarding/tema");
           else setError(result.error);
         }}
       />

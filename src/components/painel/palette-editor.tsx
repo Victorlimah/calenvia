@@ -103,7 +103,7 @@ export function PaletteEditor({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="@container space-y-5">
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink">Fundo da página</legend>
         <div className="inline-flex rounded-[var(--radius-control)] border border-line bg-paper-2 p-1">
@@ -144,7 +144,7 @@ export function PaletteEditor({
 
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink">Paletas prontas</legend>
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label="Paletas prontas">
+        <ul className="grid grid-cols-2 gap-2 @lg:grid-cols-3" aria-label="Paletas prontas">
           {PALETTES.map((p) => {
             const c = p[mode];
             const active = theme.paletteId === p.id;
@@ -178,7 +178,7 @@ export function PaletteEditor({
         </ul>
       </fieldset>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 @md:grid-cols-2">
         <div>
           <label htmlFor={`${uid}-primary`} className="mb-1 block text-sm font-semibold text-ink">
             Cor principal

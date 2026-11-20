@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { AppearanceEditor } from "@/components/painel/appearance-editor";
 import { requirePermission } from "@/lib/business/current";
 import { segmentLabel } from "@/lib/business/segments";
@@ -25,6 +26,20 @@ export default async function AjustesAparenciaPage() {
         back={{ href: "/negocio", label: "Dados e página" }}
         description="Deixe a página com a cara do seu negócio."
       />
+      <Link
+        href="/negocio/aparencia/temas"
+        className="mb-6 flex min-h-14 items-center justify-between gap-3 rounded-[var(--radius-card)] border border-brand/30 bg-brand-50 px-5 py-4 text-brand"
+      >
+        <span>
+          <span className="block font-display text-lg font-bold">Escolher o tema da página</span>
+          <span className="block text-sm text-ink-2">
+            12 estilos, com prévia da sua página antes de usar.
+          </span>
+        </span>
+        <span aria-hidden="true" className="text-2xl">
+          →
+        </span>
+      </Link>
       <AppearanceEditor
         business={{
           id: b.id,
