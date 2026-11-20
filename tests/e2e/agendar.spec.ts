@@ -73,7 +73,8 @@ test("passo 3: faixa de dias, dias fechados desabilitados e grade de horários",
   await expect(
     page.getByRole("button", { name: /^segunda-feira, .*sem horários/ }).first(),
   ).toBeDisabled();
-  // escolhe um horário da tarde
+  // escolhe um horário da tarde num dia futuro (hoje, no fim da tarde, pode não ter mais)
+  await days.and(page.locator(":not([disabled])")).nth(2).click();
   const tarde = page.getByRole("list", { name: "Horários da tarde" }).getByRole("button");
   await tarde.first().click();
   await expect(tarde.first()).toHaveAttribute("aria-pressed", "true");
