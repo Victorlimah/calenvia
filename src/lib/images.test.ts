@@ -18,4 +18,15 @@ describe("imagens", () => {
       "http://x/storage/v1/object/public/business-media/b1/",
     );
   });
+
+  it("logo: tipos e 2 MB; recorte centralizado e com zoom", async () => {
+    const { validateLogoFile, logoCropRect } = await import("./images");
+    expect(validateLogoFile({ type: "image/svg+xml", size: 1000 })).toBeNull();
+    expect(validateLogoFile({ type: "image/gif", size: 1000 })).toMatch(/PNG, JPG, SVG/);
+    expect(validateLogoFile({ type: "image/png", size: 3 * 1024 * 1024 })).toMatch(/2 MB/);
+    expect(logoCropRect(1000, 500, 1, 0, 0)).toEqual({ sx: 250, sy: 0, size: 500 });
+    expect(logoCropRect(1000, 500, 2, 0, 0)).toEqual({ sx: 375, sy: 125, size: 250 });
+    expect(logoCropRect(1000, 500, 1, -1, 0)).toEqual({ sx: 0, sy: 0, size: 500 });
+    expect(logoCropRect(1000, 500, 1, 5, 0).sx).toBe(500);
+  });
 });

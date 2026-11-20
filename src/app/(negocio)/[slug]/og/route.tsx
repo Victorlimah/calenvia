@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
-import { readableTextOn } from "@/lib/color";
+import { initials, pickLogo } from "@/lib/themes/logo";
+import { parseTheme, resolveTheme } from "@/lib/themes/resolve";
 import { businessDisplayHost } from "@/lib/hosts";
 import { getPublicBusiness } from "@/lib/public/business";
 
@@ -12,11 +13,25 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   const { slug } = await params;
   const b = await getPublicBusiness(slug);
   const name = b?.name ?? "Calenvia";
-  const accent = b?.accent_color ?? "#4B3FD9";
-  const fg = readableTextOn(accent);
+  // Cores e logo do tema (CAL-143); sem negócio, o padrão.
+  const resolved = resolveTheme(b?.theme ?? null, b?.accent_color);
+  const theme = parseTheme(b?.theme ?? null, b?.accent_color);
+  const c = resolved.colors;
+  const accent = c.primary;
+  const fg = c.primaryFg;
   const headline = b?.headline ?? "Agende seu horário online, sem criar conta.";
-  // Satori desenha PNG/JPEG; a logo (WebP) entra como fundo só se o navegador do Satori aceitar.
-  const logo = b?.logo_url ?? null;
+  // Satori desenha PNG/JPEG: logos novos já são PNG (CAL-143); WebP antigo vira monograma.
+  const picked = b
+    ? pickLogo({
+        name,
+        logoUrl: b.logo_url,
+        logoAltUrl: b.logo_alt_url,
+        mode: theme.palette.mode,
+        show: theme.logo.show,
+      }).url
+    : null;
+  const logo = picked && !/\.webp(\?|$)/i.test(picked) ? picked : null;
+  const round = theme.logo.shape === "round" ? 60 : 28;
 
   return new ImageResponse(
     <div
@@ -26,8 +41,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        background: "#111216",
-        color: "#F5F2EA",
+        background: c.bg,
+        color: c.text,
         padding: 72,
         fontFamily: "sans-serif",
       }}
@@ -35,13 +50,19 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
       <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
         {logo ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logo} width={120} height={120} style={{ borderRadius: 28 }} alt="" />
+          <img
+            src={logo}
+            width={120}
+            height={120}
+            style={{ borderRadius: round, objectFit: "contain" }}
+            alt=""
+          />
         ) : (
           <div
             style={{
               width: 120,
               height: 120,
-              borderRadius: 28,
+              borderRadius: round,
               background: accent,
               color: fg,
               display: "flex",
@@ -51,14 +72,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
               fontWeight: 800,
             }}
           >
-            {name.trim().charAt(0).toUpperCase()}
+            {initials(name)}
           </div>
         )}
         <div style={{ display: "flex", fontSize: 64, fontWeight: 800, lineHeight: 1.05 }}>
           {name}
         </div>
       </div>
-      <div style={{ display: "flex", fontSize: 44, lineHeight: 1.2, color: "#D9D4C8" }}>
+      <div style={{ display: "flex", fontSize: 44, lineHeight: 1.2, color: c.sub }}>
         {headline.slice(0, 110)}
       </div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -75,7 +96,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
         >
           Agendar meu horário
         </div>
-        <div style={{ display: "flex", fontSize: 30, color: "#A9A499" }}>
+        <div style={{ display: "flex", fontSize: 30, color: c.sub }}>
           {b ? businessDisplayHost(b.slug) : "calenvia.com.br"}
         </div>
       </div>

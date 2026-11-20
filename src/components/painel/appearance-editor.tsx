@@ -23,6 +23,8 @@ import {
 import { ImageUpload } from "./image-upload";
 import { PaletteEditor } from "./palette-editor";
 import { StyleEditor } from "./style-editor";
+import { LogoUpload } from "./logo-upload";
+import { pickLogo } from "@/lib/themes/logo";
 import { fontPairClassName } from "@/lib/themes/fonts";
 import { useAction } from "./use-action";
 
@@ -37,6 +39,7 @@ type Props = {
     headline: string | null;
     subheadline: string | null;
     logo_url: string | null;
+    logo_alt_url: string | null;
     cover_url: string | null;
   };
   photos: { id: string; url: string }[];
@@ -63,7 +66,7 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
 
   const onSubmit = form.handleSubmit((v) => run(() => saveAppearanceAction(v)));
 
-  async function saveImage(kind: "logo" | "cover", url: string | null) {
+  async function saveImage(kind: "logo" | "logo_alt" | "cover", url: string | null) {
     const r = await setBusinessImageAction(kind, url);
     router.refresh();
     return r.ok ? { ok: true } : { ok: false, error: r.error };
@@ -75,9 +78,10 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
         <Card className="space-y-4">
           <h2 className="font-display text-xl font-bold">Logo e capa</h2>
           <div className="flex flex-wrap items-center gap-3">
-            <ImageUpload
+            <LogoUpload
               businessId={business.id}
               kind="logo"
+              free={theme.logo.shape === "free"}
               label={business.logo_url ? "Trocar logo" : "Enviar logo"}
               onUploaded={(url) => saveImage("logo", url)}
             />
@@ -87,6 +91,29 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
               </Button>
             ) : null}
           </div>
+          <p className="text-sm text-muted">
+            O logo é opcional: sem ele, sua página mostra as iniciais e o nome do negócio. PNG, JPG,
+            SVG ou WebP de até 2 MB.
+          </p>
+          {business.logo_url ? (
+            <div className="space-y-2 border-t border-line pt-3">
+              <p className="text-sm font-semibold text-ink">Versão para fundo escuro (opcional)</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <LogoUpload
+                  businessId={business.id}
+                  kind="logo_alt"
+                  free={theme.logo.shape === "free"}
+                  label={business.logo_alt_url ? "Trocar versão escura" : "Enviar versão escura"}
+                  onUploaded={(url) => saveImage("logo_alt", url)}
+                />
+                {business.logo_alt_url ? (
+                  <Button variant="ghost" size="sm" onClick={() => saveImage("logo_alt", null)}>
+                    Remover versão escura
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
           <div className="flex flex-wrap items-center gap-3">
             <ImageUpload
               businessId={business.id}
@@ -113,7 +140,7 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
           </p>
           {colors.error ? <Alert tone="danger">{colors.error}</Alert> : null}
           {colors.message && !dirtyColors ? <Alert tone="success">{colors.message}</Alert> : null}
-          <PaletteEditor theme={theme} onChange={setTheme} />
+          <PaletteEditor theme={theme} onChange={setTheme} logoUrl={business.logo_url} />
           <StyleEditor theme={theme} onChange={setTheme} />
           <Button
             type="button"
@@ -183,7 +210,16 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
             segmentLabel={business.segmentLabel}
             headline={values.headline || null}
             subheadline={values.subheadline || null}
-            logoUrl={business.logo_url}
+            logoUrl={
+              pickLogo({
+                name: business.name,
+                logoUrl: business.logo_url,
+                logoAltUrl: business.logo_alt_url,
+                mode: theme.palette.mode,
+                show: theme.logo.show,
+              }).url
+            }
+            logoShape={theme.logo.shape}
             coverUrl={business.cover_url}
           />
         </div>

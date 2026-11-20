@@ -44,6 +44,7 @@ test.describe("negócio", () => {
 });
 
 test("painel sem violações", async ({ page }) => {
+  test.setTimeout(180_000); // 12 telas; no modo dev cada uma compila na primeira visita
   await loginAsZe(page, "/");
   await check(page, "início");
   for (const path of [

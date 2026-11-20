@@ -101,3 +101,17 @@ describe("fontes e formas (CAL-142)", () => {
     expect(vars["--density"]).toBe("1");
   });
 });
+
+describe("opções do logo (CAL-143)", () => {
+  it("formato, mostrar e posições; nunca fica sem lugar", async () => {
+    const { setLogoOptions } = await import("./edit");
+    const t = defaultTheme();
+    expect(setLogoOptions(t, { shape: "free" }).logo.shape).toBe("free");
+    expect(setLogoOptions(t, { show: false }).logo.show).toBe(false);
+    expect(setLogoOptions(t, { placements: ["header", "footer"] }).logo.placements).toEqual([
+      "header",
+      "footer",
+    ]);
+    expect(setLogoOptions(t, { placements: [] }).logo.placements).toEqual(["hero"]);
+  });
+});

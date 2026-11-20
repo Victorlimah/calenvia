@@ -165,3 +165,33 @@ test("link da página para copiar", async ({ page, context }) => {
     "http://barbearia-do-ze.localhost:3000/",
   );
 });
+
+test("logo opcional: envia com recorte, reduz para 512 px e some para o monograma (CAL-143)", async ({
+  page,
+}) => {
+  try {
+    await loginAsZe(page, "/negocio/aparencia");
+    const preview = page.getByRole("complementary", { name: "Prévia da página" });
+    // Sem logo: monograma com as iniciais.
+    await expect(preview.getByText("BZ", { exact: true })).toBeVisible();
+    await page.getByLabel("Enviar logo").setInputFiles("tests/e2e/fixtures/logo-grande.png");
+    await expect(page.getByText("Arraste para posicionar e ajuste o zoom")).toBeVisible();
+    await page.getByLabel("Zoom").fill("1.5");
+    await page.getByRole("button", { name: "Salvar logo" }).click();
+    const img = preview.getByRole("img", { name: "Logo da Barbearia do Zé" });
+    await expect(img).toBeVisible({ timeout: 15000 });
+    const { data } = await admin.from("businesses").select("logo_url").eq("id", ZE_BIZ).single();
+    expect(data?.logo_url).toMatch(/\/logo\/.+\.png$/);
+    const width = await img.evaluate((el) => (el as HTMLImageElement).naturalWidth);
+    expect(width).toBeLessThanOrEqual(512);
+
+    await page.goto("http://barbearia-do-ze.localhost:3000/");
+    await expect(page.getByRole("img", { name: "Logo da Barbearia do Zé" }).first()).toBeVisible();
+
+    await page.goto("/negocio/aparencia");
+    await page.getByRole("button", { name: "Remover logo" }).click();
+    await expect(preview.getByText("BZ", { exact: true })).toBeVisible();
+  } finally {
+    await admin.from("businesses").update({ logo_url: null, logo_alt_url: null }).eq("id", ZE_BIZ);
+  }
+});

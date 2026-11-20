@@ -758,6 +758,7 @@ export type Database = {
           headline: string | null;
           id: string;
           instagram: string | null;
+          logo_alt_url: string | null;
           logo_url: string | null;
           max_days_ahead: number;
           member_limit_override: number | null;
@@ -793,6 +794,7 @@ export type Database = {
           headline?: string | null;
           id?: string;
           instagram?: string | null;
+          logo_alt_url?: string | null;
           logo_url?: string | null;
           max_days_ahead?: number;
           member_limit_override?: number | null;
@@ -827,6 +829,7 @@ export type Database = {
           headline?: string | null;
           id?: string;
           instagram?: string | null;
+          logo_alt_url?: string | null;
           logo_url?: string | null;
           max_days_ahead?: number;
           member_limit_override?: number | null;

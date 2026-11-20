@@ -1,4 +1,6 @@
 import { cn } from "@/lib/cn";
+import type { LogoShape } from "@/lib/themes/schema";
+import { BusinessMark } from "./business-mark";
 
 export type HeroProps = {
   name: string;
@@ -6,6 +8,10 @@ export type HeroProps = {
   headline: string | null;
   subheadline: string | null;
   logoUrl: string | null;
+  /** Formato do logo/monograma (tema, CAL-143). */
+  logoShape?: LogoShape;
+  /** false = o logo fica só no cabeçalho/rodapé; a abertura mostra o monograma. */
+  showLogo?: boolean;
   coverUrl: string | null;
   ctaHref?: string;
   /** Prévia no painel: tamanho reduzido e sem link. */
@@ -26,6 +32,8 @@ export function Hero({
   headline,
   subheadline,
   logoUrl,
+  logoShape = "square",
+  showLogo = true,
   coverUrl,
   ctaHref = "/agendar",
   preview = false,
@@ -63,22 +71,7 @@ export function Hero({
         className={cn("mx-auto max-w-2xl px-5", preview ? "py-8" : "pt-10 pb-14 md:pt-16 md:pb-20")}
       >
         <div className="flex items-center gap-3">
-          {logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoUrl}
-              alt={`Logo da ${name}`}
-              className="size-12 rounded-2xl bg-white object-cover"
-            />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="inline-flex size-12 items-center justify-center rounded-2xl font-t-display text-xl font-extrabold"
-              style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
-            >
-              {name.trim().charAt(0).toUpperCase()}
-            </span>
-          )}
+          <BusinessMark name={name} logoUrl={showLogo ? logoUrl : null} shape={logoShape} />
           <div>
             <p className="font-t-display text-lg leading-tight font-bold">{name}</p>
             <p className="text-sm text-t-sub">{segmentLabel}</p>

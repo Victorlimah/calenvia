@@ -22,6 +22,9 @@ import { buildFaq } from "@/lib/public/faq";
 import { businessUrl } from "@/lib/hosts";
 import { jsonLdString, localBusinessJsonLd } from "@/lib/seo/local-business";
 import { Unavailable } from "./unavailable";
+import { BusinessMark } from "@/components/negocio/business-mark";
+import { logoPlacements, pickLogo } from "@/lib/themes/logo";
+import { parseTheme } from "@/lib/themes/resolve";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -64,6 +67,16 @@ export default async function NegocioPage({ params }: Props) {
     getPublicPageContent(business.id),
   ]);
   const faq = buildFaq(business);
+  // Logo opcional (CAL-143): versão escura no fundo escuro; sem logo, monograma.
+  const theme = parseTheme(business.theme, business.accent_color);
+  const logo = pickLogo({
+    name: business.name,
+    logoUrl: business.logo_url,
+    logoAltUrl: business.logo_alt_url,
+    mode: theme.palette.mode,
+    show: theme.logo.show,
+  });
+  const placements = logoPlacements(theme);
 
   const jsonLd = localBusinessJsonLd({
     name: business.name,
@@ -83,12 +96,27 @@ export default async function NegocioPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
       />
+      {placements.includes("header") ? (
+        <header className="border-b border-t-text/10 bg-t-bg">
+          <div className="mx-auto flex max-w-2xl items-center gap-3 px-5 py-3">
+            <BusinessMark
+              name={business.name}
+              logoUrl={logo.url}
+              shape={theme.logo.shape}
+              size="sm"
+            />
+            <span className="truncate font-t-display font-bold">{business.name}</span>
+          </div>
+        </header>
+      ) : null}
       <Hero
         name={business.name}
         segmentLabel={segmentLabel(business.segment)}
         headline={business.headline}
         subheadline={business.subheadline}
-        logoUrl={business.logo_url}
+        logoUrl={logo.url}
+        logoShape={theme.logo.shape}
+        showLogo={placements.includes("hero")}
         coverUrl={business.cover_url}
       />
 
@@ -175,6 +203,17 @@ export default async function NegocioPage({ params }: Props) {
       </section>
 
       <footer className="px-5 pt-6 pb-32 text-center text-xs text-t-sub">
+        {placements.includes("footer") ? (
+          <div className="mb-4 flex flex-col items-center gap-2">
+            <BusinessMark
+              name={business.name}
+              logoUrl={logo.url}
+              shape={theme.logo.shape}
+              size="lg"
+            />
+            <p className="font-t-display text-base font-bold text-t-text">{business.name}</p>
+          </div>
+        ) : null}
         Agendamento online por{" "}
         <a href="https://calenvia.com.br" className="underline underline-offset-2">
           Calenvia

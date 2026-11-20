@@ -12,6 +12,7 @@ import {
   setSecondary,
 } from "@/lib/themes/edit";
 import { PALETTES } from "@/lib/themes/palettes";
+import { closestPalette, dominantColor, logoPrimary } from "@/lib/themes/logo";
 import { resolveTheme } from "@/lib/themes/resolve";
 import type { Theme } from "@/lib/themes/schema";
 
@@ -23,10 +24,46 @@ import type { Theme } from "@/lib/themes/schema";
 export function PaletteEditor({
   theme,
   onChange,
+  logoUrl,
 }: {
   theme: Theme;
   onChange: (theme: Theme) => void;
+  /** Com logo, oferece "Usar as cores do logo" (CAL-143). */
+  logoUrl?: string | null;
 }) {
+  const [logoNote, setLogoNote] = useState<string | null>(null);
+
+  async function fromLogo() {
+    if (!logoUrl) return;
+    setLogoNote(null);
+    try {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise<void>((res, rej) => {
+        img.onload = () => res();
+        img.onerror = () => rej(new Error("img"));
+        img.src = logoUrl;
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("canvas");
+      ctx.drawImage(img, 0, 0, 64, 64);
+      const color = dominantColor(ctx.getImageData(0, 0, 64, 64).data);
+      if (!color) {
+        apply(choosePreset(theme, closestPalette("#777777")));
+        setLogoNote("Seu logo é preto e branco: sugerimos a paleta Monocromático.");
+        return;
+      }
+      const preset = closestPalette(color);
+      const next = setPrimary(choosePreset(theme, preset), logoPrimary(color)) ?? theme;
+      apply(next);
+      setLogoNote(`Usamos a cor do seu logo com a paleta ${preset.name}.`);
+    } catch {
+      setLogoNote("Não conseguimos ler as cores do logo. Escolha uma paleta abaixo.");
+    }
+  }
   const uid = useId();
   const [primaryText, setPrimaryText] = useState(theme.palette.primary);
   const [secondaryText, setSecondaryText] = useState(theme.palette.secondary ?? "");
@@ -91,6 +128,19 @@ export function PaletteEditor({
           ))}
         </div>
       </fieldset>
+
+      {logoUrl ? (
+        <div className="space-y-2">
+          <Button type="button" variant="secondary" size="sm" onClick={fromLogo}>
+            Usar as cores do logo
+          </Button>
+          {logoNote ? (
+            <p className="text-sm text-ink-2" role="status">
+              {logoNote}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink">Paletas prontas</legend>

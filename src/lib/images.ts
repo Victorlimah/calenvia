@@ -4,11 +4,43 @@ export const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/h
 
 export const MAX_GALLERY_PHOTOS = 12;
 
-export type ImageKind = "logo" | "cover" | "staff" | "gallery";
+export type ImageKind = "logo" | "logo_alt" | "cover" | "staff" | "gallery";
+
+/** Logo (CAL-143): PNG, JPG, SVG ou WebP de até 2 MB. Vira PNG de até 512 px no navegador. */
+export const LOGO_ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/svg+xml", "image/webp"];
+export const MAX_LOGO_BYTES = 2 * 1024 * 1024;
+/** Tipos que o servidor aceita no arquivo salvo do logo (SVG nunca é guardado). */
+export const LOGO_STORED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+export function validateLogoFile(file: { type: string; size: number }): string | null {
+  if (!LOGO_ACCEPTED_TYPES.includes(file.type)) return "Envie o logo em PNG, JPG, SVG ou WebP.";
+  if (file.size > MAX_LOGO_BYTES) return "O logo pode ter até 2 MB.";
+  return null;
+}
+
+/**
+ * Recorte do logo (CAL-143): área da imagem original que entra no quadrado de saída, dado o
+ * zoom (1 = a imagem inteira cabe no lado menor) e o deslocamento (-1..1 em cada eixo).
+ */
+export function logoCropRect(
+  width: number,
+  height: number,
+  zoom: number,
+  offsetX: number,
+  offsetY: number,
+): { sx: number; sy: number; size: number } {
+  const z = Math.min(4, Math.max(1, zoom));
+  const size = Math.min(width, height) / z;
+  const clamp = (v: number) => Math.min(1, Math.max(-1, v));
+  const sx = ((width - size) / 2) * (1 + clamp(offsetX));
+  const sy = ((height - size) / 2) * (1 + clamp(offsetY));
+  return { sx, sy, size };
+}
 
 /** Tamanho máximo (maior lado, em px) por tipo de imagem. */
 export const MAX_DIMENSION: Record<ImageKind, number> = {
   logo: 512,
+  logo_alt: 512,
   cover: 1920,
   staff: 640,
   gallery: 1600,

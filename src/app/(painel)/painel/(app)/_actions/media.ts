@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import type { ActionResult } from "@/lib/action-result";
 import { requireBusinessFor } from "@/lib/business/current";
-import { MAX_GALLERY_PHOTOS, mediaPublicPrefix } from "@/lib/images";
+import {
+  LOGO_STORED_TYPES,
+  MAX_GALLERY_PHOTOS,
+  MAX_LOGO_BYTES,
+  mediaPublicPrefix,
+} from "@/lib/images";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const BUCKET = "business-media";
@@ -26,18 +32,54 @@ async function removeObject(url: string | null | undefined) {
   await supabase.storage.from(BUCKET).remove([path]);
 }
 
+/**
+ * Logo (CAL-143): confere no Storage o arquivo enviado — no máximo 2 MB e PNG/JPG/WebP (o SVG é
+ * convertido no navegador e nunca é guardado). Devolve a mensagem de erro ou null.
+ */
+async function checkLogoObject(url: string): Promise<string | null> {
+  const path = pathFromUrl(url);
+  if (!path) return "Imagem inválida.";
+  const slash = path.lastIndexOf("/");
+  const dir = path.slice(0, slash);
+  const file = path.slice(slash + 1);
+  const { data } = await createSupabaseAdminClient()
+    .storage.from(BUCKET)
+    .list(dir, { search: file, limit: 1 });
+  const meta = data?.find((o) => o.name === file)?.metadata as
+    { size?: number; mimetype?: string } | undefined;
+  if (!meta) return "Não encontramos o arquivo do logo. Envie de novo.";
+  if ((meta.size ?? 0) > MAX_LOGO_BYTES) return "O logo pode ter até 2 MB.";
+  if (!LOGO_STORED_TYPES.includes(meta.mimetype ?? "")) return "Envie o logo em PNG, JPG ou WebP.";
+  return null;
+}
+
+const IMAGE_COLUMNS = { logo: "logo_url", logo_alt: "logo_alt_url", cover: "cover_url" } as const;
+
 export async function setBusinessImageAction(
-  kind: "logo" | "cover",
+  kind: "logo" | "logo_alt" | "cover",
   url: string | null,
 ): Promise<ActionResult> {
   const business = await requireBusinessFor("settings.manage");
   if (url && !belongsToBusiness(url, business.id)) return { ok: false, error: "Imagem inválida." };
-  const column = kind === "logo" ? "logo_url" : "cover_url";
+  if (url && kind !== "cover") {
+    const problem = await checkLogoObject(url);
+    if (problem) {
+      await removeObject(url);
+      return { ok: false, error: problem };
+    }
+  }
+  const column = IMAGE_COLUMNS[kind];
   const previous = business[column];
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase
     .from("businesses")
-    .update(kind === "logo" ? { logo_url: url } : { cover_url: url })
+    .update(
+      kind === "logo"
+        ? { logo_url: url }
+        : kind === "logo_alt"
+          ? { logo_alt_url: url }
+          : { cover_url: url },
+    )
     .eq("id", business.id);
   if (error) return { ok: false, error: "Não foi possível salvar a imagem." };
   if (previous && previous !== url) await removeObject(previous);

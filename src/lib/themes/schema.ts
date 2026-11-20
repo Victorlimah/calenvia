@@ -27,6 +27,9 @@ export type RadiusId = (typeof RADIUS_IDS)[number];
 export const DENSITY_IDS = ["compact", "comfortable"] as const;
 export type DensityId = (typeof DENSITY_IDS)[number];
 export const LOGO_SHAPES = ["square", "round", "free"] as const;
+/** Onde o logo aparece (CAL-143): cabeçalho, abertura e rodapé. */
+export const LOGO_PLACEMENTS = ["header", "hero", "footer"] as const;
+export type LogoPlacement = (typeof LOGO_PLACEMENTS)[number];
 export type LogoShape = (typeof LOGO_SHAPES)[number];
 
 const hex = z.string().transform((v, ctx) => {
@@ -67,7 +70,11 @@ export const themeSchema = z.object({
   fontPairId: slugId,
   radius: z.enum(RADIUS_IDS),
   density: z.enum(DENSITY_IDS),
-  logo: z.object({ show: z.boolean(), shape: z.enum(LOGO_SHAPES) }),
+  logo: z.object({
+    show: z.boolean(),
+    shape: z.enum(LOGO_SHAPES),
+    placements: z.array(z.enum(LOGO_PLACEMENTS)).max(3).optional(),
+  }),
   sections: z
     .array(sectionSettingSchema)
     .max(SECTION_IDS.length)

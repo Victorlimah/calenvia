@@ -35,6 +35,7 @@ export default async function AjustesAparenciaPage() {
           headline: b.headline,
           subheadline: b.subheadline,
           logo_url: b.logo_url,
+          logo_alt_url: b.logo_alt_url,
           cover_url: b.cover_url,
         }}
         photos={photos ?? []}

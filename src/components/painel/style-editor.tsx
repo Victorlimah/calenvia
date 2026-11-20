@@ -1,10 +1,22 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-import { setDensity, setFontPair, setRadius } from "@/lib/themes/edit";
+import { setDensity, setFontPair, setLogoOptions, setRadius } from "@/lib/themes/edit";
+import { logoPlacements } from "@/lib/themes/logo";
 import { FONT_PAIRS, fontPairVars } from "@/lib/themes/font-pairs";
 import { ALL_FONT_CLASSNAMES } from "@/lib/themes/fonts";
-import type { DensityId, RadiusId, Theme } from "@/lib/themes/schema";
+import type { DensityId, LogoPlacement, LogoShape, RadiusId, Theme } from "@/lib/themes/schema";
+
+const LOGO_SHAPES: [LogoShape, string][] = [
+  ["square", "Quadrado"],
+  ["round", "Redondo"],
+  ["free", "Livre (sem recorte)"],
+];
+const LOGO_PLACES: [LogoPlacement, string][] = [
+  ["header", "Cabeçalho"],
+  ["hero", "Abertura"],
+  ["footer", "Rodapé"],
+];
 
 const RADIUS_OPTIONS: [RadiusId, string, string][] = [
   ["square", "Retos", "rounded-[4px]"],
@@ -78,6 +90,60 @@ export function StyleEditor({ theme, onChange }: { theme: Theme; onChange: (t: T
               {label}
             </button>
           ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend className="mb-2 text-sm font-semibold text-ink">Logo</legend>
+        <label className="flex min-h-11 items-center gap-3 text-ink">
+          <input
+            type="checkbox"
+            className="size-5"
+            checked={theme.logo.show}
+            onChange={(e) => onChange(setLogoOptions(theme, { show: e.target.checked }))}
+          />
+          Mostrar meu logo (sem ele, usamos as iniciais do negócio)
+        </label>
+        <p className="mt-2 mb-1 text-sm text-ink-2">Formato</p>
+        <div className="flex flex-wrap gap-2">
+          {LOGO_SHAPES.map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={theme.logo.shape === id}
+              onClick={() => onChange(setLogoOptions(theme, { shape: id }))}
+              className={cn(
+                "min-h-11 rounded-[var(--radius-control)] border bg-white px-3 font-semibold text-ink",
+                theme.logo.shape === id ? "border-brand ring-2 ring-brand" : "border-line",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-3 mb-1 text-sm text-ink-2">Onde aparece</p>
+        <div className="flex flex-wrap gap-x-5">
+          {LOGO_PLACES.map(([id, label]) => {
+            const current = logoPlacements(theme);
+            const on = current.includes(id);
+            return (
+              <label key={id} className="flex min-h-11 items-center gap-2 text-ink">
+                <input
+                  type="checkbox"
+                  className="size-5"
+                  checked={on}
+                  onChange={() =>
+                    onChange(
+                      setLogoOptions(theme, {
+                        placements: on ? current.filter((p) => p !== id) : [...current, id],
+                      }),
+                    )
+                  }
+                />
+                {label}
+              </label>
+            );
+          })}
         </div>
       </fieldset>
 

@@ -49,7 +49,8 @@ export function defaultTheme(accent?: string | null): Theme {
     fontPairId: DEFAULT_FONT_PAIR,
     radius: "soft",
     density: "comfortable",
-    logo: { show: true, shape: "round" },
+    // "Quadrado" com cantos do tema = o visual de antes (rounded 16px).
+    logo: { show: true, shape: "square", placements: ["hero"] },
     sections: defaultSections(),
   };
 }

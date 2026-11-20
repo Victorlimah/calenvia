@@ -111,3 +111,10 @@ export function setRadius(theme: Theme, radius: RadiusId): Theme {
 export function setDensity(theme: Theme, density: DensityId): Theme {
   return DENSITY_IDS.includes(density) ? { ...theme, density } : theme;
 }
+
+/** Opções do logo (CAL-143): mostrar, formato e onde aparece (pelo menos um lugar). */
+export function setLogoOptions(theme: Theme, patch: Partial<Theme["logo"]>): Theme {
+  const logo = { ...theme.logo, ...patch };
+  if (logo.placements && logo.placements.length === 0) logo.placements = ["hero"];
+  return { ...theme, logo };
+}
