@@ -8,8 +8,9 @@ import { noturno } from "./templates/noturno";
 import { delicado } from "./templates/delicado";
 import { clinico } from "./templates/clinico";
 import { vitrine } from "./templates/vitrine";
+import { natureza } from "./templates/natureza";
 
-export const TEMPLATES: TemplateDefinition[] = [noturno, delicado, clinico, vitrine];
+export const TEMPLATES: TemplateDefinition[] = [noturno, delicado, clinico, vitrine, natureza];
 
 export const DEFAULT_TEMPLATE_ID = "noturno";
 
