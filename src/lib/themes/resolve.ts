@@ -165,7 +165,7 @@ export function themeCssVars(r: ResolvedTheme): Record<string, string> {
     "--c-link": c.link,
     "--radius": radius.card,
     "--radius-sm": radius.control,
-    // Os componentes usam rounded-[var(--radius-card|control)]: o tema sobrescreve na raiz.
+    // Os componentes usam as variáveis de canto do cartão e do controle: o tema sobrescreve na raiz.
     "--radius-card": radius.card,
     "--radius-control": radius.control,
     "--density": r.theme.density === "compact" ? "0.75" : "1",
