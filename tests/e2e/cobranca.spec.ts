@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { admin, loginAsZe } from "./helpers";
+import { admin, BILLING_ON, loginAsZe, SIGNUP_OPEN } from "./helpers";
 
 /**
  * Cobrança (CAL-076): cadastro → onboarding → checkout com extra → pagamento simulado →
@@ -9,6 +9,7 @@ test("dono novo assina com o pagamento simulado e a página pública abre", asyn
   page,
   browser,
 }) => {
+  test.skip(!SIGNUP_OPEN || !BILLING_ON, "Só com SIGNUP_MODE=open e BILLING_ENABLED=true");
   test.setTimeout(120_000);
   const stamp = Date.now();
   const slug = `cobranca-${stamp}`;
@@ -96,6 +97,12 @@ test("dono novo assina com o pagamento simulado e a página pública abre", asyn
 
 test("assinatura cortesia (seed) não mostra cobrança nem botão de cancelar", async ({ page }) => {
   await loginAsZe(page, "/assinatura");
-  await expect(page.getByText("Assinatura liberada pela Calenvia, sem cobrança.")).toBeVisible();
+  if (BILLING_ON) {
+    await expect(page.getByText("Assinatura liberada pela Calenvia, sem cobrança.")).toBeVisible();
+  } else {
+    // CAL-135: cobrança desligada → só o plano e "Cortesia", sem preço.
+    await expect(page.getByTestId("assinatura-cortesia")).toContainText("Cortesia");
+    await expect(page.getByText(/R\$/)).toHaveCount(0);
+  }
   await expect(page.getByRole("button", { name: "Cancelar assinatura" })).toHaveCount(0);
 });

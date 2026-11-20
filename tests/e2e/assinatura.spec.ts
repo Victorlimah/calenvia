@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { admin, cleanupCustomer, loginAsZe, ZE_BIZ, seededDay } from "./helpers";
+import { admin, BILLING_ON, cleanupCustomer, loginAsZe, ZE_BIZ, seededDay } from "./helpers";
 
 // Barbearia do Zé é Pro (300 mensagens/mês), fuso de Fortaleza.
 const PERIOD = new Intl.DateTimeFormat("en-CA", {
@@ -42,7 +42,8 @@ test("assinatura mostra o plano e o uso de mensagens do mês", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Plano Pro" })).toBeVisible();
   await expect(page.getByText("120 de 300 mensagens")).toBeVisible();
   await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "120");
-  await expect(page.getByText("Seu plano atual")).toBeVisible();
+  if (BILLING_ON) await expect(page.getByText("Seu plano atual")).toBeVisible();
+  else await expect(page.getByTestId("assinatura-cortesia")).toContainText("Cortesia");
 });
 
 test("perto do limite, a agenda avisa e sugere o Pro+", async ({ page }) => {

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Alert, Card } from "@/components/ui";
 import { getCurrentPrices } from "@/lib/billing/prices-server";
 import { isMockBilling } from "@/lib/billing/config";
+import { isBillingEnabled } from "@/lib/config/access";
 import { requireReadyMember } from "@/lib/business/current";
 import { can } from "@/lib/permissions";
 import { needsCheckout, PLAN_ORDER, PLANS, planOf } from "@/lib/plans";
@@ -14,7 +15,8 @@ export const metadata: Metadata = { title: "Ativar assinatura — Calenvia" };
 export default async function CheckoutPage() {
   const member = await requireReadyMember();
   const business = member.business;
-  if (!needsCheckout(business)) redirect("/assinatura");
+  // CAL-135: sem cobrança não existe checkout.
+  if (!isBillingEnabled() || !needsCheckout(business)) redirect("/assinatura");
 
   const canceled = business.plan_status === "canceled";
   const title = canceled ? "Reative sua assinatura" : "Falta só ativar sua assinatura";

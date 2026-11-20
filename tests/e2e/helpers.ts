@@ -11,6 +11,13 @@ export const admin = createClient(URL, SERVICE_KEY, { auth: { persistSession: fa
 
 export const ZE_BIZ = "0b000000-0000-4000-8000-000000000001";
 
+/**
+ * Chaves de modo (CAL-135). Rode os testes com as mesmas variáveis do servidor:
+ * padrão = convite + sem cobrança; `SIGNUP_MODE=open BILLING_ENABLED=true` = comportamento antigo.
+ */
+export const SIGNUP_OPEN = process.env.SIGNUP_MODE === "open";
+export const BILLING_ON = process.env.BILLING_ENABLED === "true";
+
 export async function cleanupCustomer(whatsapp: string) {
   await admin.from("messages").delete().eq("to_number", whatsapp);
   await admin.from("appointments").delete().eq("customer_whatsapp", whatsapp);

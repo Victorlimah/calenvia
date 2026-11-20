@@ -1,5 +1,8 @@
 import { expect, test } from "./fixtures";
-import { admin, loginAsZe, ZE_BIZ } from "./helpers";
+import { admin, loginAsZe, SIGNUP_OPEN, ZE_BIZ } from "./helpers";
+
+// A indicação leva ao cadastro aberto; no modo convite (padrão) não há cadastro.
+test.skip(!SIGNUP_OPEN, "Só com SIGNUP_MODE=open");
 
 test("indicação: link do site leva ao cadastro e o indicado aparece para quem indicou", async ({
   page,

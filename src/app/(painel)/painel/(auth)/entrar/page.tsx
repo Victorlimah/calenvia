@@ -1,10 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Alert } from "@/components/ui";
+import { isInviteOnly } from "@/lib/config/access";
 import { GoogleButton } from "../google-button";
 import { SignInForm } from "./sign-in-form";
 
 export const metadata: Metadata = { title: "Entrar — Calenvia" };
+export const dynamic = "force-dynamic";
 
 export default async function EntrarPage({
   searchParams,
@@ -12,6 +14,8 @@ export default async function EntrarPage({
   searchParams: Promise<{ next?: string; erro?: string }>;
 }) {
   const { next, erro } = await searchParams;
+  const teamInvite = next?.startsWith("/convite/") ? next : undefined;
+  const inviteOnly = isInviteOnly();
   return (
     <div className="space-y-6">
       <div>
@@ -21,22 +25,36 @@ export default async function EntrarPage({
       {erro === "link" ? (
         <Alert tone="warning">Esse link expirou ou já foi usado. Entre ou peça um novo link.</Alert>
       ) : null}
+      {erro === "convite" ? (
+        <Alert tone="warning">
+          Não encontramos uma conta da Calenvia para esse login. Por enquanto o acesso é por
+          convite.
+        </Alert>
+      ) : null}
       <SignInForm next={next} />
       <Divider />
       <GoogleButton next={next} />
-      <p className="text-center text-sm text-ink-2">
-        Ainda não tem conta?{" "}
-        <Link
-          href={
-            next?.startsWith("/convite/")
-              ? `/cadastro?next=${encodeURIComponent(next)}`
-              : "/cadastro"
-          }
-          className="font-semibold text-brand underline-offset-2 hover:underline"
-        >
-          Criar conta
-        </Link>
-      </p>
+      {inviteOnly && !teamInvite ? (
+        <p className="text-center text-sm text-ink-2">
+          Ainda não tem conta?{" "}
+          <Link
+            href="/cadastro"
+            className="font-semibold text-brand underline-offset-2 hover:underline"
+          >
+            Pedir acesso
+          </Link>
+        </p>
+      ) : (
+        <p className="text-center text-sm text-ink-2">
+          Ainda não tem conta?{" "}
+          <Link
+            href={teamInvite ? `/cadastro?next=${encodeURIComponent(teamInvite)}` : "/cadastro"}
+            className="font-semibold text-brand underline-offset-2 hover:underline"
+          >
+            Criar conta
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

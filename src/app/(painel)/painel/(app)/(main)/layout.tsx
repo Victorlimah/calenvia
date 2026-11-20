@@ -6,17 +6,22 @@ import { BillingBanner } from "@/components/painel/billing-banner";
 import { can, ROLE_LABELS } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { needsCheckout } from "@/lib/plans";
+import { isBillingEnabled } from "@/lib/config/access";
+import { Alert } from "@/components/ui";
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   // Equipe da Calenvia sem negócio próprio vai direto para a administração (CAL-114).
   if (!(await getCurrentMember()) && (await getPlatformAdmin())) redirect("/admin");
   const business = await requireReadyBusiness();
   // Cadastro sem pagamento ou assinatura cancelada: primeiro ativa (CAL-076).
-  if (needsCheckout(business)) redirect("/assinatura/checkout");
+  // Com a cobrança desligada (CAL-135) não existe checkout: a conta espera a liberação do admin.
+  const billing = isBillingEnabled();
+  if (billing && needsCheckout(business)) redirect("/assinatura/checkout");
+  const awaitingRelease = !billing && needsCheckout(business);
   const memberships = await getMyMemberships();
   const member = await getCurrentMember();
   let pastDueSince: string | null = null;
-  if (business.plan_status === "past_due") {
+  if (billing && business.plan_status === "past_due") {
     const { data } = await createSupabaseAdminClient()
       .from("subscriptions")
       .select("past_due_since")
@@ -37,7 +42,15 @@ export default async function MainLayout({ children }: { children: React.ReactNo
         role: ROLE_LABELS[m.role],
       }))}
     >
-      {business.plan_status === "past_due" || business.plan_status === "suspended" ? (
+      {awaitingRelease ? (
+        <div className="mx-auto w-full max-w-2xl px-4 pt-4" data-testid="awaiting-release">
+          <Alert tone="info" title="Sua conta está aguardando liberação">
+            A equipe da Calenvia vai liberar sua página em breve. Enquanto isso, você já pode
+            configurar tudo no painel.
+          </Alert>
+        </div>
+      ) : null}
+      {billing && (business.plan_status === "past_due" || business.plan_status === "suspended") ? (
         <div className="mx-auto w-full max-w-2xl px-4 pt-4">
           <BillingBanner
             status={business.plan_status}

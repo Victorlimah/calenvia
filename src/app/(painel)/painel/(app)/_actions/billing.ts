@@ -19,6 +19,10 @@ import { memberWith, NO_PERMISSION } from "@/lib/business/current";
 import { appUrl } from "@/lib/hosts";
 import { needsCheckout, PLAN_ORDER, type PlanId } from "@/lib/plans";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { isBillingEnabled } from "@/lib/config/access";
+
+/** CAL-135: com a cobrança desligada, nenhuma action de assinatura age. */
+const BILLING_OFF = { ok: false as const, error: "A cobrança está desligada. Fale com o suporte." };
 
 const checkoutSchema = z.object({
   plan: z.enum(PLAN_ORDER as [PlanId, ...PlanId[]], { message: "Escolha um plano." }),
@@ -32,6 +36,7 @@ const checkoutSchema = z.object({
 export async function startCheckoutAction(
   input: z.input<typeof checkoutSchema>,
 ): Promise<ActionResult<{ url: string }>> {
+  if (!isBillingEnabled()) return BILLING_OFF;
   const member = await memberWith("billing.manage");
   if (!member) return { ok: false, error: NO_PERMISSION };
   const parsed = checkoutSchema.safeParse(input);
@@ -104,6 +109,7 @@ export async function startCheckoutAction(
 export async function approveMockPaymentAction(
   sessionId: string,
 ): Promise<ActionResult<{ redirectTo: string }>> {
+  if (!isBillingEnabled()) return BILLING_OFF;
   if (!isMockBilling()) return { ok: false, error: "Pagamento simulado desligado." };
   const member = await memberWith("billing.manage");
   if (!member) return { ok: false, error: NO_PERMISSION };
@@ -126,6 +132,7 @@ const planSchema = z.enum(PLAN_ORDER as [PlanId, ...PlanId[]]);
 
 /** Trocar de plano: upgrade na hora (proporcional), downgrade no fim do ciclo (CAL-078). */
 export async function changePlanAction(plan: string): Promise<ActionResult<{ code: string }>> {
+  if (!isBillingEnabled()) return BILLING_OFF;
   const member = await memberWith("billing.manage");
   if (!member) return { ok: false, error: NO_PERMISSION };
   const parsed = planSchema.safeParse(plan);
@@ -138,6 +145,7 @@ export async function changePlanAction(plan: string): Promise<ActionResult<{ cod
 
 /** Cancelar no fim do período pago. */
 export async function cancelSubscriptionAction(): Promise<ActionResult> {
+  if (!isBillingEnabled()) return BILLING_OFF;
   const member = await memberWith("billing.manage");
   if (!member) return { ok: false, error: NO_PERMISSION };
   const r = await cancelSubscription(member.business.id);
@@ -148,6 +156,7 @@ export async function cancelSubscriptionAction(): Promise<ActionResult> {
 
 /** Desfazer o cancelamento agendado. */
 export async function resumeSubscriptionAction(): Promise<ActionResult> {
+  if (!isBillingEnabled()) return BILLING_OFF;
   const member = await memberWith("billing.manage");
   if (!member) return { ok: false, error: NO_PERMISSION };
   const r = await resumeSubscription(member.business.id);
@@ -158,6 +167,7 @@ export async function resumeSubscriptionAction(): Promise<ActionResult> {
 
 /** "Atualizar cartão": abre o portal do gateway (no mock não existe). */
 export async function customerPortalAction(): Promise<ActionResult<{ url: string }>> {
+  if (!isBillingEnabled()) return BILLING_OFF;
   const member = await memberWith("billing.manage");
   if (!member) return { ok: false, error: NO_PERMISSION };
   const sub = await currentSubscription(member.business.id);

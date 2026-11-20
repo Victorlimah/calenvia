@@ -26,7 +26,7 @@ test.afterAll(cleanup);
 test("profissional convidado vê só a própria agenda e nenhum valor", async ({ page, browser }) => {
   test.setTimeout(180_000);
   await loginAsZe(page, "/negocio/equipe");
-  await expect(page.getByRole("heading", { name: "Equipe e acessos" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Acessos ao painel" })).toBeVisible();
   await page.getByLabel("Papel", { exact: true }).first().selectOption("staff");
   await page.getByLabel("Cadastro de profissional").selectOption(RAFAEL);
   await page.getByRole("button", { name: "Gerar convite" }).click();

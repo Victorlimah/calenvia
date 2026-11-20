@@ -20,6 +20,11 @@ import { track } from "@/lib/metrics";
 import { validateCustomText } from "@/lib/messages/custom";
 import { z } from "zod";
 import { newRefCode, normalizeRefCode } from "@/lib/referrals";
+import {
+  canCreateBusinessInOnboarding,
+  INVITE_ONLY_MESSAGE,
+  signupMode,
+} from "@/lib/config/access";
 
 export async function checkSlugAction(raw: string): Promise<SlugCheck> {
   await requireUser();
@@ -35,6 +40,10 @@ export async function saveBusinessInfoAction(input: unknown): Promise<ActionResu
   const member = await getCurrentMember();
   if (member && !can(member, "settings.manage")) return { ok: false, error: NO_PERMISSION };
   const current = member?.business ?? null;
+  // CAL-135: no modo convite o negócio já vem criado pelo /admin; o onboarding só completa.
+  if (!current && !canCreateBusinessInOnboarding(signupMode())) {
+    return { ok: false, error: INVITE_ONLY_MESSAGE };
+  }
   const check = await checkSlugAvailability(parsed.data.slug, { ignoreBusinessId: current?.id });
   if (!check.available) {
     return { ok: false, error: check.reason, fieldErrors: { slug: check.reason } };

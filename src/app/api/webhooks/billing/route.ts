@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { applyBillingEvent } from "@/lib/billing/events";
 import { getBillingProvider, WebhookRejected } from "@/lib/billing/provider";
+import { isBillingEnabled } from "@/lib/config/access";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,8 @@ export const dynamic = "force-dynamic";
  * (idempotente). O pagamento simulado não usa webhook: recusa tudo.
  */
 export async function POST(request: Request) {
+  // CAL-135: cobrança desligada → responde 200 sem agir (o gateway não fica tentando de novo).
+  if (!isBillingEnabled()) return NextResponse.json({ received: 0, billing: "disabled" });
   const provider = await getBillingProvider();
   let events;
   try {

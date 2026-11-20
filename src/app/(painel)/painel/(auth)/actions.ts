@@ -7,6 +7,9 @@ import { appUrl } from "@/lib/hosts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { track } from "@/lib/metrics";
 import { normalizeRefCode } from "@/lib/referrals";
+import { INVITE_ONLY_MESSAGE, signupMode } from "@/lib/config/access";
+import { checkTeamInvitePath } from "@/lib/config/access-server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   authErrorMessage,
   forgotPasswordSchema,
@@ -41,6 +44,37 @@ export async function signUpAction(
   const parsed = signUpSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createSupabaseServerClient();
+
+  // CAL-135: no modo convite, a tela de cadastro só cria conta para quem chegou pelo link de um
+  // convite da equipe ainda válido. A conta nasce pela API de administração (funciona mesmo com
+  // o cadastro do Supabase desligado) e já entra logada, de volta ao convite.
+  const mode = signupMode();
+  if (mode === "invite") {
+    const team = await checkTeamInvitePath(next);
+    if (!team.valid) return { ok: false, error: INVITE_ONLY_MESSAGE };
+    const email = parsed.data.email.toLowerCase();
+    if (team.email && team.email !== email) {
+      return {
+        ok: false,
+        error: `Use o e-mail para o qual o convite foi enviado (${team.email}).`,
+      };
+    }
+    const { error: createError } = await createSupabaseAdminClient().auth.admin.createUser({
+      email,
+      password: parsed.data.password,
+      email_confirm: true,
+      user_metadata: { name: parsed.data.name },
+    });
+    if (createError) return { ok: false, error: authErrorMessage(createError.message) };
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password: parsed.data.password,
+    });
+    if (signInError) return { ok: false, error: authErrorMessage(signInError.message) };
+    await track("signup", { props: { via: "team_invite" } });
+    return { ok: true, data: { redirectTo: safeNextPath(next) } };
+  }
+
   const nextPath = next
     ? safeNextPath(next)
     : plan

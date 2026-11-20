@@ -13,16 +13,22 @@ export function SignUpForm({
   plan,
   refCode,
   next,
+  defaultEmail,
 }: {
   plan?: string;
   refCode?: string;
   next?: string;
+  /** E-mail do convite da equipe, já preenchido (CAL-135). */
+  defaultEmail?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const form = useForm<SignUpInput>({ resolver: zodResolver(signUpSchema) });
+  const form = useForm<SignUpInput>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: defaultEmail ? { email: defaultEmail } : undefined,
+  });
   const { errors } = form.formState;
 
   const onSubmit = form.handleSubmit((values) => {

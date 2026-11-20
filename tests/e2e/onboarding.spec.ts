@@ -1,6 +1,11 @@
 import { expect, test } from "./fixtures";
+import { BILLING_ON, SIGNUP_OPEN } from "./helpers";
+
+// Cadastro aberto (CAL-031/084). No modo convite (padrão) o caminho é outro: convite.spec.ts.
+test.skip(!SIGNUP_OPEN, "Só com SIGNUP_MODE=open");
 
 test("dono novo escolhe o Pro no site, cria a conta e conclui o onboarding", async ({ page }) => {
+  test.skip(!BILLING_ON, "Só com BILLING_ENABLED=true");
   const stamp = Date.now();
   await page.goto("/cadastro?plano=pro");
   await expect(page.getByText("Plano escolhido:")).toBeVisible();

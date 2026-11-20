@@ -218,7 +218,7 @@ Pedido do Victor (2026-11-20): (1) enquanto a integração com o Stripe não sai
 - Fontes novas só via `next/font` (Google Fonts, gratuitas); nada de serviço pago ou dependência pesada sem confirmar.
 
 ### Sprint 14 — Acesso por convite (sem cobrança e sem cadastro aberto)
-- [ ] **CAL-135** · Chaves de modo: cadastro e cobrança desligáveis · P0 · 1d — Duas variáveis em `.env.example` e leitura centralizada em `src/lib/config/access.ts`: `SIGNUP_MODE=invite|open` (padrão **`invite`**) e `BILLING_ENABLED=false|true` (padrão **`false`**).
+- [x] **CAL-135** · Chaves de modo: cadastro e cobrança desligáveis · P0 · 1d — Duas variáveis em `.env.example` e leitura centralizada em `src/lib/config/access.ts`: `SIGNUP_MODE=invite|open` (padrão **`invite`**) e `BILLING_ENABLED=false|true` (padrão **`false`**).
   - Com `SIGNUP_MODE=invite`: `/cadastro` (e `?plano=`) deixa de criar conta; mostra "A Calenvia está em acesso por convite" com botão para pedir acesso (WhatsApp/lista de espera) e link "Já tenho convite" (entrar). A action de cadastro **recusa no servidor** também (não basta esconder a tela). Login com Google, se ligado, não cria conta nova.
   - Com `BILLING_ENABLED=false`: some o checkout, o "Assinar e ativar", faixas de cobrança e a tela `/assinatura` mostra só o plano atual e "Cortesia" (sem cartão); webhooks de cobrança continuam respondendo 200 sem agir. Contas convidadas entram `active` (assinatura `manual`, como a cortesia do admin).
   - Aceite: testes provando que, no modo convite, **não existe caminho** para criar conta sem convite (rota, action e callback do Google); ligar `open`/`true` restaura o comportamento atual; E2E ajustados.

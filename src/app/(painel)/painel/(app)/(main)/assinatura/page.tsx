@@ -4,6 +4,7 @@ import { PageBody, PageHeader } from "@/components/painel/page-header";
 import { QuotaAlert, QuotaMeter } from "@/components/painel/quota";
 import { Alert, Badge, Card } from "@/components/ui";
 import { isMockBilling } from "@/lib/billing/config";
+import { isBillingEnabled } from "@/lib/config/access";
 import { loadSubscriptionItems } from "@/lib/billing/items";
 import { PLAN_CHANGE_MESSAGES, planChangeKind, type PlanChangeCode } from "@/lib/billing/lifecycle";
 import { getCurrentPrices } from "@/lib/billing/prices-server";
@@ -83,6 +84,53 @@ export default async function AssinaturaPage({
   const periodEnd = sub?.current_period_end ?? null;
   const canChange = manage && !!sub && ["active", "past_due"].includes(sub.status);
 
+  const messagesSection = (
+    <section aria-labelledby="mensagens-titulo" className="space-y-3">
+      <h2 id="mensagens-titulo" className="font-display text-lg font-bold">
+        Mensagens automáticas do mês
+      </h2>
+      {quota ? (
+        <>
+          <QuotaAlert notice={quota.notice} showLink={false} />
+          <Card>
+            <QuotaMeter state={quota.state} resetLabel={quotaResetLabel(quota.period)} />
+          </Card>
+        </>
+      ) : (
+        <Card>
+          <p className="text-ink-2">
+            No plano {plan.name}, a confirmação vai pelo seu WhatsApp, com a mensagem pronta: é só
+            tocar em “Enviar confirmação no WhatsApp” no agendamento. Nos planos Pro e Pro+, a
+            confirmação e o lembrete saem sozinhos.
+          </p>
+        </Card>
+      )}
+    </section>
+  );
+
+  // CAL-135: cobrança desligada → só o plano atual e "Cortesia", sem preços nem cartão.
+  if (!isBillingEnabled()) {
+    return (
+      <PageBody>
+        <PageHeader title="Assinatura" back={{ href: "/ajustes", label: "Ajustes" }} />
+        <Card className="space-y-3" data-testid="assinatura-cortesia">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-display text-2xl font-extrabold text-ink">Plano {plan.name}</h2>
+            <Badge tone={business.plan_status === "active" ? "success" : "warning"}>
+              {business.plan_status === "active" ? "Cortesia" : "Aguardando liberação"}
+            </Badge>
+          </div>
+          <p className="text-ink-2">
+            Sua conta não tem cobrança: a Calenvia está em acesso por convite e liberou o seu
+            negócio sem custo. Nenhum cartão é pedido. Avisaremos com antecedência antes de qualquer
+            mudança.
+          </p>
+        </Card>
+        {messagesSection}
+      </PageBody>
+    );
+  }
+
   return (
     <PageBody>
       <PageHeader title="Assinatura" back={{ href: "/ajustes", label: "Ajustes" }} />
@@ -146,27 +194,7 @@ export default async function AssinaturaPage({
         </Alert>
       ) : null}
 
-      <section aria-labelledby="mensagens-titulo" className="space-y-3">
-        <h2 id="mensagens-titulo" className="font-display text-lg font-bold">
-          Mensagens automáticas do mês
-        </h2>
-        {quota ? (
-          <>
-            <QuotaAlert notice={quota.notice} showLink={false} />
-            <Card>
-              <QuotaMeter state={quota.state} resetLabel={quotaResetLabel(quota.period)} />
-            </Card>
-          </>
-        ) : (
-          <Card>
-            <p className="text-ink-2">
-              No plano {plan.name}, a confirmação vai pelo seu WhatsApp, com a mensagem pronta: é só
-              tocar em “Enviar confirmação no WhatsApp” no agendamento. Nos planos Pro e Pro+, a
-              confirmação e o lembrete saem sozinhos.
-            </p>
-          </Card>
-        )}
-      </section>
+      {messagesSection}
 
       <section aria-labelledby="planos-titulo" className="space-y-3">
         <h2 id="planos-titulo" className="font-display text-lg font-bold">

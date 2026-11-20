@@ -4,6 +4,8 @@
  * Teste grátis (CAL-079) ainda não decidido: 0 = sem teste. Se virar > 0, o checkout cria a
  * assinatura com `trial_end` e status `active`.
  */
+import { isBillingEnabled } from "@/lib/config/access";
+
 export const TRIAL_DAYS = 0;
 
 export type BillingProviderId = "mock" | "stripe";
@@ -15,7 +17,13 @@ export function billingProviderId(
   return value === "stripe" ? "stripe" : "mock";
 }
 
-/** Pagamento simulado ligado? (botões de simulação no /admin e a tela /pagamento-simulado). */
-export function isMockBilling(value: string | undefined = process.env.BILLING_PROVIDER): boolean {
-  return billingProviderId(value) === "mock";
+/**
+ * Pagamento simulado ligado? (botões de simulação no /admin e a tela /pagamento-simulado).
+ * Com a cobrança desligada (CAL-135, `BILLING_ENABLED=false`) nada de pagamento aparece.
+ */
+export function isMockBilling(
+  value: string | undefined = process.env.BILLING_PROVIDER,
+  enabled: boolean = isBillingEnabled(),
+): boolean {
+  return enabled && billingProviderId(value) === "mock";
 }
