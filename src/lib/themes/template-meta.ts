@@ -104,3 +104,87 @@ export const ALEGRE_META: TemplateMeta = {
   density: "comfortable",
   logoShape: "round",
 };
+
+export const EDITORIAL_META: TemplateMeta = {
+  id: "editorial",
+  name: "Editorial",
+  description: "Cara de revista: tipografia grande, preto e branco com um toque de cor",
+  segments: ["salao", "estetica", "tatuagem", "clinica"],
+  paletteId: "papel-e-tinta",
+  mode: "light",
+  altPaletteIds: ["preto-vermelho", "azul-marinho"],
+  fontPairId: "editorial",
+  radius: "square",
+  density: "comfortable",
+  logoShape: "square",
+};
+
+export const BOUTIQUE_META: TemplateMeta = {
+  id: "boutique",
+  name: "Boutique",
+  description: "Luxo discreto, serifada fina, muito espaço e uma cor só",
+  segments: ["estetica", "salao", "sobrancelha", "clinica"],
+  paletteId: "vinho-creme",
+  mode: "light",
+  altPaletteIds: ["cafe-com-leite", "grafite-dourado"],
+  fontPairId: "elegante",
+  radius: "square",
+  density: "comfortable",
+  logoShape: "free",
+};
+
+export const POP_META: TemplateMeta = {
+  id: "pop",
+  name: "Pop",
+  description: "Colorido, blocos e formas geométricas, jovem",
+  segments: ["personal", "pet", "manicure", "outro"],
+  paletteId: "lavanda",
+  mode: "light",
+  altPaletteIds: ["rosa-chiclete", "menta"],
+  fontPairId: "geometrica",
+  radius: "soft",
+  density: "comfortable",
+  logoShape: "round",
+};
+
+export const MINIMALISTA_META: TemplateMeta = {
+  id: "minimalista",
+  name: "Minimalista",
+  description: "Só tipografia e linhas finas",
+  segments: ["psicologia", "clinica", "fisioterapia", "outro"],
+  paletteId: "monocromatico",
+  mode: "light",
+  altPaletteIds: ["areia-oliva", "azul-marinho"],
+  fontPairId: "limpa",
+  radius: "square",
+  density: "compact",
+  logoShape: "free",
+};
+
+export const RETRO_META: TemplateMeta = {
+  id: "retro",
+  name: "Retrô",
+  description: "Anos 70, listras e cores quentes",
+  segments: ["barbearia", "tatuagem", "lava-jato"],
+  paletteId: "terracota",
+  mode: "light",
+  altPaletteIds: ["cafe-com-leite", "preto-vermelho"],
+  fontPairId: "editorial",
+  radius: "round",
+  density: "comfortable",
+  logoShape: "round",
+};
+
+export const FLORAL_META: TemplateMeta = {
+  id: "floral",
+  name: "Floral",
+  description: "Romântico, tons pastel e detalhes botânicos",
+  segments: ["estetica", "salao", "manicure", "sobrancelha"],
+  paletteId: "pessego",
+  mode: "light",
+  altPaletteIds: ["nude-rosado", "lavanda"],
+  fontPairId: "manuscrita",
+  radius: "round",
+  density: "comfortable",
+  logoShape: "round",
+};

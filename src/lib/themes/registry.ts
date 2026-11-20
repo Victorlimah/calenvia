@@ -10,6 +10,7 @@ import { clinico } from "./templates/clinico";
 import { vitrine } from "./templates/vitrine";
 import { natureza } from "./templates/natureza";
 import { alegre } from "./templates/alegre";
+import { editorial } from "./templates/editorial";
 
 export const TEMPLATES: TemplateDefinition[] = [
   noturno,
@@ -18,6 +19,7 @@ export const TEMPLATES: TemplateDefinition[] = [
   vitrine,
   natureza,
   alegre,
+  editorial,
 ];
 
 export const DEFAULT_TEMPLATE_ID = "noturno";

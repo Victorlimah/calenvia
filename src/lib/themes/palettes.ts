@@ -353,6 +353,27 @@ export const PALETTES: PalettePreset[] = [
       muted: "#BDBDBD",
     },
   },
+  {
+    id: "papel-e-tinta",
+    name: "Papel e tinta",
+    hint: "Preto e branco com um toque de cor",
+    light: {
+      primary: "#C2410C",
+      secondary: "#F1E3D3",
+      background: "#FAF9F6",
+      surface: "#FFFFFF",
+      text: "#121212",
+      muted: "#555555",
+    },
+    dark: {
+      primary: "#FB8A5B",
+      secondary: "#7C2D12",
+      background: "#111111",
+      surface: "#1C1C1C",
+      text: "#F5F5F2",
+      muted: "#BDBDB8",
+    },
+  },
 ];
 
 export function findPalette(id: string | null | undefined): PalettePreset | null {
