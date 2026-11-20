@@ -206,6 +206,95 @@ Pedido do Victor (2026-11-16): a interface do painel do dono e do `/admin` está
 
 ---
 
+## M6 · Acesso por convite e biblioteca de temas
+
+Pedido do Victor (2026-11-20): (1) enquanto a integração com o Stripe não sai, **desligar cobrança e cadastro aberto**; as contas são **por convite**, pré-cadastradas no `/admin`, e a pessoa termina a configuração do negócio; (2) o visual ficou **masculino demais**: criar uma **biblioteca de temas e templates** de página pública, de estilos bem variados, com **preview** antes de escolher, **paleta de cores editável** e **logo opcional**. **Ordem: Sprint 14 → 15 → 16 → 17.** A Sprint 14 é urgente (P0) e independente das demais.
+
+**Regras para todos os itens deste marco**
+- **Não apagar o código de cobrança** (`src/lib/billing`, checkout, Stripe): só esconder atrás de chaves de configuração, para religar quando o Stripe estiver pronto.
+- Mobile-first (390 px), contraste AA **garantido pelo sistema** (o dono não consegue montar uma combinação ilegível), português simples.
+- Tudo que for escolha visual do negócio fica em **dados** (`businesses.theme`, JSON validado com Zod), nunca em código por negócio. Templates e paletas ficam em `src/lib/themes/` como dados + componentes, com testes das funções puras (contraste, derivação de cores).
+- Mudou tabela: migration com RLS na mesma migration. Páginas públicas continuam lendo pelo servidor.
+- Fontes novas só via `next/font` (Google Fonts, gratuitas); nada de serviço pago ou dependência pesada sem confirmar.
+
+### Sprint 14 — Acesso por convite (sem cobrança e sem cadastro aberto)
+- [ ] **CAL-135** · Chaves de modo: cadastro e cobrança desligáveis · P0 · 1d — Duas variáveis em `.env.example` e leitura centralizada em `src/lib/config/access.ts`: `SIGNUP_MODE=invite|open` (padrão **`invite`**) e `BILLING_ENABLED=false|true` (padrão **`false`**).
+  - Com `SIGNUP_MODE=invite`: `/cadastro` (e `?plano=`) deixa de criar conta; mostra "A Calenvia está em acesso por convite" com botão para pedir acesso (WhatsApp/lista de espera) e link "Já tenho convite" (entrar). A action de cadastro **recusa no servidor** também (não basta esconder a tela). Login com Google, se ligado, não cria conta nova.
+  - Com `BILLING_ENABLED=false`: some o checkout, o "Assinar e ativar", faixas de cobrança e a tela `/assinatura` mostra só o plano atual e "Cortesia" (sem cartão); webhooks de cobrança continuam respondendo 200 sem agir. Contas convidadas entram `active` (assinatura `manual`, como a cortesia do admin).
+  - Aceite: testes provando que, no modo convite, **não existe caminho** para criar conta sem convite (rota, action e callback do Google); ligar `open`/`true` restaura o comportamento atual; E2E ajustados.
+- [ ] **CAL-136** · Convite de negócio pelo `/admin` · P0 · 2d — Em `/admin` → **"Convidar negócio"**: o admin pré-cadastra **nome do negócio, segmento, nome e e-mail do dono, WhatsApp, plano e extras/limites** (opcional). O sistema cria o negócio já `active`, **sem o dono ter conta ainda**, e gera um **link de convite** (token aleatório, de uso único, validade 7 dias, guardado só como hash) para copiar e mandar no WhatsApp, com texto pronto (`wa.me`) e botão "Enviar por e-mail" se houver e-mail transacional.
+  - Lista de convites com estado: **Enviado · Aberto · Aceito · Expirado · Cancelado**; ações: **reenviar/gerar novo link**, **cancelar**, **editar dados pré-cadastrados**. Convite aceito leva ao negócio na lista de negócios (CAL-130).
+  - Admin pode pré-cadastrar tudo que ajude: serviços iniciais a partir do segmento (reaproveitar o catálogo de CAL-035/segmentos, se existir), sem inventar dados do negócio.
+  - Migration `invitations` (business_id, email, token_hash, status, expires_at, accepted_at, created_by) com RLS: só `platform_admin` lê/escreve; auditoria de criação/cancelamento.
+  - Aceite: testes de banco (RLS, token de uso único, expiração, hash) e E2E do fluxo criar → copiar link → listar.
+- [ ] **CAL-137** · Aceitar convite e terminar a configuração · P0 · 2d — Página `/convite/{token}`: valida o token no servidor, mostra "Você foi convidado para a **{negócio}**", pede **senha** (e confirma o e-mail já preenchido, travado), cria o usuário como **dono** do negócio pré-cadastrado e cai no **onboarding** com os dados do convite já preenchidos.
+  - Onboarding ajustado: mostra só o que falta (endereço, horários, serviços, equipe, **escolher o tema da página** quando a Sprint 15 existir), com barra de progresso e "continuar depois"; **nada de checkout** nem escolha de plano.
+  - Casos de erro com mensagem clara: link expirado ("peça um novo ao suporte" + botão WhatsApp), já usado (leva ao login), e-mail já existente no Auth (vincula ao negócio **só** se o convite foi criado para aquele e-mail e a pessoa confirma a senha dessa conta).
+  - Aceite: E2E convite → senha → onboarding → página pública no ar; token usado duas vezes é recusado; token adulterado/expirado é recusado; limite de tentativas por IP.
+- [ ] **CAL-138** · Site (home) sem preços e sem "criar conta" · P0 · 1d — Home `(site)`: **remover a seção de planos/preços e todos os botões "Assinar/Criar conta/Começar grátis"**; trocar por **"Pedir meu acesso"** (WhatsApp da Calenvia, **5583986479932**, guardado em variável `NEXT_PUBLIC_SUPPORT_WHATSAPP` no `.env.example`, com mensagem pronta e/ou formulário de lista de espera gravado em tabela `waitlist` com RLS) e "Já sou cliente → Entrar". Texto curto explicando "acesso por convite enquanto montamos a nova fase".
+  - Cabeçalho/rodapé e `opengraph-image` sem menção a preço; `/cadastro?plano=` redireciona para a home. Termos/privacidade intactos (revisar menções a pagamento se houver).
+  - Com `SIGNUP_MODE=open` + `BILLING_ENABLED=true`, a seção de planos volta (componente guardado, não apagado).
+  - Aceite: nenhuma página pública mostra preço enquanto `BILLING_ENABLED=false`; `acessibilidade.spec.ts` do site passando; lista de espera recebe o contato e o admin vê em `/admin` (lista simples, exportar CSV).
+- [ ] **CAL-139** · Admin: tratar contas sem cobrança · P1 · 1d — No `/admin`, com cobrança desligada: esconder simulação de pagamento e Stripe; "Ativar cortesia" vira o estado padrão; filtros e pendências (CAL-130) deixam de contar `pending` por falta de pagamento. Mostrar **"Convites pendentes"** nas pendências do topo.
+  - Aceite: `admin.spec.ts` atualizado; nenhuma ação do admin leva a tela de pagamento.
+
+### Sprint 15 — Fundação da biblioteca de temas
+- [ ] **CAL-140** · Modelo de tema, tokens e leitura no servidor · P0 · 2d · **plano em `docs/planos/CAL-140.md` antes de codar** — Hoje a página pública tem um único visual (escuro, estilo página de vendas) com só `accent_color`. Criar o **contrato de tema**:
+  - `businesses.theme` (jsonb, validado por Zod, versionado): `{ templateId, palette: { mode: "claro"|"escuro", primary, secondary?, background, surface, text }, paletteId?, fontPairId, radius, density, logo: { mostrar, formato }, sections: { id, visivel, ordem }[] }`. Migration + RLS; `accent_color` continua funcionando (migra para `palette.primary`).
+  - Camada de **tokens CSS** (`--c-primary`, `--c-bg`, `--c-surface`, `--c-text`, `--radius`, `--font-display`, `--font-body`) aplicada na raiz da página pública; os componentes das seções só usam tokens, nunca cor fixa.
+  - Funções puras em `src/lib/themes/`: **contraste WCAG** (razão), **escolha automática de cor de texto** sobre uma cor, **derivação de tons** (hover, borda, fundo suave) a partir de 1–2 cores, **ajuste para AA** (escurece/clareia até passar) e validação do JSON.
+  - Aceite: testes das funções puras (casos: branco sobre amarelo reprova e é corrigido, cor inválida, tema antigo sem `theme` cai no padrão atual); página atual continua idêntica por padrão (screenshot/E2E sem regressão).
+- [ ] **CAL-141** · Paletas prontas e editor de cores · P0 · 2d — **Biblioteca de ~16 paletas** com nome em português e prévia em bolinhas, cobrindo gostos variados (nada de só preto/dourado): *Nude rosado · Lavanda suave · Verde sálvia · Terracota · Azul-petróleo · Vinho e creme · Pêssego · Menta fresca · Grafite e dourado · Preto e vermelho · Azul-marinho · Areia e oliva · Rosa chiclete · Café com leite · Oceano · Monocromático claro*, em versões **claras e escuras**.
+  - **Editor**: escolher paleta pronta **ou** ajustar cor principal (seletor + campo hexadecimal) e, opcional, cor secundária; modo claro/escuro; botão "Voltar à paleta original". O sistema **corrige sozinho** combinações abaixo de AA e avisa em português ("Ajustamos o texto do botão para ficar legível").
+  - Sugestão de paleta pela **cor do logo** quando houver logo (CAL-143), usando só funções puras (sem serviço externo).
+  - Aceite: toda paleta pronta passa AA em texto, botão e links (teste automatizado percorrendo todas); cor digitada inválida mostra erro claro; salvar atualiza a página pública na hora.
+- [ ] **CAL-142** · Pares de fontes e formas · P1 · 1d — **6–8 pares de fontes** carregados com `next/font` (títulos + texto), ex.: elegante serifada, geométrica moderna, arredondada amigável, editorial, manuscrita só em destaques, clássica. Opções de **cantos** (retos · suaves · bem arredondados) e **densidade** (compacta · confortável).
+  - Aceite: fontes só carregadas quando o tema as usa (sem peso extra para os demais); `font-display: swap`; nenhuma quebra de layout no celular de 390 px com os nomes longos.
+- [ ] **CAL-143** · Logo opcional (e fallback bonito sem logo) · P0 · 1d — Upload de **logo** em "Meu negócio → Dados e página" (PNG/JPG/SVG/WebP, até 2 MB, validado no servidor; SVG sanitizado ou convertido; bucket do Storage com policy por `business_id`). **Totalmente opcional:** sem logo, a página mostra o **nome do negócio em tipografia do tema** (ou monograma com as iniciais) e fica tão boa quanto com logo.
+  - Opções: onde aparece (cabeçalho, abertura, rodapé), formato (quadrado, redondo, livre), versão para fundo escuro/claro (campo opcional de segunda logo). Recorte/zoom simples antes de salvar.
+  - Logo também em `og` (compartilhamento), `manifest`/ícone e e-mails.
+  - Aceite: página sem logo passa nos testes de aparência/acessibilidade; logo grande é redimensionada; `alt` com o nome do negócio.
+
+### Sprint 16 — Templates (a biblioteca)
+> Cada template é um **conjunto completo** (estrutura das seções, tipografia, formas, fotos, ritmo de espaçamento e paleta padrão), não só uma troca de cor. Todos usam o mesmo conteúdo do negócio e as mesmas seções, mantendo **uma única ação** ("Agendar meu horário") e a barra fixa no rodapé. Mobile-first.
+- [ ] **CAL-144** · Arquitetura de templates e seções · P0 · 2d — Refatorar a página pública `(negocio)/[slug]/page.tsx` em **seções independentes** (abertura, como funciona, serviços, equipe, fotos, depoimentos, onde fica, dúvidas, chamada final) que recebem **dados + tema**. Cada template = `src/lib/themes/templates/{id}/` com `meta` (nome, descrição, segmentos indicados, paleta padrão, fonte padrão), variantes das seções que quiser sobrescrever e `index`. Registro central em `src/lib/themes/registry.ts`.
+  - O dono pode **ligar/desligar e reordenar seções** (menos a abertura e a chamada final) sem mudar de template.
+  - Aceite: o template atual vira o **"Noturno"** (primeiro da lista) sem mudar nada visualmente; testes de snapshot/E2E; template desconhecido cai no padrão sem quebrar.
+- [ ] **CAL-145** · Templates da primeira leva (6) · P0 · 5d (uma fase por template, uma por sessão) — Estilos **bem diferentes entre si**, com público feminino, masculino e neutro bem representados:
+  1. **Noturno** (atual: escuro, ousado, títulos enormes) — barbearia, tattoo, academia.
+  2. **Delicado** — fundo claro quente, serifada elegante, cantos suaves, ornamentos finos — salão, manicure, estética, sobrancelha.
+  3. **Clínico** — branco e azul/verde-água, limpo, muito respiro, ícones simples e selos de confiança — clínica, consultório, psicólogo, fisioterapia.
+  4. **Vitrine** — grade de fotos grande (estilo portfólio/Instagram), texto enxuto — nail designer, maquiagem, fotógrafo, tattoo.
+  5. **Natureza** — tons terrosos/verdes, formas orgânicas, tipografia calma — spa, massagem, yoga, pilates, nutrição.
+  6. **Alegre** — cores vivas, cantos bem arredondados, adesivos/ícones divertidos, tom informal — pet shop, lava-jato, estúdio infantil, personal.
+  - Cada um com: capa/abertura própria, estilo de cartão de serviço, equipe e depoimentos próprios, paleta padrão e **2 paletas alternativas recomendadas**.
+  - Aceite por template: passa `acessibilidade.spec.ts` em claro e escuro quando houver, sem rolagem horizontal em 390 px, Lighthouse mobile ≥ 90 em desempenho e acessibilidade.
+- [ ] **CAL-146** · Templates da segunda leva (6) · P1 · 5d — Mais variedade: **Editorial** (revista, tipografia grande, preto e branco com um toque de cor) · **Boutique** (luxo discreto, serifada fina, muito espaço, cor única) · **Pop** (colorido, blocos e formas geométricas, jovem) · **Minimalista** (só tipografia e linhas) · **Retrô** (anos 70/80, texturas e cores quentes, ótimo para barbearia clássica e tattoo) · **Floral/Romântico** (pastéis e detalhes botânicos, noivas, estética, buffet de beleza).
+  - Mesmos critérios de aceite do CAL-145. Se algum não ficar bom, é melhor **entregar menos templates** do que um fraco.
+- [ ] **CAL-147** · Estilos de imagem e capas padrão · P1 · 2d — O visual não pode depender de o dono ter boas fotos: cada template tem **capas padrão** (gradientes, padrões geométricos/ilustrações SVG próprias, sem banco de imagens pago nem direitos de terceiros), **tratamento de foto** (sem filtro · duotone com a cor do tema · cantos/máscaras do template) e **molduras** para fotos de baixa qualidade. Ilustrações próprias ou de licença livre registrada em `docs/LICENCAS.md`.
+  - Aceite: negócio sem nenhuma foto continua com página bonita em todos os templates; foto vertical/horizontal/pequena não quebra a abertura.
+
+### Sprint 17 — Escolher, pré-visualizar e aplicar
+- [ ] **CAL-148** · Galeria de temas com preview ao vivo "como vai ficar o seu time" · P0 · 4d · **plano em `docs/planos/CAL-148.md` antes de codar** — Tela **"Meu negócio → Aparência"** (e passo do onboarding): galeria de templates em cartões com miniatura; ao tocar, abre o **preview em tela cheia do SEU negócio** — nome, logo (se houver), serviços e preços, **profissionais e fotos da equipe**, horários e endereço reais — renderizado com o template escolhido, sem salvar.
+  - Controles no preview, sempre visíveis (rodapé fixo no celular, painel lateral no computador): **trocar paleta** (galeria de bolinhas + cor personalizada), **claro/escuro**, **par de fontes**, **mostrar/ocultar seções**, **logo** (subir/remover) — tudo atualiza o preview na hora, sem recarregar. Alternar **celular ↔ computador** no preview.
+  - Se o negócio ainda **não tem dados** (recém-convidado), o preview usa **dados de exemplo** do segmento ("Studio Exemplo", serviços e equipe fictícios) com faixa "Exemplo — seus dados entram aqui".
+  - Botões: **"Usar este tema"** (salva e publica), **"Voltar"** (descarta), e **"Ver como o cliente vê"** (abre a página pública real em outra aba). Aviso se há alterações não salvas.
+  - Preview implementado reaproveitando os **mesmos componentes** da página real (renderização cliente com o `theme` em memória), para nunca divergir do resultado publicado. Sem iframe com cookies/estado do painel.
+  - Aceite: E2E escolhe template → muda paleta → sobe logo → salva → página pública igual ao preview; descartar não altera nada; usável a 390 px; teclado e leitor de tela (cartões são botões, foco visível, `aria-live` ao trocar).
+- [ ] **CAL-149** · Sugestão de tema pelo segmento e "tema aleatório" · P2 · 1d — No onboarding, o segmento escolhido ordena a galeria (os mais indicados primeiro, com selo "Combina com {segmento}"). Botão **"Surpreenda-me"** sorteia template + paleta compatíveis (sempre AA).
+  - Aceite: teste da função pura de ordenação por segmento; sorteio nunca gera tema reprovado em contraste.
+- [ ] **CAL-150** · Tema nas demais páginas do cliente e nas comunicações · P1 · 2d — Aplicar o tema (cores, fonte, logo, cantos) também no **fluxo de agendamento** (`/agendar`), **confirmado**, **gerenciar** e **avaliar**, no **cartão de compartilhamento (Open Graph)**, no QR code e no **e-mail transacional** (quando existir). A barra de progresso e o resumo fixo continuam como no CLAUDE.md.
+  - Aceite: nenhuma tela do cliente final fica com a marca antiga/índigo quando o negócio tem tema; contraste AA em todas as combinações das paletas prontas (teste percorrendo template × paleta).
+- [ ] **CAL-151** · Site da Calenvia menos masculino · P1 · 3d — Revisar a **landing da própria Calenvia** (`(site)` e `docs/referencias/landing-calenvia.html`) e o painel para um visual **acolhedor e neutro**: paleta que mantenha o índigo da marca mas com tons quentes de apoio (pêssego, lavanda, verde-menta), fotos/ilustrações com **mulheres e homens de vários tipos de negócio** (salão, manicure, clínica, pet, personal), exemplos e textos que citem **todos os segmentos** (não só barbearia), cantos mais suaves e mockups com templates variados (Delicado, Clínico, Alegre, Noturno) na seção "veja como fica".
+  - A seção "veja como fica" usa os **templates reais** (miniaturas da galeria) para vender a personalização.
+  - Aceite: revisão visual lado a lado com a versão anterior no `docs/PROGRESSO.md`; contraste AA e `acessibilidade.spec.ts` do site passando; nenhum exemplo/depoimento exclusivamente masculino.
+- [ ] **CAL-152** · Demo, seed e testes com todos os temas · P1 · 1d — O seed e o `/demo` ganham negócios de exemplo em **vários templates** (um por segmento: barbearia, salão, clínica, pet, pilates), para olhar e testar. Teste E2E/Playwright que **percorre todos os templates** com screenshot em 390 px e 1280 px (guardar como referência visual) e confere ausência de rolagem horizontal e erros de console.
+  - Aceite: `npm run test:e2e -- temas` passa; adicionar um template novo ao registro o inclui automaticamente na varredura.
+
+**Decisões em aberto (padrão adotado se o Victor não disser nada):** todos os templates e paletas disponíveis em **todos os planos** (sem trava por plano, por enquanto) · logo opcional, nunca obrigatória · pedido de acesso pela home via **WhatsApp da Calenvia + lista de espera** · convites valem 7 dias e são de uso único · o negócio convidado nasce `active` com assinatura `manual` (cortesia), sem cobrança, até o Stripe entrar · template atual vira o "Noturno" e continua o padrão para quem não escolher.
+
+---
+
 ## Fora do código (tarefas do dono do projeto)
 - [x] CAL-001 Nome e identidade (Calenvia)
 - [ ] CAL-002 Registrar calenvia.com.br
