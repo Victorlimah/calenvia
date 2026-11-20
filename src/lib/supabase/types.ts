@@ -775,6 +775,7 @@ export type Database = {
           slot_interval_min: number;
           slug: string;
           subheadline: string | null;
+          theme: Json | null;
           timezone: string;
           whatsapp: string | null;
         };
@@ -809,6 +810,7 @@ export type Database = {
           slot_interval_min?: number;
           slug: string;
           subheadline?: string | null;
+          theme?: Json | null;
           timezone?: string;
           whatsapp?: string | null;
         };
@@ -842,6 +844,7 @@ export type Database = {
           slot_interval_min?: number;
           slug?: string;
           subheadline?: string | null;
+          theme?: Json | null;
           timezone?: string;
           whatsapp?: string | null;
         };

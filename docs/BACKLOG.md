@@ -239,7 +239,7 @@ Pedido do Victor (2026-11-20): (1) enquanto a integração com o Stripe não sai
   - Aceite: `admin.spec.ts` atualizado; nenhuma ação do admin leva a tela de pagamento.
 
 ### Sprint 15 — Fundação da biblioteca de temas
-- [ ] **CAL-140** · Modelo de tema, tokens e leitura no servidor · P0 · 2d · **plano em `docs/planos/CAL-140.md` antes de codar** — Hoje a página pública tem um único visual (escuro, estilo página de vendas) com só `accent_color`. Criar o **contrato de tema**:
+- [x] **CAL-140** · Modelo de tema, tokens e leitura no servidor · P0 · 2d · **plano em `docs/planos/CAL-140.md` antes de codar** — Hoje a página pública tem um único visual (escuro, estilo página de vendas) com só `accent_color`. Criar o **contrato de tema**:
   - `businesses.theme` (jsonb, validado por Zod, versionado): `{ templateId, palette: { mode: "claro"|"escuro", primary, secondary?, background, surface, text }, paletteId?, fontPairId, radius, density, logo: { mostrar, formato }, sections: { id, visivel, ordem }[] }`. Migration + RLS; `accent_color` continua funcionando (migra para `palette.primary`).
   - Camada de **tokens CSS** (`--c-primary`, `--c-bg`, `--c-surface`, `--c-text`, `--radius`, `--font-display`, `--font-body`) aplicada na raiz da página pública; os componentes das seções só usam tokens, nunca cor fixa.
   - Funções puras em `src/lib/themes/`: **contraste WCAG** (razão), **escolha automática de cor de texto** sobre uma cor, **derivação de tons** (hover, borda, fundo suave) a partir de 1–2 cores, **ajuste para AA** (escurece/clareia até passar) e validação do JSON.

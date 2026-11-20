@@ -1,5 +1,5 @@
 import { requireBusinessHost } from "@/lib/host-guard";
-import { readableTextOn } from "@/lib/color";
+import { resolveTheme, themeCssVars } from "@/lib/themes/resolve";
 import { getPublicBusiness } from "@/lib/public/business";
 import { isDemoSlug } from "@/lib/demo";
 import { siteUrl } from "@/lib/hosts";
@@ -14,12 +14,10 @@ export default async function NegocioLayout({
   const { slug } = await params;
   await requireBusinessHost(slug);
   const business = await getPublicBusiness(slug);
-  const accent = business?.accent_color ?? "#4B3FD9";
+  // CAL-140: tokens do tema na raiz; sem tema, o padrão "Noturno" com a cor do negócio.
+  const vars = themeCssVars(resolveTheme(business?.theme ?? null, business?.accent_color));
   return (
-    <div
-      className="min-h-dvh bg-night text-night-fg"
-      style={{ ["--accent" as string]: accent, ["--accent-fg" as string]: readableTextOn(accent) }}
-    >
+    <div className="min-h-dvh bg-t-bg text-t-text" style={vars as React.CSSProperties}>
       {isDemoSlug(slug) ? (
         <p
           role="note"

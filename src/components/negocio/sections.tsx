@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Avatar } from "@/components/avatar";
 import { formatDuration, formatHourShort } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
-import { readableTextOn } from "@/lib/color";
 import type { PublicService, PublicStaff } from "@/lib/public/business";
 import { WEEKDAY_NAMES, WEEKDAY_ORDER } from "@/lib/weekdays";
 
@@ -12,7 +11,7 @@ export function SectionTitle({ kicker, title }: { kicker?: string; title: string
       {kicker ? (
         <p
           className="text-sm font-bold tracking-wider uppercase"
-          style={{ color: "var(--accent)" }}
+          style={{ color: "var(--c-link)" }}
         >
           {kicker}
         </p>
@@ -34,7 +33,7 @@ export function Section({
   alt?: boolean;
 }) {
   return (
-    <section id={id} className={alt ? "bg-night-2" : ""}>
+    <section id={id} className={alt ? "bg-t-surface" : ""}>
       <div className="mx-auto max-w-2xl px-5 py-14 md:py-20">{children}</div>
     </section>
   );
@@ -56,16 +55,16 @@ export function HowItWorks({ automatic }: { automatic: boolean }) {
       {steps.map((s, i) => (
         <li
           key={s.t}
-          className="rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-5"
+          className="rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-5"
         >
           <span
             className="inline-flex size-9 items-center justify-center rounded-full font-display font-extrabold"
-            style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
+            style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
           >
             {i + 1}
           </span>
           <p className="mt-3 font-display text-lg font-bold">{s.t}</p>
-          <p className="mt-1 text-night-sub">{s.d}</p>
+          <p className="mt-1 text-t-sub">{s.d}</p>
         </li>
       ))}
     </ol>
@@ -79,7 +78,7 @@ export function ServicesList({ services }: { services: PublicService[] }) {
         <li key={s.id}>
           <Link
             href={`/agendar?servico=${s.id}`}
-            className="group flex items-center gap-4 rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-5 transition-colors hover:border-white/30"
+            className="group flex items-center gap-4 rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-5 transition-colors hover:border-t-text/30"
           >
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -87,20 +86,18 @@ export function ServicesList({ services }: { services: PublicService[] }) {
                 {s.is_featured ? (
                   <span
                     className="rounded-full px-2.5 py-0.5 text-xs font-bold"
-                    style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
+                    style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
                   >
                     Mais pedido
                   </span>
                 ) : null}
               </div>
-              {s.description ? (
-                <p className="mt-1 text-sm text-night-sub">{s.description}</p>
-              ) : null}
-              <p className="mt-2 text-sm text-night-sub">{formatDuration(s.duration_min)}</p>
+              {s.description ? <p className="mt-1 text-sm text-t-sub">{s.description}</p> : null}
+              <p className="mt-2 text-sm text-t-sub">{formatDuration(s.duration_min)}</p>
             </div>
             <div className="text-right">
               <p className="font-display text-lg font-bold">{formatPrice(s.price_cents)}</p>
-              <p className="text-sm font-semibold" style={{ color: "var(--accent)" }}>
+              <p className="text-sm font-semibold" style={{ color: "var(--c-link)" }}>
                 Agendar <span aria-hidden="true">→</span>
               </p>
             </div>
@@ -141,11 +138,11 @@ export function Team({ staff }: { staff: PublicStaff[] }) {
       {staff.map((p) => (
         <li
           key={p.id}
-          className="flex flex-col items-center rounded-[var(--radius-card)] bg-white/5 p-5 text-center"
+          className="flex flex-col items-center rounded-[var(--radius-card)] bg-t-text/5 p-5 text-center"
         >
           <Avatar name={p.name} url={p.photo_url} size={80} />
           <p className="mt-3 font-display font-bold">{p.name}</p>
-          {p.role ? <p className="text-sm text-night-sub">{p.role}</p> : null}
+          {p.role ? <p className="text-sm text-t-sub">{p.role}</p> : null}
         </li>
       ))}
     </ul>
@@ -161,22 +158,22 @@ export function Testimonials({
     <ul className="grid gap-4 md:grid-cols-2">
       {items.map((t) => (
         <li key={t.id}>
-          <figure className="h-full rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-5">
+          <figure className="h-full rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-5">
             <p
               aria-hidden="true"
               className="font-display text-4xl leading-none"
-              style={{ color: "var(--accent)" }}
+              style={{ color: "var(--c-link)" }}
             >
               “
             </p>
             {t.rating ? (
-              <p className="text-lg" style={{ color: "var(--accent)" }}>
+              <p className="text-lg" style={{ color: "var(--c-link)" }}>
                 <span aria-hidden="true">{"★".repeat(t.rating)}</span>
                 <span className="sr-only">{t.rating} de 5 estrelas</span>
               </p>
             ) : null}
             <blockquote className="mt-1 text-lg">{t.text}</blockquote>
-            <figcaption className="mt-3 font-semibold text-night-sub">— {t.author_name}</figcaption>
+            <figcaption className="mt-3 font-semibold text-t-sub">— {t.author_name}</figcaption>
           </figure>
         </li>
       ))}
@@ -226,10 +223,10 @@ export function Location({
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {address ? (
-        <div className="rounded-[var(--radius-card)] bg-white/5 p-5">
+        <div className="rounded-[var(--radius-card)] bg-t-text/5 p-5">
           <p className="font-display text-lg font-bold">Endereço</p>
           <p className="mt-2">{address}</p>
-          {reference ? <p className="mt-1 text-night-sub">{reference}</p> : null}
+          {reference ? <p className="mt-1 text-t-sub">{reference}</p> : null}
           <a
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
             target="_blank"
@@ -240,12 +237,12 @@ export function Location({
           </a>
         </div>
       ) : null}
-      <div className="rounded-[var(--radius-card)] bg-white/5 p-5">
+      <div className="rounded-[var(--radius-card)] bg-t-text/5 p-5">
         <p className="font-display text-lg font-bold">Horários</p>
         <dl className="mt-2 space-y-1.5">
           {hoursLines(hours, breaks).map((l) => (
             <div key={l.weekday} className="flex justify-between gap-4 text-sm">
-              <dt className={l.weekday === todayWeekday ? "font-bold" : "text-night-sub"}>
+              <dt className={l.weekday === todayWeekday ? "font-bold" : "text-t-sub"}>
                 {l.label}
                 {l.weekday === todayWeekday ? " (hoje)" : ""}
               </dt>
@@ -262,7 +259,7 @@ export function Location({
 
 export function Faq({ items }: { items: { q: string; a: string }[] }) {
   return (
-    <div className="divide-y divide-white/10 rounded-[var(--radius-card)] border border-white/10">
+    <div className="divide-y divide-t-text/10 rounded-[var(--radius-card)] border border-t-text/10">
       {items.map((f) => (
         <details key={f.q} className="group px-5">
           <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold">
@@ -271,31 +268,31 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
               +
             </span>
           </summary>
-          <p className="pb-5 text-night-sub">{f.a}</p>
+          <p className="pb-5 text-t-sub">{f.a}</p>
         </details>
       ))}
     </div>
   );
 }
 
-export function CtaButton({ accent, className = "" }: { accent: string; className?: string }) {
+export function CtaButton({ className = "" }: { className?: string }) {
   return (
     <Link
       href="/agendar"
       className={`inline-flex min-h-14 items-center justify-center rounded-[var(--radius-control)] px-6 text-[17px] font-bold shadow-lg ${className}`}
-      style={{ background: accent, color: readableTextOn(accent) }}
+      style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
     >
       Agendar meu horário
     </Link>
   );
 }
 
-export function StickyCta({ accent, name }: { accent: string; name: string }) {
+export function StickyCta({ name }: { name: string }) {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-night/90 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-t-text/10 bg-t-bg/90 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
       <div className="mx-auto flex max-w-2xl items-center gap-3">
         <p className="hidden min-w-0 flex-1 truncate font-semibold sm:block">{name}</p>
-        <CtaButton accent={accent} className="w-full sm:w-auto" />
+        <CtaButton className="w-full sm:w-auto" />
       </div>
     </div>
   );

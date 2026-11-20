@@ -63,7 +63,6 @@ export default async function NegocioPage({ params }: Props) {
     getPublicCatalog(business.id),
     getPublicPageContent(business.id),
   ]);
-  const accent = business.accent_color;
   const faq = buildFaq(business);
 
   const jsonLd = localBusinessJsonLd({
@@ -89,7 +88,6 @@ export default async function NegocioPage({ params }: Props) {
         segmentLabel={segmentLabel(business.segment)}
         headline={business.headline}
         subheadline={business.subheadline}
-        accent={accent}
         logoUrl={business.logo_url}
         coverUrl={business.cover_url}
       />
@@ -131,7 +129,7 @@ export default async function NegocioPage({ params }: Props) {
           <SectionTitle kicker="Depoimentos" title="Quem já veio, recomenda" />
           {content.rating.count >= 3 && content.rating.average ? (
             <p className="-mt-4 mb-6 text-lg font-semibold">
-              <span aria-hidden="true" style={{ color: "var(--accent)" }}>
+              <span aria-hidden="true" style={{ color: "var(--c-link)" }}>
                 ★
               </span>{" "}
               {content.rating.average.toFixed(1).replace(".", ",")} de 5 · {content.rating.count}{" "}
@@ -163,26 +161,27 @@ export default async function NegocioPage({ params }: Props) {
           aria-hidden="true"
           className="absolute inset-0 opacity-30"
           style={{
-            background: `radial-gradient(80% 100% at 50% 100%, ${accent} 0%, transparent 70%)`,
+            background:
+              "radial-gradient(80% 100% at 50% 100%, var(--c-primary) 0%, transparent 70%)",
           }}
         />
         <div className="relative mx-auto max-w-2xl px-5 py-20 text-center">
           <h2 className="font-display text-4xl leading-tight font-extrabold">
             Seu horário está esperando
           </h2>
-          <p className="mt-3 text-night-sub">Escolha o melhor dia e hora para você.</p>
-          <CtaButton accent={accent} className="mt-8 w-full sm:w-auto" />
+          <p className="mt-3 text-t-sub">Escolha o melhor dia e hora para você.</p>
+          <CtaButton className="mt-8 w-full sm:w-auto" />
         </div>
       </section>
 
-      <footer className="px-5 pt-6 pb-32 text-center text-xs text-night-sub">
+      <footer className="px-5 pt-6 pb-32 text-center text-xs text-t-sub">
         Agendamento online por{" "}
         <a href="https://calenvia.com.br" className="underline underline-offset-2">
           Calenvia
         </a>
       </footer>
 
-      <StickyCta accent={accent} name={business.name} />
+      <StickyCta name={business.name} />
     </>
   );
 }

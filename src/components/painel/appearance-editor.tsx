@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Hero } from "@/components/negocio/hero";
+import { resolveTheme, themeCssVars } from "@/lib/themes/resolve";
 import { Alert, Button, Card, Field, Input, Textarea } from "@/components/ui";
 import { ACCENT_PRESETS, isHexColor } from "@/lib/color";
 import { MAX_GALLERY_PHOTOS } from "@/lib/images";
@@ -166,16 +167,17 @@ export function AppearanceEditor({ business, photos, testimonials }: Props) {
 
       <aside className="lg:sticky lg:top-6" aria-label="Prévia da página">
         <p className="mb-2 text-sm font-semibold text-ink-2">Prévia ao vivo</p>
-        <Hero
-          preview
-          name={business.name}
-          segmentLabel={business.segmentLabel}
-          headline={values.headline || null}
-          subheadline={values.subheadline || null}
-          accent={accent}
-          logoUrl={business.logo_url}
-          coverUrl={business.cover_url}
-        />
+        <div style={themeCssVars(resolveTheme(null, accent)) as React.CSSProperties}>
+          <Hero
+            preview
+            name={business.name}
+            segmentLabel={business.segmentLabel}
+            headline={values.headline || null}
+            subheadline={values.subheadline || null}
+            logoUrl={business.logo_url}
+            coverUrl={business.cover_url}
+          />
+        </div>
       </aside>
     </div>
   );

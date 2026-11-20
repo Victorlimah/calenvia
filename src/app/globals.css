@@ -33,6 +33,20 @@
   --color-night-fg: #f5f2ea;
   --color-night-sub: #c9c4b9;
 
+  /* Tokens do tema do negócio (CAL-140): definidos na raiz da página pública por
+     themeCssVars(); o padrão é o visual "Noturno". Componentes da página só usam estes. */
+  --color-t-bg: var(--c-bg, #0f0f0f);
+  --color-t-surface: var(--c-surface, #1a1a1a);
+  --color-t-surface-2: var(--c-surface-2, #222222);
+  --color-t-text: var(--c-text, #f5f2ea);
+  --color-t-sub: var(--c-sub, #c9c4b9);
+  --color-t-border: var(--c-border, #3a3a3a);
+  --color-t-primary: var(--c-primary, #4b3fd9);
+  --color-t-primary-fg: var(--c-primary-fg, #ffffff);
+  --color-t-primary-hover: var(--c-primary-hover, #3a2fc0);
+  --color-t-primary-soft: var(--c-primary-soft, #241f4a);
+  --color-t-link: var(--c-link, #b8b3ff);
+
   --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-bricolage), var(--font-inter), system-ui, sans-serif;
 
