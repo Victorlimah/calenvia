@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LandingHeader } from "@/components/site/landing-header";
 import { PhoneDemo } from "@/components/site/phone-demo";
+import { TemplatesShowcase } from "@/components/site/templates-showcase";
 import { RevealOnScroll } from "@/components/site/reveal";
 import { appUrl, businessUrl, rootDomain, siteUrl } from "@/lib/hosts";
 import { getCurrentPrices } from "@/lib/billing/prices-server";
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
     siteName: "Calenvia",
     title: "Calenvia — Sua agenda cheia. Seu WhatsApp em paz.",
     description:
-      "Página de agendamento própria, confirmação e lembrete automáticos no WhatsApp. Para barbearias, salões, clínicas e todo negócio com horário marcado.",
+      "Página de agendamento própria, confirmação e lembrete automáticos no WhatsApp. Para salões, manicures, clínicas, pet shops, personal trainers, barbearias e todo negócio com horário marcado.",
   },
   twitter: { card: "summary_large_image" },
 };
@@ -86,9 +87,9 @@ export default async function SiteHome() {
               <div className="marquee">
                 <div className="marquee-track">
                   <div className="marquee-group">
-                    <span className="chip">Barbearias</span>
                     <span className="chip">Salões de beleza</span>
                     <span className="chip">Manicures</span>
+                    <span className="chip">Barbearias</span>
                     <span className="chip">Estética</span>
                     <span className="chip">Lash designers</span>
                     <span className="chip">Designers de sobrancelha</span>
@@ -111,9 +112,9 @@ export default async function SiteHome() {
                     <span className="chip">Oficinas mecânicas</span>
                   </div>
                   <div className="marquee-group" aria-hidden="true">
-                    <span className="chip">Barbearias</span>
                     <span className="chip">Salões de beleza</span>
                     <span className="chip">Manicures</span>
+                    <span className="chip">Barbearias</span>
                     <span className="chip">Estética</span>
                     <span className="chip">Lash designers</span>
                     <span className="chip">Designers de sobrancelha</span>
@@ -158,7 +159,7 @@ export default async function SiteHome() {
                   height="28"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#b8b3ff"
+                  stroke="#4b3fd9"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -178,7 +179,7 @@ export default async function SiteHome() {
                   height="28"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#b8b3ff"
+                  stroke="#4b3fd9"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -196,7 +197,7 @@ export default async function SiteHome() {
                   height="28"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#b8b3ff"
+                  stroke="#4b3fd9"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -241,6 +242,20 @@ export default async function SiteHome() {
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="section" id="temas">
+          <div className="container">
+            <div className="section-head reveal">
+              <p className="eyebrow">Veja como fica</p>
+              <h2>Uma página com a cara do seu negócio</h2>
+              <p className="lead">
+                Escolha entre 12 estilos — delicado, clínico, alegre, natural, editorial e mais — e
+                ajuste cores, fontes e logo. Você vê a sua página antes de publicar.
+              </p>
+            </div>
+            <TemplatesShowcase />
           </div>
         </section>
 

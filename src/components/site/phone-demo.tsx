@@ -18,24 +18,6 @@ type Demo = {
 
 const DEMOS: Demo[] = [
   {
-    name: "Barbearia do João",
-    url: "barbeariadojoao",
-    title: ["Seu corte ", "no ponto", ". Sem fila."],
-    svg: "barbearia",
-    booking: "Corte · ter, 14:00",
-    customer: "Lucas",
-    service: "Corte",
-    when: "ter, 14:00",
-    colors: {
-      bg: "#0f0f0f",
-      fg: "#f5f2ea",
-      sub: "#c9c4b9",
-      accent: "#e8b04a",
-      btn: "#111111",
-      avatar: "#2a2a2a",
-    },
-  },
-  {
     name: "Studio Bella Unha",
     url: "studiobellaunha",
     title: ["Unhas impecáveis, ", "na sua hora", "."],
@@ -87,6 +69,24 @@ const DEMOS: Demo[] = [
       accent: "#B8613F",
       btn: "#ffffff",
       avatar: "#ecdcc8",
+    },
+  },
+  {
+    name: "Barbearia do João",
+    url: "barbeariadojoao",
+    title: ["Seu corte ", "no ponto", ". Sem fila."],
+    svg: "barbearia",
+    booking: "Corte · ter, 14:00",
+    customer: "Lucas",
+    service: "Corte",
+    when: "ter, 14:00",
+    colors: {
+      bg: "#0f0f0f",
+      fg: "#f5f2ea",
+      sub: "#c9c4b9",
+      accent: "#e8b04a",
+      btn: "#111111",
+      avatar: "#2a2a2a",
     },
   },
   {
