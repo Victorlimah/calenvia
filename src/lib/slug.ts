@@ -28,7 +28,7 @@ export function validateSlug(slug: string): string | null {
   if (!/^[a-z0-9-]+$/.test(slug)) return "Use só letras sem acento, números e hífen.";
   if (slug.startsWith("-") || slug.endsWith("-")) return "Não comece nem termine com hífen.";
   if (slug.includes("--")) return "Não use dois hífens seguidos.";
-  if (isReservedSlug(slug) || SIGNUP_BLOCKED_SLUGS.includes(slug))
+  if (isReservedSlug(slug) || SIGNUP_BLOCKED_SLUGS.includes(slug) || slug.startsWith("demo-"))
     return "Esse endereço é reservado. Escolha outro.";
   if (!isSlugShape(slug)) return "Endereço inválido.";
   return null;

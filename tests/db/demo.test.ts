@@ -79,6 +79,28 @@ describe("demonstração pública (CAL-086)", () => {
     expect(customers).toBe(0);
   });
 
+  it("cria uma demonstração por segmento, cada uma num template (CAL-152)", async () => {
+    await demo.resetDemo(db);
+    const { data } = await db
+      .from("businesses")
+      .select("slug, theme, plan_status")
+      .in("slug", demo.DEMO_SLUGS);
+    expect(data).toHaveLength(demo.DEMO_BUSINESSES.length);
+    const templates = new Set(
+      (data ?? []).map((b) => (b.theme as { templateId: string }).templateId),
+    );
+    expect(templates.size).toBe(demo.DEMO_BUSINESSES.length);
+    for (const d of demo.DEMO_BUSINESSES) {
+      const { count } = await db
+        .from("services")
+        .select("id", { count: "exact", head: true })
+        .eq("business_id", d.ids.business);
+      expect(count, d.slug).toBe(3);
+    }
+    expect(demo.isDemoSlug("demo-pet")).toBe(true);
+    expect(demo.isDemoSlug("demo-qualquer")).toBe(false);
+  });
+
   it("'demo' não pode ser escolhido por outro negócio", async () => {
     const { validateSlug } = await import("@/lib/slug");
     expect(validateSlug("demo")).toMatch(/reservado/);

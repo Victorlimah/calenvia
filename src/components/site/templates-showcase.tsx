@@ -1,3 +1,4 @@
+import { businessUrl } from "@/lib/hosts";
 import { themeFromTemplate } from "@/lib/themes/apply";
 import { fontPairVars } from "@/lib/themes/font-pairs";
 import { ALL_FONT_CLASSNAMES } from "@/lib/themes/fonts";
@@ -8,13 +9,13 @@ import { resolveTheme } from "@/lib/themes/resolve";
  * "Veja como fica" (CAL-151): miniaturas dos templates reais da galeria (cores, fontes e
  * cantos de verdade), cada um com um negócio de exemplo de um segmento diferente.
  */
-const EXAMPLES = [
-  { id: "delicado", name: "Studio Bela", segment: "Salão de beleza" },
-  { id: "clinico", name: "Clínica Vida", segment: "Fisioterapia" },
-  { id: "alegre", name: "Pet Feliz", segment: "Pet shop" },
-  { id: "natureza", name: "Espaço Equilíbrio", segment: "Pilates e yoga" },
+const EXAMPLES: { id: string; name: string; segment: string; demo?: string }[] = [
+  { id: "delicado", name: "Studio Bela", segment: "Salão de beleza", demo: "demo" },
+  { id: "clinico", name: "Clínica Vida", segment: "Fisioterapia", demo: "demo-clinica" },
+  { id: "alegre", name: "Pet Feliz", segment: "Pet shop", demo: "demo-pet" },
+  { id: "natureza", name: "Espaço Equilíbrio", segment: "Pilates e yoga", demo: "demo-pilates" },
   { id: "floral", name: "Ateliê das Unhas", segment: "Manicure" },
-  { id: "noturno", name: "Barbearia Central", segment: "Barbearia" },
+  { id: "noturno", name: "Barbearia Central", segment: "Barbearia", demo: "demo-barbearia" },
 ];
 
 export function TemplatesShowcase() {
@@ -47,6 +48,11 @@ export function TemplatesShowcase() {
             <div className="show-info">
               <b>{meta.name}</b>
               <span>{meta.description}</span>
+              {ex.demo ? (
+                <a href={businessUrl(ex.demo, "/")} className="show-link">
+                  Ver demonstração <span aria-hidden="true">→</span>
+                </a>
+              ) : null}
             </div>
           </li>
         );

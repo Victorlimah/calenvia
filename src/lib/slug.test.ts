@@ -46,4 +46,10 @@ describe("slugSuggestions", () => {
     expect(new Set(s).size).toBe(4);
     for (const v of s) expect(validateSlug(v)).toBeNull();
   });
+
+  it("endereços demo-* ficam reservados para as demonstrações (CAL-152)", async () => {
+    const { validateSlug } = await import("./slug");
+    expect(validateSlug("demo-clinica")).toMatch(/reservado/);
+    expect(validateSlug("demolidora")).toBeNull();
+  });
 });

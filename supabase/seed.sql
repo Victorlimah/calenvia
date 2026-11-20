@@ -182,3 +182,26 @@ select b.id, b.plan, 'active', 'manual', p.id, now(), now() + interval '1 month'
 from public.businesses b
 join public.billing_prices p on p.product = 'plan' and p.plan = b.plan and p.is_current
 where b.id in ('0b000000-0000-4000-8000-000000000001', '0b000000-0000-4000-8000-000000000002');
+
+-- CAL-152: a Ana Nails usa o template Floral (paleta Pêssego); o Zé fica no padrão (Noturno).
+-- Outros templates: demonstrações em demo*.{domínio} (src/lib/demo.ts, cron /api/cron/demo-reset).
+update public.businesses
+set theme = '{
+  "version": 1,
+  "templateId": "floral",
+  "paletteId": "pessego",
+  "palette": {"mode": "light", "primary": "#B5502F", "secondary": "#FFD3BD", "background": "#FFF6F0",
+              "surface": "#FFFFFF", "text": "#3D2418", "muted": "#715446"},
+  "fontPairId": "manuscrita",
+  "radius": "round",
+  "density": "comfortable",
+  "logo": {"show": true, "shape": "round", "placements": ["hero"]},
+  "sections": [
+    {"id": "hero", "visible": true, "order": 0}, {"id": "how", "visible": true, "order": 1},
+    {"id": "services", "visible": true, "order": 2}, {"id": "gallery", "visible": true, "order": 3},
+    {"id": "team", "visible": true, "order": 4}, {"id": "testimonials", "visible": true, "order": 5},
+    {"id": "location", "visible": true, "order": 6}, {"id": "faq", "visible": true, "order": 7},
+    {"id": "final", "visible": true, "order": 8}
+  ]
+}'::jsonb
+where id = '0b000000-0000-4000-8000-000000000002';
