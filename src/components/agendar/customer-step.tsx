@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { readableTextOn } from "@/lib/color";
 import { formatDuration } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
 import { maskPhoneInput } from "@/lib/phone";
@@ -48,7 +47,7 @@ type Props = {
 };
 
 const inputClass =
-  "block min-h-12 w-full rounded-[var(--radius-control)] border border-white/20 bg-white/5 px-4 text-base text-night-fg placeholder:text-night-sub/60 focus:border-white/60 focus:outline-none aria-[invalid=true]:border-red-400";
+  "block min-h-12 w-full rounded-[var(--radius-control)] border border-t-text/20 bg-t-text/5 px-4 text-base text-t-text placeholder:text-t-sub/60 focus:border-t-text/60 focus:outline-none aria-[invalid=true]:border-red-400";
 
 export function CustomerStep({
   slug,
@@ -112,9 +111,9 @@ export function CustomerStep({
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
       <Captcha onToken={setCaptchaToken} />
-      <div className="rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-4 text-sm">
-        <p className="font-display text-lg font-bold">{service.name}</p>
-        <p className="mt-1 text-night-sub">
+      <div className="rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-4 text-sm">
+        <p className="font-t-display text-lg font-bold">{service.name}</p>
+        <p className="mt-1 text-t-sub">
           {formatDuration(service.duration_min)} · {formatPrice(service.price_cents)}
         </p>
         <p className="mt-2">{staffName}</p>
@@ -180,7 +179,7 @@ export function CustomerStep({
             {errors.whatsapp.message}
           </p>
         ) : (
-          <p id="cliente-whatsapp-dica" className="text-sm text-night-sub">
+          <p id="cliente-whatsapp-dica" className="text-sm text-t-sub">
             É por aqui que você recebe a confirmação.
           </p>
         )}
@@ -208,11 +207,11 @@ export function CustomerStep({
         disabled={pending}
         aria-busy={pending}
         className="inline-flex min-h-14 w-full items-center justify-center rounded-[var(--radius-control)] text-[17px] font-bold disabled:opacity-60"
-        style={{ background: accent, color: readableTextOn(accent) }}
+        style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
       >
         {pending ? "Confirmando…" : "Confirmar agendamento"}
       </button>
-      <p className="text-xs leading-relaxed text-night-sub">
+      <p className="text-xs leading-relaxed text-t-sub">
         Ao confirmar, a {businessName} usa seu nome e WhatsApp só para este atendimento
         {automaticMessages
           ? ", e você recebe a confirmação e o lembrete no WhatsApp (responda SAIR para parar)"

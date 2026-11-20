@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { readableTextOn } from "@/lib/color";
 import { submitReviewAction } from "../actions";
 
 const LABELS = ["", "Ruim", "Regular", "Bom", "Muito bom", "Excelente"];
@@ -17,7 +16,7 @@ export function ReviewForm({ slug, code, accent }: { slug: string; code: string;
     return (
       <p
         role="status"
-        className="mt-8 rounded-xl border border-white/10 bg-white/5 p-5 text-lg font-semibold"
+        className="mt-8 rounded-xl border border-t-text/10 bg-t-text/5 p-5 text-lg font-semibold"
       >
         Obrigado pela avaliação! 💛
       </p>
@@ -52,7 +51,7 @@ export function ReviewForm({ slug, code, accent }: { slug: string; code: string;
               />
               <span
                 aria-hidden="true"
-                className="inline-flex size-14 items-center justify-center rounded-xl border border-white/15 text-3xl peer-focus-visible:outline peer-focus-visible:outline-2"
+                className="inline-flex size-14 items-center justify-center rounded-xl border border-t-text/15 text-3xl peer-focus-visible:outline peer-focus-visible:outline-2"
                 style={{ color: n <= rating ? accent : "rgba(255,255,255,.35)" }}
               >
                 ★
@@ -60,7 +59,7 @@ export function ReviewForm({ slug, code, accent }: { slug: string; code: string;
             </label>
           ))}
         </div>
-        <p className="mt-2 min-h-6 text-night-sub">{LABELS[rating]}</p>
+        <p className="mt-2 min-h-6 text-t-sub">{LABELS[rating]}</p>
       </fieldset>
       <label className="block space-y-1.5">
         <span className="block font-semibold">Quer contar mais? (opcional)</span>
@@ -69,7 +68,7 @@ export function ReviewForm({ slug, code, accent }: { slug: string; code: string;
           maxLength={500}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="block w-full rounded-[var(--radius-control)] border border-white/20 bg-white/5 px-4 py-3 text-base"
+          className="block w-full rounded-[var(--radius-control)] border border-t-text/20 bg-t-text/5 px-4 py-3 text-base"
         />
       </label>
       {error ? (
@@ -81,7 +80,7 @@ export function ReviewForm({ slug, code, accent }: { slug: string; code: string;
         type="submit"
         disabled={!rating || pending}
         className="inline-flex min-h-14 w-full items-center justify-center rounded-[var(--radius-control)] text-[17px] font-bold disabled:opacity-50"
-        style={{ background: accent, color: readableTextOn(accent) }}
+        style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
       >
         {pending ? "Enviando…" : "Enviar avaliação"}
       </button>

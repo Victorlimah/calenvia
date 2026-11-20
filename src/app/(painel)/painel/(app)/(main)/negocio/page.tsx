@@ -3,6 +3,8 @@ import Link from "next/link";
 import { BusinessInfoForm } from "@/components/painel/business-info-form";
 import { SectionHeader, TabBody } from "@/components/painel/page-header";
 import { QrCodeCard } from "@/components/painel/qr-code-card";
+import { qrColor } from "@/lib/themes/qr";
+import { resolveTheme } from "@/lib/themes/resolve";
 import { ShareLinkCard } from "@/components/painel/share-link-card";
 import { requirePermission } from "@/lib/business/current";
 import { businessDisplayHost, businessUrl } from "@/lib/hosts";
@@ -40,7 +42,11 @@ export default async function NegocioDadosPage() {
           >
             Enviar o link pelo WhatsApp
           </a>
-          <QrCodeCard url={url} name={business.slug} />
+          <QrCodeCard
+            url={url}
+            name={business.slug}
+            color={qrColor(resolveTheme(business.theme, business.accent_color))}
+          />
           <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-white">
             {PAGE_LINKS.map((item) => (
               <li key={item.href}>

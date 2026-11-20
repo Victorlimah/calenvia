@@ -35,8 +35,8 @@ export default async function AvaliarPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-xl px-4 pt-10 pb-16">
-      <h1 className="font-display text-3xl font-extrabold">Como foi na {business.name}?</h1>
-      <p className="mt-2 text-night-sub">
+      <h1 className="font-t-display text-3xl font-extrabold">Como foi na {business.name}?</h1>
+      <p className="mt-2 text-t-sub">
         {appt.serviceName} com {appt.staffName}, {formatDayLabel(appt.start, business.timezone)}.
       </p>
       {check.ok ? (
@@ -44,7 +44,7 @@ export default async function AvaliarPage({ params }: Props) {
       ) : (
         <p
           role="status"
-          className="mt-8 rounded-xl border border-white/10 bg-white/5 p-4 font-semibold"
+          className="mt-8 rounded-xl border border-t-text/10 bg-t-text/5 p-4 font-semibold"
         >
           {check.reason === "reviewed"
             ? "Você já avaliou este atendimento. Obrigado!"

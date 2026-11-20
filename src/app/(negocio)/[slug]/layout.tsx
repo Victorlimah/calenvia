@@ -4,6 +4,7 @@ import { fontPairClassName } from "@/lib/themes/fonts";
 import { getPublicBusiness } from "@/lib/public/business";
 import { isDemoSlug } from "@/lib/demo";
 import { siteUrl } from "@/lib/hosts";
+import { isBillingEnabled } from "@/lib/config/access";
 
 export default async function NegocioLayout({
   children,
@@ -30,7 +31,10 @@ export default async function NegocioLayout({
           className="sticky top-0 z-40 bg-white px-4 py-2 text-center text-sm font-semibold text-ink"
         >
           Demonstração da Calenvia: negócio fictício, nenhuma mensagem é enviada.{" "}
-          <a href={siteUrl("/#planos")} className="text-brand underline">
+          <a
+            href={siteUrl(isBillingEnabled() ? "/#planos" : "/#acesso")}
+            className="text-brand underline"
+          >
             Criar a minha página
           </a>
         </p>

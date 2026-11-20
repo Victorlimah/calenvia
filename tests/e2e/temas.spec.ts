@@ -122,3 +122,28 @@ for (const tpl of TEMPLATES) {
     }
   });
 }
+
+// CAL-150: o fluxo de agendamento também segue o tema (nada do índigo da Calenvia).
+for (const tpl of TEMPLATES) {
+  test(`tema ${tpl.meta.name} no /agendar (390 px)`, async ({ page }) => {
+    await admin
+      .from("businesses")
+      .update({ theme: themeFromTemplate(tpl.meta, { accent: "#F5B014" }) })
+      .eq("id", ZE_BIZ);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${ZE}agendar`, { waitUntil: "networkidle" });
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    const scroll = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(scroll).toBeLessThanOrEqual(390);
+    const indigo = await page.evaluate(() =>
+      [...document.querySelectorAll("button, a, [role=progressbar], li > span")].some((el) => {
+        const cs = getComputedStyle(el);
+        return cs.backgroundColor === "rgb(75, 63, 217)" || cs.color === "rgb(75, 63, 217)";
+      }),
+    );
+    expect(indigo, "nada no índigo da Calenvia").toBe(false);
+    const v = await axeViolations(page);
+    expect(v, describeViolations(v)).toEqual([]);
+  });
+}

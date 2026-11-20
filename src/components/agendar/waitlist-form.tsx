@@ -2,19 +2,17 @@
 
 import { useState, useTransition } from "react";
 import { joinWaitlistAction } from "@/app/(negocio)/[slug]/agendar/actions";
-import { readableTextOn } from "@/lib/color";
 import { maskPhoneInput } from "@/lib/phone";
 import { PERIOD_OPTIONS } from "@/lib/waitlist";
 
 const input =
-  "block min-h-12 w-full rounded-[var(--radius-control)] border border-white/20 bg-white/5 px-4 text-base text-night-fg";
+  "block min-h-12 w-full rounded-[var(--radius-control)] border border-t-text/20 bg-t-text/5 px-4 text-base text-t-text";
 
 /** Lista de espera (CAL-104) no passo de horários. */
 export function WaitlistForm({
   slug,
   serviceId,
   staffId,
-  accent,
   defaultDate,
   minDate,
   maxDate,
@@ -22,7 +20,8 @@ export function WaitlistForm({
   slug: string;
   serviceId: string;
   staffId: string | null;
-  accent: string;
+  /** Não é mais usado: as cores vêm do tema (CAL-150). */
+  accent?: string;
   defaultDate: string;
   minDate: string;
   maxDate: string;
@@ -40,7 +39,7 @@ export function WaitlistForm({
     return (
       <p
         role="status"
-        className="rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-4"
+        className="rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-4"
       >
         Pronto! Você está na lista de espera. Se abrir um horário nesse dia, o estabelecimento te
         avisa pelo WhatsApp.
@@ -52,7 +51,7 @@ export function WaitlistForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-12 w-full items-center justify-center rounded-[var(--radius-control)] border border-white/20 font-semibold"
+        className="inline-flex min-h-12 w-full items-center justify-center rounded-[var(--radius-control)] border border-t-text/20 font-semibold"
       >
         Não achou horário? Entrar na lista de espera
       </button>
@@ -60,7 +59,7 @@ export function WaitlistForm({
   }
   return (
     <form
-      className="space-y-3 rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-4"
+      className="space-y-3 rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-4"
       onSubmit={(e) => {
         e.preventDefault();
         setError(null);
@@ -79,7 +78,7 @@ export function WaitlistForm({
         });
       }}
     >
-      <h2 className="font-display text-lg font-bold">Lista de espera</h2>
+      <h2 className="font-t-display text-lg font-bold">Lista de espera</h2>
       <div className="grid grid-cols-2 gap-3">
         <label className="space-y-1 text-sm font-semibold">
           <span className="block">Dia que você quer</span>
@@ -129,7 +128,7 @@ export function WaitlistForm({
         type="submit"
         disabled={pending}
         className="inline-flex min-h-12 w-full items-center justify-center rounded-[var(--radius-control)] font-bold disabled:opacity-60"
-        style={{ background: accent, color: readableTextOn(accent) }}
+        style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
       >
         {pending ? "Enviando…" : "Me avise se abrir vaga"}
       </button>

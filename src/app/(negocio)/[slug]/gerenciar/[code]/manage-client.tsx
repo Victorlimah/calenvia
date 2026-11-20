@@ -48,7 +48,7 @@ export function ManageClient({ slug, code, serviceId, staffId, timezone, accent 
   const primary =
     "inline-flex min-h-14 w-full items-center justify-center rounded-[var(--radius-control)] text-[17px] font-bold disabled:opacity-50";
   const secondary =
-    "inline-flex min-h-12 w-full items-center justify-center rounded-[var(--radius-control)] border border-white/20 font-semibold";
+    "inline-flex min-h-12 w-full items-center justify-center rounded-[var(--radius-control)] border border-t-text/20 font-semibold";
 
   return (
     <div className="mt-8 space-y-3">
@@ -79,7 +79,7 @@ export function ManageClient({ slug, code, serviceId, staffId, timezone, accent 
 
       {mode === "reschedule" ? (
         <section aria-labelledby="novo-horario" className="space-y-4">
-          <h2 id="novo-horario" className="font-display text-2xl font-extrabold">
+          <h2 id="novo-horario" className="font-t-display text-2xl font-extrabold">
             Escolha o novo horário
           </h2>
           <TimeStep
@@ -111,12 +111,12 @@ export function ManageClient({ slug, code, serviceId, staffId, timezone, accent 
       {mode === "cancel" ? (
         <section
           aria-labelledby="cancelar"
-          className="space-y-3 rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-5"
+          className="space-y-3 rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-5"
         >
-          <h2 id="cancelar" className="font-display text-2xl font-extrabold">
+          <h2 id="cancelar" className="font-t-display text-2xl font-extrabold">
             Cancelar este horário?
           </h2>
-          <p className="text-night-sub">
+          <p className="text-t-sub">
             O horário fica livre para outra pessoa. Se quiser, você agenda de novo depois.
           </p>
           <button

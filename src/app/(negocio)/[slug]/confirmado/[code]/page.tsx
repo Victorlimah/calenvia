@@ -22,8 +22,8 @@ export default async function ConfirmadoPage({ params }: Props) {
   if (!(await checkRateLimit("lookup"))) {
     return (
       <main className="mx-auto max-w-xl px-4 pt-16 text-center">
-        <h1 className="font-display text-2xl font-extrabold">Muitas tentativas</h1>
-        <p className="mt-2 text-night-sub">{RATE_LIMIT_MESSAGE}</p>
+        <h1 className="font-t-display text-2xl font-extrabold">Muitas tentativas</h1>
+        <p className="mt-2 text-t-sub">{RATE_LIMIT_MESSAGE}</p>
       </main>
     );
   }
@@ -55,10 +55,10 @@ export default async function ConfirmadoPage({ params }: Props) {
         >
           {canceled ? "×" : "✓"}
         </span>
-        <h1 className="mt-4 font-display text-3xl font-extrabold">
+        <h1 className="mt-4 font-t-display text-3xl font-extrabold">
           {canceled ? "Agendamento cancelado" : "Agendamento confirmado!"}
         </h1>
-        <p className="mt-2 text-night-sub">
+        <p className="mt-2 text-t-sub">
           {canceled
             ? "Este horário foi cancelado."
             : automatic
@@ -67,7 +67,7 @@ export default async function ConfirmadoPage({ params }: Props) {
         </p>
       </div>
 
-      <dl className="mt-8 divide-y divide-white/10 rounded-[var(--radius-card)] border border-white/10 bg-white/5">
+      <dl className="mt-8 divide-y divide-t-text/10 rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5">
         {[
           ["Serviço", `${appt.serviceName} · ${formatDuration(appt.durationMin)}`],
           ["Profissional", appt.staffName],
@@ -77,7 +77,7 @@ export default async function ConfirmadoPage({ params }: Props) {
           ["Código", appt.code],
         ].map(([k, v]) => (
           <div key={k} className="flex justify-between gap-4 px-5 py-3.5">
-            <dt className="text-night-sub">{k}</dt>
+            <dt className="text-t-sub">{k}</dt>
             <dd className="text-right font-semibold">{v}</dd>
           </div>
         ))}
@@ -95,14 +95,14 @@ export default async function ConfirmadoPage({ params }: Props) {
           {canManageByLink(business) ? (
             <Link
               href={`/gerenciar/${appt.code}`}
-              className="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-[var(--radius-control)] border border-white/20 font-semibold"
+              className="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-[var(--radius-control)] border border-t-text/20 font-semibold"
             >
               Remarcar ou cancelar
             </Link>
           ) : null}
 
           <section className="mt-10" aria-label="Mensagem de confirmação">
-            <p className="mb-2 text-sm font-semibold text-night-sub">
+            <p className="mb-2 text-sm font-semibold text-t-sub">
               {automatic ? "Mensagem que você recebe no WhatsApp" : "Resumo do seu agendamento"}
             </p>
             <div className="rounded-2xl rounded-tl-sm bg-[#005c4b] p-4 text-[15px] leading-relaxed whitespace-pre-wrap text-white shadow">

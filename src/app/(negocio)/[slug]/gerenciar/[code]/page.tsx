@@ -21,8 +21,8 @@ export default async function GerenciarPage({ params }: Props) {
   if (!(await checkRateLimit("lookup"))) {
     return (
       <main className="mx-auto max-w-xl px-4 pt-16 text-center">
-        <h1 className="font-display text-2xl font-extrabold">Muitas tentativas</h1>
-        <p className="mt-2 text-night-sub">{RATE_LIMIT_MESSAGE}</p>
+        <h1 className="font-t-display text-2xl font-extrabold">Muitas tentativas</h1>
+        <p className="mt-2 text-t-sub">{RATE_LIMIT_MESSAGE}</p>
       </main>
     );
   }
@@ -52,10 +52,10 @@ export default async function GerenciarPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-xl px-4 pt-10 pb-16">
-      <h1 className="font-display text-3xl font-extrabold">Seu agendamento</h1>
-      <p className="mt-1 text-night-sub">{business.name}</p>
+      <h1 className="font-t-display text-3xl font-extrabold">Seu agendamento</h1>
+      <p className="mt-1 text-t-sub">{business.name}</p>
 
-      <dl className="mt-6 divide-y divide-white/10 rounded-[var(--radius-card)] border border-white/10 bg-white/5">
+      <dl className="mt-6 divide-y divide-t-text/10 rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5">
         {[
           ["Serviço", `${appt.serviceName} · ${formatDuration(appt.durationMin)}`],
           ["Profissional", appt.staffName],
@@ -63,7 +63,7 @@ export default async function GerenciarPage({ params }: Props) {
           ["Código", appt.code],
         ].map(([k, v]) => (
           <div key={k} className="flex justify-between gap-4 px-5 py-3.5">
-            <dt className="text-night-sub">{k}</dt>
+            <dt className="text-t-sub">{k}</dt>
             <dd className="text-right font-semibold">{v}</dd>
           </div>
         ))}
@@ -71,7 +71,7 @@ export default async function GerenciarPage({ params }: Props) {
 
       {policy.ok ? (
         <>
-          <p className="mt-4 text-sm text-night-sub">
+          <p className="mt-4 text-sm text-t-sub">
             {business.cancel_notice_min > 0
               ? `Você pode remarcar ou cancelar até ${deadline} (${noticeText(business.cancel_notice_min)} antes).`
               : "Você pode remarcar ou cancelar até o horário."}
@@ -89,7 +89,7 @@ export default async function GerenciarPage({ params }: Props) {
         <div className="mt-8 space-y-3">
           <p
             role="status"
-            className="rounded-xl border border-white/10 bg-white/5 p-4 font-semibold"
+            className="rounded-xl border border-t-text/10 bg-t-text/5 p-4 font-semibold"
           >
             {blocked[policy.reason]}
           </p>

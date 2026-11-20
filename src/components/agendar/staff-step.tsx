@@ -1,7 +1,6 @@
 "use client";
 
-import { Avatar } from "@/components/avatar";
-import { readableTextOn } from "@/lib/color";
+import { ThemedAvatar } from "@/components/negocio/kit";
 import type { PublicStaff } from "./types";
 
 export function StaffStep({
@@ -33,30 +32,34 @@ export function StaffStep({
               role="radio"
               aria-checked={selected}
               onClick={() => onSelect(o.id)}
-              className="flex w-full items-center gap-4 rounded-[var(--radius-card)] border-2 bg-white/5 p-4 text-left"
+              className="flex w-full items-center gap-4 rounded-[var(--radius-card)] border-2 bg-t-text/5 p-4 text-left"
               style={{ borderColor: selected ? accent : "rgba(255,255,255,.1)" }}
             >
               {o.id === null ? (
                 <span
                   aria-hidden="true"
                   className="inline-flex size-12 shrink-0 items-center justify-center rounded-full text-xl"
-                  style={{ background: accent, color: readableTextOn(accent) }}
+                  style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
                 >
                   ★
                 </span>
               ) : (
-                <Avatar name={o.name} url={o.photo} size={48} />
+                <ThemedAvatar name={o.name} url={o.photo} size={48} />
               )}
               <span className="min-w-0 flex-1">
-                <span className="block font-display text-lg font-bold">{o.name}</span>
-                {o.detail ? <span className="block text-sm text-night-sub">{o.detail}</span> : null}
+                <span className="block font-t-display text-lg font-bold">{o.name}</span>
+                {o.detail ? <span className="block text-sm text-t-sub">{o.detail}</span> : null}
               </span>
               <span
                 aria-hidden="true"
                 className="inline-flex size-6 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold"
                 style={
                   selected
-                    ? { background: accent, borderColor: accent, color: readableTextOn(accent) }
+                    ? {
+                        background: "var(--c-primary)",
+                        borderColor: "var(--c-primary)",
+                        color: "var(--c-primary-fg)",
+                      }
                     : { borderColor: "rgba(255,255,255,.35)" }
                 }
               >

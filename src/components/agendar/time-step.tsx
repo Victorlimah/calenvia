@@ -12,7 +12,6 @@ import {
 import { WEEKDAY_SHORT } from "@/lib/weekdays";
 import { formatInTimeZone } from "date-fns-tz";
 import { ptBR } from "date-fns/locale";
-import { readableTextOn } from "@/lib/color";
 import type { PublicAvailability } from "@/lib/public/availability";
 import type { AvailabilityResult } from "@/lib/public/availability-query";
 import { WaitlistForm } from "./waitlist-form";
@@ -87,7 +86,7 @@ export function TimeStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, serviceId, staffId, from, date, attempt, manageCode]);
 
-  const accentFg = readableTextOn(accent);
+  const accentFg = "var(--c-primary-fg)";
   const label = (d: string, pattern: string) =>
     formatInTimeZone(localDateToInstant(d, timezone), timezone, pattern, { locale: ptBR });
 
@@ -95,7 +94,7 @@ export function TimeStep({
     return (
       <div
         role="alert"
-        className="rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-5"
+        className="rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-5"
       >
         <p className="font-semibold">{error}</p>
         <button
@@ -131,7 +130,7 @@ export function TimeStep({
                 setFrom(diffLocalDays(data!.today, prev) < 0 ? data!.today : prev);
                 onChange({ date: null, start: null });
               }}
-              className="inline-flex size-11 items-center justify-center rounded-xl text-xl hover:bg-white/10 disabled:opacity-30"
+              className="inline-flex size-11 items-center justify-center rounded-xl text-xl hover:bg-t-text/10 disabled:opacity-30"
             >
               ‹
             </button>
@@ -143,7 +142,7 @@ export function TimeStep({
                 setFrom(addLocalDays(data!.from, STRIP));
                 onChange({ date: null, start: null });
               }}
-              className="inline-flex size-11 items-center justify-center rounded-xl text-xl hover:bg-white/10 disabled:opacity-30"
+              className="inline-flex size-11 items-center justify-center rounded-xl text-xl hover:bg-t-text/10 disabled:opacity-30"
             >
               ›
             </button>
@@ -155,7 +154,7 @@ export function TimeStep({
               return (
                 <li
                   key={i}
-                  className="h-[76px] w-16 shrink-0 animate-pulse rounded-2xl bg-white/5"
+                  className="h-[76px] w-16 shrink-0 animate-pulse rounded-2xl bg-t-text/5"
                 />
               );
             }
@@ -172,14 +171,20 @@ export function TimeStep({
                   className="flex h-[76px] w-16 shrink-0 flex-col items-center justify-center rounded-2xl border-2 text-center disabled:opacity-35"
                   style={
                     selected
-                      ? { background: accent, borderColor: accent, color: accentFg }
+                      ? {
+                          background: "var(--c-primary)",
+                          borderColor: "var(--c-primary)",
+                          color: accentFg,
+                        }
                       : { borderColor: "rgba(255,255,255,.12)" }
                   }
                 >
                   <span className="text-xs font-semibold uppercase">
                     {d.date === data?.today ? "Hoje" : WEEKDAY_SHORT[weekdayOf(d.date)]}
                   </span>
-                  <span className="font-display text-2xl font-extrabold">{label(d.date, "d")}</span>
+                  <span className="font-t-display text-2xl font-extrabold">
+                    {label(d.date, "d")}
+                  </span>
                 </button>
               </li>
             );
@@ -188,13 +193,13 @@ export function TimeStep({
       </div>
 
       {loading && !data ? (
-        <p role="status" className="text-night-sub">
+        <p role="status" className="text-t-sub">
           Carregando horários…
         </p>
       ) : null}
 
       {data && !hasSlots ? (
-        <div className="rounded-[var(--radius-card)] border border-white/10 bg-white/5 p-5">
+        <div className="rounded-[var(--radius-card)] border border-t-text/10 bg-t-text/5 p-5">
           <p className="font-semibold">
             {data.date
               ? "Não há horários livres neste dia."
@@ -204,7 +209,7 @@ export function TimeStep({
             <button
               type="button"
               className="mt-4 inline-flex min-h-12 items-center rounded-[var(--radius-control)] px-5 font-bold"
-              style={{ background: accent, color: accentFg }}
+              style={{ background: "var(--c-primary)", color: accentFg }}
               onClick={() => {
                 setFrom(data.nextAvailable);
                 onChange({ date: data.nextAvailable, start: null });
@@ -214,7 +219,7 @@ export function TimeStep({
               {formatDayLabel(localDateToInstant(data.nextAvailable, timezone), timezone)})
             </button>
           ) : (
-            <p className="mt-2 text-night-sub">
+            <p className="mt-2 text-t-sub">
               A agenda está cheia nos próximos dias. Fale com o estabelecimento pelo WhatsApp.
             </p>
           )}
@@ -225,7 +230,7 @@ export function TimeStep({
         <div className={loading ? "opacity-60" : ""} aria-busy={loading}>
           {PERIODS.filter((p) => data.groups[p].length).map((p) => (
             <section key={p} className="mb-6">
-              <h2 className="mb-3 font-display text-lg font-bold">{PERIOD_LABELS[p]}</h2>
+              <h2 className="mb-3 font-t-display text-lg font-bold">{PERIOD_LABELS[p]}</h2>
               <ul
                 className="grid grid-cols-4 gap-2"
                 aria-label={`Horários da ${PERIOD_LABELS[p].toLowerCase()}`}
@@ -243,7 +248,11 @@ export function TimeStep({
                         className="min-h-12 w-full rounded-xl border-2 font-semibold"
                         style={
                           selected
-                            ? { background: accent, borderColor: accent, color: accentFg }
+                            ? {
+                                background: "var(--c-primary)",
+                                borderColor: "var(--c-primary)",
+                                color: accentFg,
+                              }
                             : { borderColor: "rgba(255,255,255,.15)" }
                         }
                       >

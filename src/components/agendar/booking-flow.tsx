@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatDayLabel, formatDuration, formatTime } from "@/lib/dates";
 import { formatPrice } from "@/lib/money";
-import { readableTextOn } from "@/lib/color";
 import { cn } from "@/lib/cn";
 import { ServiceStep } from "./service-step";
 import { CustomerStep } from "./customer-step";
@@ -57,23 +56,23 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-xl flex-col" data-ready={ready || undefined}>
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-night/95 px-4 pt-3 pb-4 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-t-text/10 bg-t-bg/95 px-4 pt-3 pb-4 backdrop-blur">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={back}
-            className="-ml-2 inline-flex size-11 items-center justify-center rounded-xl text-2xl hover:bg-white/10"
+            className="-ml-2 inline-flex size-11 items-center justify-center rounded-xl text-2xl hover:bg-t-text/10"
             aria-label={index === 0 ? "Voltar para a página" : "Voltar ao passo anterior"}
           >
             ←
           </button>
           <p className="min-w-0 flex-1 truncate font-semibold">{business.name}</p>
-          <Link href="/" className="text-sm text-night-sub underline underline-offset-4">
+          <Link href="/" className="text-sm text-t-sub underline underline-offset-4">
             Sair
           </Link>
         </div>
         <div className="mt-3">
-          <p className="text-sm text-night-sub" aria-live="polite">
+          <p className="text-sm text-t-sub" aria-live="polite">
             Passo {index + 1} de {STEPS.length}
           </p>
           <ol className="mt-2 grid grid-cols-4 gap-1.5" aria-label="Progresso">
@@ -81,8 +80,8 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
               <li
                 key={s}
                 aria-current={i === index ? "step" : undefined}
-                className={cn("h-1.5 rounded-full", i > index && "bg-white/15")}
-                style={i <= index ? { background: business.accent } : undefined}
+                className={cn("h-1.5 rounded-full", i > index && "bg-t-text/15")}
+                style={i <= index ? { background: "var(--c-primary)" } : undefined}
               >
                 <span className="sr-only">{STEP_TITLES[s]}</span>
               </li>
@@ -92,7 +91,7 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
       </header>
 
       <main className="flex-1 px-4 pt-6 pb-40">
-        <h1 className="font-display text-3xl font-extrabold">{STEP_TITLES[step]}</h1>
+        <h1 className="font-t-display text-3xl font-extrabold">{STEP_TITLES[step]}</h1>
         <div className="mt-6">
           {step === "servico" ? (
             <ServiceStep
@@ -148,7 +147,7 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
             />
           ) : null}
           {step === "dados" && service && !selection.start ? (
-            <p className="text-night-sub">
+            <p className="text-t-sub">
               Escolha um horário primeiro.{" "}
               <button type="button" className="underline" onClick={() => goTo("horario")}>
                 Ver horários
@@ -156,7 +155,7 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
             </p>
           ) : null}
           {step !== "servico" && !service ? (
-            <p className="text-night-sub">
+            <p className="text-t-sub">
               Escolha um serviço primeiro.{" "}
               <button type="button" className="underline" onClick={() => goTo("servico")}>
                 Ver serviços
@@ -167,7 +166,7 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
       </main>
 
       {step !== "dados" ? (
-        <footer className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-night/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+        <footer className="fixed inset-x-0 bottom-0 z-30 border-t border-t-text/10 bg-t-bg/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
           <div className="mx-auto max-w-xl">
             <Summary
               service={service}
@@ -179,7 +178,7 @@ export function BookingFlow({ business, services, staff, initial }: Props) {
               disabled={!canContinue[step]}
               onClick={() => goTo(STEPS[index + 1])}
               className="mt-3 inline-flex min-h-14 w-full items-center justify-center rounded-[var(--radius-control)] text-[17px] font-bold disabled:cursor-not-allowed disabled:opacity-40"
-              style={{ background: business.accent, color: readableTextOn(business.accent) }}
+              style={{ background: "var(--c-primary)", color: "var(--c-primary-fg)" }}
             >
               Continuar
             </button>
@@ -199,18 +198,18 @@ function Summary({
   staffName?: string;
   when?: string;
 }) {
-  if (!service) return <p className="text-sm text-night-sub">Nenhum serviço escolhido</p>;
+  if (!service) return <p className="text-sm text-t-sub">Nenhum serviço escolhido</p>;
   return (
     <div className="text-sm">
       <div className="flex items-baseline justify-between gap-3">
         <p className="min-w-0 truncate">
           <span className="font-semibold">{service.name}</span>
-          <span className="text-night-sub"> · {formatDuration(service.duration_min)}</span>
+          <span className="text-t-sub"> · {formatDuration(service.duration_min)}</span>
         </p>
         <p className="font-bold">{formatPrice(service.price_cents)}</p>
       </div>
       {staffName || when ? (
-        <p className="mt-0.5 truncate text-night-sub">
+        <p className="mt-0.5 truncate text-t-sub">
           {[staffName, when].filter(Boolean).join(" · ")}
         </p>
       ) : null}
