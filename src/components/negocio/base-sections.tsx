@@ -119,7 +119,7 @@ const faq: SectionComponent = ({ data }) => (
   </Section>
 );
 
-const final: SectionComponent = ({ data }) => (
+const final: SectionComponent = () => (
   <section className="relative overflow-hidden">
     <div
       aria-hidden="true"
